@@ -6,7 +6,7 @@ sygeforApp.config(['$listStateProvider', '$tooltipProvider', function($listState
     // dashboard
     $listStateProvider.state('dashboard', {
         url: "/dashboard",
-        templateUrl: "corebundle/dashboard/dashboard.html",
+        templateUrl: "dashboard/dashboard.html",
         controller: function($scope) {
             $scope.options = {
                 title: "Inscriptions en attente de traitement",

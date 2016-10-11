@@ -34,6 +34,6 @@ sygeforApp.directive('listToolbar', ['$timeout', function($timeout) {
                 }
             }
         },
-        templateUrl: "corebundle/toolbar/list-toolbar.html"
+        templateUrl: "toolbar/list-toolbar.html"
     }
 }]);
