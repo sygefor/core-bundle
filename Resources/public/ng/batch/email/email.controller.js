@@ -17,7 +17,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
             'key': i,
             'label': config.templates[i]['name'],
             'subject': config.templates[i]['subject'],
-            'cc': replaceCCFormat(config.templates[i]['cc']),
             'body': config.templates[i]['body']
         };
     }
@@ -26,12 +25,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
         'key': -1,
         'label': '',
         'subject': '',
-        'cc': {
-            alternativeEmail: false,
-            manager: false,
-            trainingCorrespondent: false,
-            financialCorrespondent: false
-        },
         'body': ''
     });
 
@@ -39,7 +32,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
         $scope.message = {
             template: $scope.templates[0],
             subject: $scope.templates[0]['subject'],
-            cc: $scope.templates[0]['cc'],
             body: $scope.templates[0]['body'],
             attachment: null
         };
@@ -47,12 +39,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
         $scope.message = {
             template: null,
             subject: '',
-            cc: {
-                alternativeEmail: false,
-                manager: false,
-                trainingCorrespondent: false,
-                financialCorrespondent: false
-            },
             body: '',
             attachment: null
         };
@@ -79,9 +65,8 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
             options: {
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
-                cc: $scope.message.cc,
                 message: $scope.message.body
-                //objects: {'SygeforTrainingBundle:Session': $dialogParams.session.id }
+                //objects: {'SygeforTrainingBundle:Session\AbstractSession': $dialogParams.session.id }
             },
             attachment: $scope.message.attachment,
             ids: $scope.items.join(",")
@@ -90,20 +75,20 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
         $http({method: 'POST',
             url: url,
             transformRequest: function (data) {
-            var formData = new FormData();
-            //need to convert our json object to a string version of json otherwise
-            // the browser will do a 'toString()' on the object which will result
-            // in the value '[Object object]' on the server.
-            formData.append("options", angular.toJson(data.options));
-            //now add all of the assigned files
-            formData.append("ids", angular.toJson(data.ids));
-            //add each file to the form data and iteratively name them
-            formData.append("attachment", data.attachment);
+                var formData = new FormData();
+                //need to convert our json object to a string version of json otherwise
+                // the browser will do a 'toString()' on the object which will result
+                // in the value '[Object object]' on the server.
+                formData.append("options", angular.toJson(data.options));
+                //now add all of the assigned files
+                formData.append("ids", angular.toJson(data.ids));
+                //add each file to the form data and iteratively name them
+                formData.append("attachment", data.attachment);
 
-            return formData;
-        },
-        headers: {'Content-Type': undefined},
-        data: data
+                return formData;
+            },
+            headers: {'Content-Type': undefined},
+            data: data
         }).success(function (data) {
             growl.addSuccessMessage("Le message a bien été ajouté à la liste d'envoi.");
         });
@@ -120,7 +105,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
             options: {
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
-                cc: $scope.message.cc,
                 message: $scope.message.body
             }
         });
@@ -135,12 +119,10 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
             //storing changes
             if (oldValue && (oldValue.key != newValue.key)) {
                 oldValue.subject = $scope.message.subject;
-                oldValue.cc = $scope.message.cc;
                 oldValue.body = $scope.message.body;
             }
             //replacing values
             $scope.message.subject = newValue.subject;
-            $scope.message.cc = newValue.cc;
             $scope.message.body = newValue.body;
         }
     });
@@ -162,30 +144,3 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
         angular.element( $('#inputAttachment')).val(null);
     };
 }]);
-
-
-/**
- * Reformat symfony cc array to angular object
- * @param cc
- * @returns {{alternativeEmail: boolean, manager: boolean, trainingCorrespondent: boolean, financialCorrespondent: boolean}}
- */
-function replaceCCFormat(cc)
-{
-    var reformatCC = {
-        alternativeEmail: false,
-        manager: false,
-        trainingCorrespondent: false,
-        financialCorrespondent: false
-    };
-
-    if (cc === undefined) {
-        return reformatCC;
-    }
-
-    reformatCC.alternativeEmail = cc.indexOf('alternativeEmail') >= 0 ? true : false;
-    reformatCC.manager = cc.indexOf('manager') >= 0 ? true : false;
-    reformatCC.trainingCorrespondent = cc.indexOf('trainingCorrespondent') >= 0 ? true : false;
-    reformatCC.financialCorrespondent = cc.indexOf('financialCorrespondent') >= 0 ? true : false;
-
-    return reformatCC;
-}
