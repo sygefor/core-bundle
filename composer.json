@@ -1,0 +1,17 @@
+{
+  "name": "sygefor/core-bundle",
+  "license": "MIT",
+  "keywords": ["sygefor","api"],
+  "type": "symfony-bundle",
+  "autoload": {
+    "psr-4": {
+      "psr-0": { "Sygefor\\Bundle\\CoreBundle": "" }
+    },
+    "target-dir": "Sygefor/CoreBundle"
+  },
+  "authors": [
+    {
+      "name": "Conjecto"
+    }
+  ]
+}
