@@ -73,6 +73,6 @@ sygeforApp.directive('widget', ['$widget', '$templateFactory', '$resolve', '$con
                 return $scope.options;
             }
         },
-        templateUrl: '/dashboard/widget.html'
+        templateUrl: 'dashboard/widget.html'
     }
 }]);
