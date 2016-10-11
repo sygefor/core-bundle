@@ -10,19 +10,19 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
     // csv
     $dialogProvider.dialog('batch.export.csv', /* @ngInject */ {
         controller: 'BatchExportCsvController',
-        templateUrl: 'corebundle/batch/export/csv/csv.html'
+        templateUrl: '/batch/export/csv/csv.html'
     });
 
     // pdf
     $dialogProvider.dialog('batch.export.pdf', /* @ngInject */ {
         controller: 'BatchExportPdfController',
-        templateUrl: 'corebundle/batch/export/pdf/pdf.html'
+        templateUrl: '/batch/export/pdf/pdf.html'
     });
 
     // publiposting
     $dialogProvider.dialog('batch.publipost', /* @ngInject */ {
         controller: 'BatchPublipostController',
-        templateUrl: 'corebundle/batch/publipost/publipost.html',
+        templateUrl: '/batch/publipost/publipost.html',
         resolve: {
             config: function($http, $dialogParams) {
                 var url = Routing.generate('sygefor_core.batch_operation.modal_config', {service: 'sygefor_core.batch.publipost.'+$dialogParams.service});
@@ -34,7 +34,7 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
     // publiposting
     $dialogProvider.dialog('batch.convert_type', /* @ngInject */ {
         controller: 'BatchConvertTypeController',
-        templateUrl: 'corebundle/batch/convert-type/convert-type.html',
+        templateUrl: '/batch/convert-type/convert-type.html',
         resolve: {
             config: function($http, $dialogParams) {
                 var url = Routing.generate('sygefor_core.batch_operation.modal_config', {service: 'sygefor_core.batch.convert_type.'+$dialogParams.service});
@@ -46,7 +46,7 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
     //email
     $dialogProvider.dialog('batch.email', /* @ngInject */ {
         controller: 'BatchEMailController',
-        templateUrl: 'corebundle/batch/email/email.html',
+        templateUrl: '/batch/email/email.html',
         size: 'lg',
         resolve: {
             config: function($http) {
@@ -67,7 +67,7 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
             };
             $scope.modalInstance = $modalInstance;
         },
-        templateUrl: 'corebundle/batch/email/email-preview.html',
+        templateUrl: '/batch/email/email-preview.html',
         size: 'lg',
         resolve: {
             email: function($http, $dialogParams) {
