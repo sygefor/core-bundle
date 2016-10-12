@@ -44,12 +44,12 @@ class AccessRightsEventSubscriber implements EventSubscriberInterface
      */
     public function onPostSerialize(ObjectEvent $event)
     {
-        if (!$this->isApiGroup($event->getContext())) {
+        if ( ! $this->isApiGroup($event->getContext())) {
             $object = $event->getObject();
             if ($object instanceof SerializedAccessRights) {
                 $event->getVisitor()->addData('_accessRights', array(
-                    'view' => $this->securityContext->isGranted('VIEW', $object),
-                    'edit' => $this->securityContext->isGranted('EDIT', $object),
+                    'view'   => $this->securityContext->isGranted('VIEW', $object),
+                    'edit'   => $this->securityContext->isGranted('EDIT', $object),
                     'delete' => $this->securityContext->isGranted('DELETE', $object),
                 ));
             }

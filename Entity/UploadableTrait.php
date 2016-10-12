@@ -58,9 +58,9 @@ trait UploadableTrait
     public function __clone()
     {
         $file = $this->getFile();
-        if (!empty($file)) {
-            $this->id = null;
-            $fs = new Filesystem();
+        if ( ! empty($file)) {
+            $this->id    = null;
+            $fs          = new Filesystem();
             $tmpFileName = sha1(uniqid(mt_rand(), true)) . '.' . $file->getFileInfo()->getExtension();
             $fs->copy($this->getTemplatesRootDir() . '/' . $this->filePath, $this->getTemplatesRootDir() . '/' . $tmpFileName);
             $this->setFile(new File($this->getTemplatesRootDir() . '/' . $tmpFileName), $this->getFileName());
@@ -112,14 +112,14 @@ trait UploadableTrait
     }
 
     /**
-     * @param File $file
+     * @param File   $file
      * @param string $name
      */
     public function setFile(File $file = null, $name = null)
     {
-        if (!empty($file)) {
+        if ( ! empty($file)) {
             $this->uploaded = new \DateTime();
-            $this->file = $file;
+            $this->file     = $file;
             if ($this->file instanceof UploadedFile) {
                 $this->filePath = sha1(uniqid(mt_rand(), true)) . '.' . $this->file->guessClientExtension();
                 $this->fileName = $this->file->getClientOriginalName();

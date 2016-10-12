@@ -21,17 +21,17 @@ class AccessRightRegistrationPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('sygefor_core.access_right_registry')) {
+        if ( ! $container->hasDefinition('sygefor_core.access_right_registry')) {
             return;
         }
 
-        $definition = $container->getDefinition('sygefor_core.access_right_registry');
+        $definition        = $container->getDefinition('sygefor_core.access_right_registry');
         $rightsRegistrants = $container->findTaggedServiceIds('sygefor_core.right_provider');
         foreach ($rightsRegistrants as $id => $tagAttributes) {
             foreach ($tagAttributes as $attributes) {
                 //checking class
                 $class = $container->getDefinition($id)->getClass();
-                if (!$class || !$this->isAccessRightImplementation($class)) {
+                if ( ! $class || ! $this->isAccessRightImplementation($class)) {
                     throw new \InvalidArgumentException(sprintf('Access Right Registration : %s must implement AccessRightInterface', $class));
                 }
                 $definition->addMethodCall(

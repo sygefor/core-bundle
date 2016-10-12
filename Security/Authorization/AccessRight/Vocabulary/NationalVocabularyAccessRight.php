@@ -2,8 +2,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary;
 
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Sygefor\Bundle\CoreBundle\AccessRight\AbstractAccessRight;
+use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class NationalVocabularyAccessRight extends AbstractAccessRight
@@ -52,7 +52,7 @@ class NationalVocabularyAccessRight extends AbstractAccessRight
         else if ($object) {
             return
                 $object->getVocabularyStatus() === VocabularyInterface::VOCABULARY_NATIONAL ||
-                ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !$object->getOrganization());
+                ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && ! $object->getOrganization());
         }
         else {
             return true;

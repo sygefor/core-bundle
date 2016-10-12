@@ -8,7 +8,6 @@
  */
 namespace Sygefor\Bundle\CoreBundle\Tests\Security\Authorization\AccessRight\Organization;
 
-
 class AllOrganizationUserAcessRightTest extends \PHPUnit_Framework_TestCase
 {
     public function testAccessRightShouldReturnCorrectLabel()

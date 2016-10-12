@@ -1,18 +1,17 @@
 <?php
+
 /**
- * Auteur: Blaise de Carné - blaise@concretis.com
+ * Auteur: Blaise de Carné - blaise@concretis.com.
  */
 namespace Sygefor\Bundle\CoreBundle\Entity\PersonTrait;
 
-use Sygefor\Bundle\TraineeBundle\Entity\Term\PublicType;
-use Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution;
-use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\Validator\ExecutionContextInterface;
 use JMS\Serializer\Annotation as Serializer;
+use Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution;
+use Sygefor\Bundle\TraineeBundle\Entity\Term\PublicType;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 /**
- * Class ProfessionalSituationTraitInstitution
- * @package Sygefor\Bundle\CoreBundle\Entity
+ * Class ProfessionalSituationTraitInstitution.
  */
 trait ProfessionalSituationTrait
 {
@@ -54,10 +53,10 @@ trait ProfessionalSituationTrait
     protected $status;
 
     /**
-     * Copy professional situation informations from another entity
+     * Copy professional situation informations from another entity.
      *
      * @param ProfessionalSituationTrait $entity
-     * @param boolean $force
+     * @param bool                       $force
      */
     public function copyProfessionalSituation($entity, $force = true)
     {
@@ -118,7 +117,7 @@ trait ProfessionalSituationTrait
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getIsPaying()
     {
@@ -126,7 +125,7 @@ trait ProfessionalSituationTrait
     }
 
     /**
-     * @param boolean $isPaying
+     * @param bool $isPaying
      */
     public function setIsPaying($isPaying)
     {

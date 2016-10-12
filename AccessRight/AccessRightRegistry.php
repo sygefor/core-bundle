@@ -43,8 +43,8 @@ class AccessRightRegistry
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->rights = array();
-        $this->groups = array();
+        $this->rights    = array();
+        $this->groups    = array();
         $securityContext = null;
     }
 
@@ -53,13 +53,13 @@ class AccessRightRegistry
      *
      * @param $id
      * @param AbstractAccessRight $accessRight
-     * @param string $group
+     * @param string              $group
      */
     public function addAccessRight($id, AbstractAccessRight $accessRight, $group = 'Misc')
     {
         $accessRight->setId($id);
         $this->rights[$id] = $accessRight;
-        if (!isset($this->groups[$group])) {
+        if ( ! isset($this->groups[$group])) {
             $this->groups[$group] = array();
         }
         $this->groups[$group][] = $id;
@@ -98,7 +98,7 @@ class AccessRightRegistry
         }
 
         $userAccessRights = $user->getAccessRights();
-        $userRoles = $user->getRoles();
+        $userRoles        = $user->getRoles();
 
         return in_array($id, $userAccessRights, true) || in_array('ROLE_ADMIN', $userRoles, true);
     }

@@ -38,7 +38,7 @@ class User extends BaseUser
     protected $accessRights;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {

@@ -1,21 +1,19 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Erwan
  * Date: 24/08/2015
- * Time: 14:34
+ * Time: 14:34.
  */
-
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 use JMS\Serializer\Annotation as Serializer;
+use Sygefor\Bundle\CoreBundle\Entity\User\User;
 
 /**
- * Email
+ * Email.
  *
  * @ORM\Table(name="email")
  * @ORM\Entity
@@ -23,7 +21,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Email
 {
     /**
-     * @var integer id
+     * @var int id
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -32,7 +30,7 @@ class Email
     protected $id;
 
     /**
-     * @var User $userFrom
+     * @var User
      * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\User\User")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      * @Serializer\Groups({"user"})
@@ -40,47 +38,47 @@ class Email
     protected $userFrom;
 
     /**
-     * @var string $emailFrom
+     * @var string
      * @ORM\Column(name="emailFrom", type="string", length=128, nullable=true)
      */
     protected $emailFrom;
 
     /**
-     * @var $trainee
+     * @var
      * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainee;
 
     /**
-     * @var $trainer
+     * @var
      * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TrainerBundle\Entity\AbstractTrainer")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainer;
 
     /**
-     * @var $session
+     * @var
      * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     protected $session;
 
     /**
-     * @var \DateTime $sendAt
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $sendAt;
 
     /**
-     * @var string $subject
+     * @var string
      * @ORM\Column(name="subject", type="string", length=512, nullable=true)
      */
     protected $subject;
 
     /**
-     * @var string $body
+     * @var string
      * @ORM\Column(name="body", type="text", nullable=true)
      */
     protected $body;

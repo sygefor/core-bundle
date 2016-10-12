@@ -21,7 +21,7 @@ class SygeforCoreExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
+        $config        = $this->processConfiguration($configuration, $configs);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('batch.yml');
@@ -43,13 +43,13 @@ class SygeforCoreExtension extends Extension
     /**
      * Adds csv export service definitions according.
      *
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
      */
     private function loadCSVServices(array $config, ContainerBuilder $container)
     {
         foreach ($config as $id => $options) {
-            $exportId = sprintf('sygefor_core.batch.csv.%s', $id);
+            $exportId  = sprintf('sygefor_core.batch.csv.%s', $id);
             $decorator = new DefinitionDecorator('sygefor_core.batch.csv');
             $container
                 ->setDefinition($exportId, $decorator)
@@ -62,13 +62,13 @@ class SygeforCoreExtension extends Extension
     /**
      * Adds csv export service definitions according.
      *
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
      */
     private function loadConvertTypeServices(array $config, ContainerBuilder $container)
     {
         foreach ($config as $id => $options) {
-            $exportId = sprintf('sygefor_core.batch.convert_type.%s', $id);
+            $exportId  = sprintf('sygefor_core.batch.convert_type.%s', $id);
             $decorator = new DefinitionDecorator('sygefor_core.batch.convert_type');
             $container
                 ->setDefinition($exportId, $decorator)
@@ -78,13 +78,13 @@ class SygeforCoreExtension extends Extension
     }
 
     /**
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
      */
     private function loadPubliPostServices(array $config, ContainerBuilder $container)
     {
         foreach ($config as $id => $options) {
-            $exportId = sprintf('sygefor_core.batch.publipost.%s', $id);
+            $exportId  = sprintf('sygefor_core.batch.publipost.%s', $id);
             $decorator = new DefinitionDecorator('sygefor_core.batch.publipost');
             $container
                 ->setDefinition($exportId, $decorator)
@@ -95,7 +95,7 @@ class SygeforCoreExtension extends Extension
     }
 
     /**
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
      */
     private function loadHumanReadablePropertyAccessor(array $config, ContainerBuilder $container)
@@ -105,13 +105,13 @@ class SygeforCoreExtension extends Extension
     }
 
     /**
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
      */
     private function loadPDFServices(array $config, ContainerBuilder $container)
     {
         foreach ($config as $id => $options) {
-            $exportId = sprintf('sygefor_core.batch.pdf.%s', $id);
+            $exportId  = sprintf('sygefor_core.batch.pdf.%s', $id);
             $decorator = new DefinitionDecorator('sygefor_core.batch.pdf');
             $container
                 ->setDefinition($exportId, $decorator)

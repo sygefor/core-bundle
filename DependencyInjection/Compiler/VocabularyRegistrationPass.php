@@ -18,16 +18,16 @@ class VocabularyRegistrationPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('sygefor_core.vocabulary_registry')) {
+        if ( ! $container->hasDefinition('sygefor_core.vocabulary_registry')) {
             return;
         }
 
-        $definition = $container->getDefinition('sygefor_core.vocabulary_registry');
+        $definition        = $container->getDefinition('sygefor_core.vocabulary_registry');
         $vocabularySevices = $container->findTaggedServiceIds('sygefor_core.vocabulary_provider');
         foreach ($vocabularySevices as $id => $tagAttributes) {
             //checking class
             $class = $container->getDefinition($id)->getClass();
-            if (!$class || !$this->isVocabularyProviderImplementation($class)) {
+            if ( ! $class || ! $this->isVocabularyProviderImplementation($class)) {
                 throw new \InvalidArgumentException(sprintf('Vocabulary Registration : %s must implement VocabularyInterface', $class));
             }
             foreach ($tagAttributes as $attributes) {

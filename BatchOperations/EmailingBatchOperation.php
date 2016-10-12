@@ -8,15 +8,14 @@
  */
 namespace Sygefor\Bundle\CoreBundle\BatchOperations;
 
-
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperation\AbstractBatchOperation;
 use Sygefor\Bundle\CoreBundle\Entity\Email;
 use Sygefor\Bundle\CoreBundle\HumanReadablePropertyAccessor\HumanReadablePropertyAccessor;
+use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
 
 class EmailingBatchOperation extends AbstractBatchOperation
 {
@@ -56,7 +55,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
         // check trainee proxy for inscription checkout
         if (isset($options['typeUser']) && get_parent_class($options['typeUser']) !== AbstractTrainee::class) {
             foreach ($targetEntities as $key => $user) {
-                if (!$this->container->get('security.context')->isGranted('VIEW', $user)) {
+                if ( ! $this->container->get('security.context')->isGranted('VIEW', $user)) {
                     unset($targetEntities[$key]);
                 }
             }
@@ -73,18 +72,18 @@ class EmailingBatchOperation extends AbstractBatchOperation
     {
         $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_trainee.vocabulary_email_template');
         /** @var EntityManager $em */
-        $em = $this->em;
+        $em   = $this->em;
         $repo = $em->getRepository(get_class($templateTerm));
 
-        if (!empty($options['inscriptionStatus'])) {
+        if ( ! empty($options['inscriptionStatus'])) {
             $repoInscriptionStatus = $em->getRepository('Sygefor\Bundle\TraineeBundle\Entity\Term\InscriptionStatus');
-            $inscriptionStatus = $repoInscriptionStatus->findById($options['inscriptionStatus']);
-            $templates = $repo->findBy(array('inscriptionStatus' => $inscriptionStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
+            $inscriptionStatus     = $repoInscriptionStatus->findById($options['inscriptionStatus']);
+            $templates             = $repo->findBy(array('inscriptionStatus' => $inscriptionStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
         }
-        else if (!empty($options['presenceStatus'])) {
+        else if ( ! empty($options['presenceStatus'])) {
             $repoPresenceStatus = $em->getRepository('Sygefor\Bundle\TraineeBundle\Entity\Term\PresenceStatus');
-            $presenceStatus = $repoPresenceStatus->findById($options['presenceStatus']);
-            $templates = $repo->findBy(array('presenceStatus' => $presenceStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
+            $presenceStatus     = $repoPresenceStatus->findById($options['presenceStatus']);
+            $templates          = $repo->findBy(array('presenceStatus' => $presenceStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
         }
         else {
             //if no presence/inscription status is found, we get all organization templates
@@ -102,16 +101,16 @@ class EmailingBatchOperation extends AbstractBatchOperation
      * @param $subject
      * @param $body
      * @param array $attachments
-     * @param bool $preview
+     * @param bool  $preview
      *
      * @return array
      */
     public function parseAndSendMail($entities, $subject, $body, $attachments = array(), $preview = false)
     {
         $doClear = true;
-        if (!is_array($entities)) {
+        if ( ! is_array($entities)) {
             $entities = array($entities);
-            $doClear = false;
+            $doClear  = false;
         }
 
         if (empty($entities)) {
@@ -125,15 +124,15 @@ class EmailingBatchOperation extends AbstractBatchOperation
             ));
         }
         else {
-            $message = \Swift_Message::newInstance();
+            $message      = \Swift_Message::newInstance();
             $organization = $this->container->get('security.context')->getToken()->getUser()->getOrganization();
 
             $message->setFrom($this->container->getParameter('mailer_from'), $organization->getName());
             $message->setReplyTo($organization->getEmail());
 
             // attachements
-            if (!empty($attachments)) {
-                if (!is_array($attachments)) {
+            if ( ! empty($attachments)) {
+                if ( ! is_array($attachments)) {
                     $attachments = array($attachments);
                 }
                 foreach ($attachments as $attachment) {
@@ -143,7 +142,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
             }
 
             // foreach entity
-            $i = 0;
+            $i  = 0;
             $em = $this->em;
             if ($doClear) {
                 $em->clear();
@@ -153,7 +152,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                     // reload entity because of em clear
                     $entity = $em->getRepository(get_class($entity))->find($entity->getId());
 
-                    $hrpa = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
+                    $hrpa  = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
                     $email = $hrpa->email;
                     $message->setTo($email);
                     $message->setSubject($this->replaceTokens($subject, $entity));

@@ -54,7 +54,7 @@ class UserControllerTest extends WebTestCase
 
     public function testEditUser()
     {
-        /**
+        /*
          * @var EntityManager
          */
         $em   = $this->client->getContainer()->get('doctrine')->getManager();
@@ -110,7 +110,7 @@ class UserControllerTest extends WebTestCase
 
     public function testRemoveUser()
     {
-        /**
+        /*
          * @var EntityManager
          */
         $em   = $this->client->getContainer()->get('doctrine')->getManager();

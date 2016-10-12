@@ -47,7 +47,7 @@ class EntityHiddenType extends AbstractType
     {
         $resolver->setDefaults(
             array(
-                'class' => null,
+                'class'          => null,
                 'error_bubbling' => false,
             )
         );

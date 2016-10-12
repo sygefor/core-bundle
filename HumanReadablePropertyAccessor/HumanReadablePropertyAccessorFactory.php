@@ -35,7 +35,7 @@ class HumanReadablePropertyAccessorFactory
         //factory is given an alternate version of configuration array, indexed by each entry corresponding className
         foreach ($termCatalog as $confEntry) {
             $class = $this->getClassName($confEntry['class']);
-            if (!empty($confEntry['parent']) && !empty($termCatalog[$confEntry['parent']])) {
+            if ( ! empty($confEntry['parent']) && ! empty($termCatalog[$confEntry['parent']])) {
                 $this->termCatalog[$class] = $termCatalog[$confEntry['parent']];
             }
             else {
@@ -54,7 +54,7 @@ class HumanReadablePropertyAccessorFactory
     public function getTermCatalog($class = null)
     {
         if ($class) {
-            if (!isset($this->termCatalog[$this->getClassName($class)])) {
+            if ( ! isset($this->termCatalog[$this->getClassName($class)])) {
                 throw new \Exception('no catalog for this class : ' . $class);
             }
 
@@ -72,10 +72,10 @@ class HumanReadablePropertyAccessorFactory
      */
     public function getEntityAlias($class = null)
     {
-        if (!isset($this->termCatalog[$this->getClassName($class)])) {
+        if ( ! isset($this->termCatalog[$this->getClassName($class)])) {
             throw new \Exception('no catalog for this class : ' . $class);
         }
-        else if (!isset($this->termCatalog[$this->getClassName($class)]['alias'])) {
+        else if ( ! isset($this->termCatalog[$this->getClassName($class)]['alias'])) {
             return;
         }
         else {
@@ -94,7 +94,7 @@ class HumanReadablePropertyAccessorFactory
     {
         $entityTypes = array();
         foreach ($this->termCatalog as $entity) {
-            if ($includeExcludedEntities || (!isset($entity['excludeFromFormType']) || $entity['excludeFromFormType'] !== true)) {
+            if ($includeExcludedEntities || ( ! isset($entity['excludeFromFormType']) || $entity['excludeFromFormType'] !== true)) {
                 $entityTypes[$entity['class']] = ucfirst($entity['alias']);
             }
         }

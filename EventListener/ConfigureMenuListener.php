@@ -49,7 +49,6 @@ class ConfigureMenuListener
                 );
             }
 
-
             if ($this->securityContext->isGranted('VIEW', 'Sygefor\Bundle\CoreBundle\Entity\User\User')) {
                 $adminMenu->addChild('users', array(
                     'label' => 'Utilisateurs',

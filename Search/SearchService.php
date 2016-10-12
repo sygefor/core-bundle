@@ -56,7 +56,7 @@ class SearchService implements SearchServiceInterface
     public function __construct(SearchableInterface $searchable)
     {
         $this->searchable = $searchable;
-        $this->query = new Query();
+        $this->query      = new Query();
     }
 
     /**
@@ -146,7 +146,7 @@ class SearchService implements SearchServiceInterface
     }
 
     /**
-     * @param string $name
+     * @param string         $name
      * @param AbstractFilter $filter
      */
     public function addFilter($name, AbstractFilter $filter)
@@ -164,7 +164,7 @@ class SearchService implements SearchServiceInterface
      */
     public function addTermFilter($name, $value, $field = null)
     {
-        $field = $field ? $field : $name;
+        $field  = $field ? $field : $name;
         $filter = new Term(array($field => $value));
         $this->addFilter($name, $filter);
 
@@ -180,7 +180,7 @@ class SearchService implements SearchServiceInterface
      */
     public function addTermsFilter($name, $values = array(), $field = null)
     {
-        $field = $field ? $field : $name;
+        $field  = $field ? $field : $name;
         $filter = new \Elastica\Filter\Terms($field, $values);
         $this->addFilter($name, $filter);
 
@@ -228,10 +228,10 @@ class SearchService implements SearchServiceInterface
     {
         $query = new Query\Filtered(null, $filter);
         if ($this->getQuery()->hasParam('query')) {
-            $raw = $this->getQuery()->toArray();
-            $query = $query->toArray();
+            $raw                        = $this->getQuery()->toArray();
+            $query                      = $query->toArray();
             $query['filtered']['query'] = $raw['query'];
-            $raw['query'] = $query;
+            $raw['query']               = $query;
             $this->getQuery()->setRawQuery($raw);
         }
         else {
@@ -242,7 +242,7 @@ class SearchService implements SearchServiceInterface
     /**
      * @param $field
      * @param string $order
-     * @param array $options
+     * @param array  $options
      */
     public function addSort($field, $order = 'asc', $options = array())
     {
@@ -308,7 +308,7 @@ class SearchService implements SearchServiceInterface
     public function getSize()
     {
         if ($this->getQuery()->hasParam('size')) {
-            return (int)$this->getQuery()->getParam('size');
+            return (int) $this->getQuery()->getParam('size');
         }
         else {
             return 10;
@@ -360,7 +360,7 @@ class SearchService implements SearchServiceInterface
         if ($q) {
             $queryStringFilter = new \Elastica\Filter\Query(new Query\QueryString($q));
             if ($this->getQuery()->hasParam('filter')) {
-                $raw = $this->getQuery()->toArray();
+                $raw           = $this->getQuery()->toArray();
                 $raw['filter'] = array('and' => array($raw['filter'], $queryStringFilter->toArray()));
                 $this->getQuery()->setRawQuery($raw);
             }
@@ -385,7 +385,7 @@ class SearchService implements SearchServiceInterface
         foreach ($query as $key => $value) {
             if ($key === 'reverse_nested') {
                 // force object for empty reverse_nested
-                $query[$key] = (object)$query[$key];
+                $query[$key] = (object) $query[$key];
             }
             if (is_array($query[$key])) {
                 $query[$key] = $this->prepareRawQuery($query[$key]);
@@ -397,6 +397,7 @@ class SearchService implements SearchServiceInterface
 
     /**
      * @param Request $request
+     *
      * @throws \Exception
      */
     public function handleRequest(Request $request)
@@ -481,35 +482,35 @@ class SearchService implements SearchServiceInterface
      */
     protected function getFilterFromRequest($name, $options)
     {
-        $instances = is_array($options) && !isset($options['type']) ? $options : array($options);
-        $filters = array();
+        $instances = is_array($options) && ! isset($options['type']) ? $options : array($options);
+        $filters   = array();
 
         // foreach filter instance
         foreach ($instances as $options) {
 
             // SPECIFIC : daterange
             if (is_string($options) && preg_match('/^(\d{2}\/\d{2}\/\d{4}) - (\d{2}\/\d{2}\/\d{4})$/', $options, $matches)) {
-                $gte = date_create_from_format('d/m/Y', $matches[1]);
-                $lte = date_create_from_format('d/m/Y', $matches[2]);
+                $gte     = date_create_from_format('d/m/Y', $matches[1]);
+                $lte     = date_create_from_format('d/m/Y', $matches[2]);
                 $options = array(
                     'type' => 'range',
-                    'gte' => $gte->format('Y-m-d'),
-                    'lte' => $lte->format('Y-m-d'),
+                    'gte'  => $gte->format('Y-m-d'),
+                    'lte'  => $lte->format('Y-m-d'),
                 );
             }
 
             // if the filter dont define type, its a term filter
-            if (!is_array($options) || !isset($options['type'])) {
+            if ( ! is_array($options) || ! isset($options['type'])) {
                 $options = array(
                     'type' => 'term',
-                    $name => $options,
+                    $name  => $options,
                 );
             }
 
             // find the right filter class
             $camelCase = Util::toCamelCase($options['type']);
-            $class = '\Elastica\Filter\\' . $camelCase;
-            if (!class_exists($class)) {
+            $class     = '\Elastica\Filter\\' . $camelCase;
+            if ( ! class_exists($class)) {
                 throw new \Exception('Filter class does not exists : ' . $class);
             }
             unset($options['type']);
@@ -564,8 +565,8 @@ class SearchService implements SearchServiceInterface
 
         // find the right aggregation class
         $camelCase = Util::toCamelCase($type);
-        $class = '\Elastica\Aggregation\\' . $camelCase;
-        if (!class_exists($class)) {
+        $class     = '\Elastica\Aggregation\\' . $camelCase;
+        if ( ! class_exists($class)) {
             throw new \Exception('Aggregation class does not exists : ' . $class);
         }
 
@@ -587,7 +588,7 @@ class SearchService implements SearchServiceInterface
     public function search()
     {
         // handle query
-        $query = $this->getQuery();
+        $query     = $this->getQuery();
         $resultSet = $this->searchable->search($query);
         //var_dump($query->getQuery());
         $fields = $this->getFields();
@@ -595,9 +596,9 @@ class SearchService implements SearchServiceInterface
         // items
         $items = array();
         foreach ($resultSet->getResults() as $result) {
-            $item = $result->getData();
+            $item       = $result->getData();
             $item['id'] = $result->getId();
-            if (!$fields || in_array('_type', $fields, true)) {
+            if ( ! $fields || in_array('_type', $fields, true)) {
                 $item['_type'] = $result->getType();
             }
             $items[] = $item;
@@ -605,9 +606,9 @@ class SearchService implements SearchServiceInterface
 
         // build the return
         $return = array(
-            'total' => $resultSet->getTotalHits(),
+            'total'    => $resultSet->getTotalHits(),
             'pageSize' => $this->getSize(),
-            'items' => $items,
+            'items'    => $items,
         );
 
         // add the facets
@@ -659,7 +660,7 @@ class SearchService implements SearchServiceInterface
     public function searchRawResponse()
     {
         // handle query
-        $query = $this->getQuery();
+        $query     = $this->getQuery();
         $resultSet = $this->searchable->search($query);
 
         return $resultSet->getResponse()->getData();

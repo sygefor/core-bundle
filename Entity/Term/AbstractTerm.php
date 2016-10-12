@@ -184,11 +184,11 @@ abstract class AbstractTerm implements VocabularyInterface
      */
     public function isLocked($machineName = null)
     {
-        return !empty($this->machineName);
+        return ! empty($this->machineName);
     }
 
     /**
-     * Check machine name match
+     * Check machine name match.
      *
      * @param $machineName
      *

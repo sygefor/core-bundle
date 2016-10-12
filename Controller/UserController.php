@@ -32,15 +32,15 @@ class UserController extends Controller
      */
     public function indexAction()
     {
-        /** @var EntityManager */
-        $em = $this->get('doctrine')->getManager();
+        /* @var EntityManager */
+        $em         = $this->get('doctrine')->getManager();
         $repository = $em->getRepository('SygeforCoreBundle:User\User');
 
-        $organization = $this->get('security.context')->getToken()->getUser()->getOrganization();
+        $organization         = $this->get('security.context')->getToken()->getUser()->getOrganization();
         $hasAccessRightForAll = $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.user.all');
-        $queryBuilder = $repository->createQueryBuilder('u');
+        $queryBuilder         = $repository->createQueryBuilder('u');
 
-        if (!$hasAccessRightForAll) {
+        if ( ! $hasAccessRightForAll) {
             $queryBuilder->where('u.organization = :organization')
                 ->setParameter('organization', $organization);
         }
@@ -102,7 +102,7 @@ class UserController extends Controller
 
     /**
      * @param Request $request
-     * @param User $user
+     * @param User    $user
      *
      * @Route("/user/{id}/edit", requirements={"id" = "\d+"}, name="user.edit", options={"expose"=true})
      * @Template
@@ -114,7 +114,7 @@ class UserController extends Controller
     public function editAction(Request $request, User $user)
     {
         $oldPwd = $user->getPassword();
-        $form = $this->createForm(UserType::class, $user);
+        $form   = $this->createForm(UserType::class, $user);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
@@ -198,7 +198,7 @@ class UserController extends Controller
      */
     public function loginAsAction(User $loginAsUser)
     {
-        if (!$this->getUser()->isAdmin()) {
+        if ( ! $this->getUser()->isAdmin()) {
             throw new AccessDeniedHttpException('You can\'t do this action');
         }
         $token = new UsernamePasswordToken($loginAsUser, null, 'user_db', $loginAsUser->getRoles());

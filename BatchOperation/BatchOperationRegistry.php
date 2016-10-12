@@ -40,6 +40,7 @@ class BatchOperationRegistry
 
     /**
      * @param $id
+     *
      * @return array|void
      */
     public function get($id)

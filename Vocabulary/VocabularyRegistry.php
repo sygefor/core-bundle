@@ -92,11 +92,12 @@ class VocabularyRegistry
     }
 
     /**
-     * Counts and returns the number of usages of term among all entities
+     * Counts and returns the number of usages of term among all entities.
      *
      * @param EntityManager $em
      * @param $vocTerm
      * @param bool $getCount
+     *
      * @return array|int
      */
     public function getTermUsages(EntityManager $em, $vocTerm, $getCount = true)

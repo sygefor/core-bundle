@@ -84,7 +84,7 @@ trait TreeTrait
      */
     public function hasChildren()
     {
-        return (bool)count($this->children);
+        return (bool) count($this->children);
     }
 
     /**

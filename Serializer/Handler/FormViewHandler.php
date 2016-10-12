@@ -26,34 +26,34 @@ class FormViewHandler implements SubscribingHandlerInterface
         return array(
             array(
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
-                'format' => 'json',
-                'type' => 'Symfony\Component\Form\FormView',
-                'method' => 'serializeToJson',
+                'format'    => 'json',
+                'type'      => 'Symfony\Component\Form\FormView',
+                'method'    => 'serializeToJson',
             ),
         );
     }
 
     /**
      * @param JsonSerializationVisitor $visitor
-     * @param FormView $formView
-     * @param array $type
-     * @param SerializationContext $context
+     * @param FormView                 $formView
+     * @param array                    $type
+     * @param SerializationContext     $context
      *
      * @return array
      */
     public function serializeToJson(JsonSerializationVisitor $visitor, FormView $formView, array $type, SerializationContext $context)
     {
         $variables = $formView->vars;
-        $element = array(
-            'id' => $variables['id'],
-            'name' => $variables['name'],
+        $element   = array(
+            'id'        => $variables['id'],
+            'name'      => $variables['name'],
             'full_name' => $variables['full_name'],
-            'label' => $variables['label'],
-            'errors' => $variables['errors'],
-            'value' => $variables['value'],
-            'required' => $variables['required'],
-            'attr' => $variables['attr'],
-            'valid' => $variables['valid'],
+            'label'     => $variables['label'],
+            'errors'    => $variables['errors'],
+            'value'     => $variables['value'],
+            'required'  => $variables['required'],
+            'attr'      => $variables['attr'],
+            'valid'     => $variables['valid'],
         );
 
         foreach (array('multiple', 'expanded', 'checked', 'allow_add', 'allow_delete') as $optional) {
@@ -80,12 +80,12 @@ class FormViewHandler implements SubscribingHandlerInterface
 
         // choices
         if (isset($variables['choices'])) {
-            $expanded = !empty($variables['expanded']);
+            $expanded           = ! empty($variables['expanded']);
             $element['choices'] = $this->buildChoices($variables['choices'], $expanded, $variables);
-            if (!$variables['required'] && (!isset($variables['multiple']) || !$variables['multiple']) && $variables['value']) {
+            if ( ! $variables['required'] && ( ! isset($variables['multiple']) || ! $variables['multiple']) && $variables['value']) {
                 array_unshift($element['choices'], array(
                     'v' => null,
-                    'l' => isset($variables['empty_value']) && !empty($variables['empty_value']) ? $variables['empty_value'] : 'Aucun',
+                    'l' => isset($variables['empty_value']) && ! empty($variables['empty_value']) ? $variables['empty_value'] : 'Aucun',
                 ));
             }
         }
@@ -102,17 +102,17 @@ class FormViewHandler implements SubscribingHandlerInterface
     private function buildChoices($choices, $expanded, $variables)
     {
         if ($expanded) {
-            $fullName = $variables['full_name'];
+            $fullName  = $variables['full_name'];
             $elementId = $variables['id'];
 
             $recursiveChoicesHandle = function ($choices) use (&$recursiveChoicesHandle, $fullName, $elementId) {
                 $return = array();
                 foreach ($choices as $key => $choice) {
                     $return[] = array(
-                        'id' => $key,
+                        'id'   => $key,
                         'name' => $fullName . '[]',
-                        'v' => $choice->value,
-                        'l' => $choice->label,
+                        'v'    => $choice->value,
+                        'l'    => $choice->label,
                     );
                 }
 

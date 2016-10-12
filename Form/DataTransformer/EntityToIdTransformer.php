@@ -73,7 +73,7 @@ class EntityToIdTransformer implements DataTransformerInterface
      */
     public function reverseTransform($id)
     {
-        if (!$id) {
+        if ( ! $id) {
             return;
         }
 

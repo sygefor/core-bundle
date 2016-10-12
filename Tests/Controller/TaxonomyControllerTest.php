@@ -4,8 +4,8 @@ namespace Sygefor\Bundle\CoreBundle\Tests\Controller;
 
 use Doctrine\Common\Persistence\ObjectRepository;
 use Sygefor\Bundle\CoreBundle\Entity\Organization;
-use Sygefor\Bundle\CoreBundle\Test\WebTestCase;
 use Sygefor\Bundle\CoreBundle\Entity\Term\AbstractTerm;
+use Sygefor\Bundle\CoreBundle\Test\WebTestCase;
 use Sygefor\Bundle\CoreBundle\Tests\Entity\MyNationalVocabulary;
 use Sygefor\Bundle\CoreBundle\Tests\Entity\MyOrganizationVocabulary;
 use Symfony\Bundle\FrameworkBundle\Client as Client;
@@ -113,7 +113,7 @@ class TaxonomyControllerTest extends WebTestCase
 
     public function testAddEditRemoveLocalVocabularyTerm()
     {
-        /**
+        /*
          * @var EntityManager
          */
         $em = $this->getEntityManager();

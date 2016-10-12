@@ -121,7 +121,7 @@ class AccessRightType extends AbstractType
     {
         foreach ($view->children as $key => $item) {
             $value = $item->vars['value'];
-            if (!$this->accessRightsRegistry->hasAccessRight($value)) {
+            if ( ! $this->accessRightsRegistry->hasAccessRight($value)) {
                 $item->vars['attr']['disabled'] = 'disabled';
                 $item->vars['attr']['title']    = "Vous ne pouvez pas modifier ce droit d'accès.";
             }

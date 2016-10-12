@@ -62,27 +62,27 @@ class TreeTraitListener implements EventSubscriber
      */
     private function mapTree(ClassMetadata $classMetadata)
     {
-        if (!$classMetadata->hasAssociation('parent')) {
+        if ( ! $classMetadata->hasAssociation('parent')) {
             $classMetadata->mapManyToOne(array(
-                'fieldName' => 'parent',
+                'fieldName'    => 'parent',
                 'targetEntity' => $classMetadata->name,
-                'inversedBy' => 'children',
-                'joinColumns' => array(array(
-                    'name' => 'parent_id',
+                'inversedBy'   => 'children',
+                'joinColumns'  => array(array(
+                    'name'                 => 'parent_id',
                     'referencedColumnName' => 'id',
-                    'onDelete' => 'SET NULL',
+                    'onDelete'             => 'SET NULL',
                 )),
             ));
         }
-        if (!$classMetadata->hasAssociation('children')) {
+        if ( ! $classMetadata->hasAssociation('children')) {
             $classMetadata->mapOneToMany(array(
-                'fieldName' => 'children',
-                'mappedBy' => 'parent',
-                'orderBy' => array('lft' => 'ASC'),
+                'fieldName'    => 'children',
+                'mappedBy'     => 'parent',
+                'orderBy'      => array('lft' => 'ASC'),
                 'targetEntity' => $classMetadata->name,
             ));
         }
-        if (!$classMetadata->customRepositoryClassName) {
+        if ( ! $classMetadata->customRepositoryClassName) {
             $classMetadata->setCustomRepositoryClass('Gedmo\\Tree\\Entity\\Repository\\NestedTreeRepository');
         }
     }

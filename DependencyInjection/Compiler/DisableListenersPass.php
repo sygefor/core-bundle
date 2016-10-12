@@ -39,7 +39,7 @@ class DisableListenersPass implements CompilerPassInterface
         }
 
         // if the listeners has been disabled
-        if($config && !$config['listeners']) {
+        if($config && ! $config['listeners']) {
             // remove all the tagged listeners
             $services = $container->findTaggedServiceIds('fos_elastica.listener');
             foreach($services as $id => $tags) {

@@ -39,11 +39,11 @@ abstract class AbstractAccountType extends AbstractType
 
             ->add('addressType', ChoiceType::class, array(
                 'required' => true,
-                'choices' => array(
+                'choices'  => array(
                     '0' => 'Adresse personnelle',
-                    '1' => 'Adresse professionnelle'
+                    '1' => 'Adresse professionnelle',
                 ),
-                'label' => 'Type d\'adresse'
+                'label' => 'Type d\'adresse',
             ))
             ->add('address', null, array(
                 'label'    => 'Adresse',

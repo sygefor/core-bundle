@@ -20,7 +20,7 @@ class EntityTagsType extends EntityType
 
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -40,19 +40,19 @@ class EntityTagsType extends EntityType
     }
 
     /**
-     * @param FormView $view
+     * @param FormView      $view
      * @param FormInterface $form
-     * @param array $options
+     * @param array         $options
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $list = $this->_choiceList;
         $tags = array();
         foreach ($list->getChoices() as $tag) {
-            $tags[] = (string)$tag;
+            $tags[] = (string) $tag;
         }
         $view->vars['attr']['data-select2-tags'] = json_encode($tags);
-        $view->vars['choices'] = $this->_choiceList->getRemainingViews();
+        $view->vars['choices']                   = $this->_choiceList->getRemainingViews();
     }
 
     /**
@@ -64,9 +64,9 @@ class EntityTagsType extends EntityType
 
         $resolver->setDefaults(array(
             'preferred_choices' => array(),
-            'multiple' => true,
-            'property' => 'name',
-            'prePersist' => null,
+            'multiple'          => true,
+            'property'          => 'name',
+            'prePersist'        => null,
         ));
     }
 

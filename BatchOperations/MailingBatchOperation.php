@@ -45,12 +45,11 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
      * MailingBatchOperation constructor.
      *
      * @param SecurityContext $securityContext
-     *
      */
     public function __construct(SecurityContext $securityContext)
     {
         $this->options['tempDir'] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'sygefor' . DIRECTORY_SEPARATOR;
-        if (!file_exists($this->options['tempDir'])) {
+        if ( ! file_exists($this->options['tempDir'])) {
             mkdir($this->options['tempDir'], 0777);
         }
         $this->securityContext = $securityContext;
@@ -88,27 +87,27 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
      */
     public function execute(array $idList = array(), array $options = array())
     {
-        $this->idList = $idList;
-        $entities = $this->getObjectList($idList);
+        $this->idList   = $idList;
+        $entities       = $this->getObjectList($idList);
         $deleteTemplate = false;
 
         //---setting choosed template file
         // 1/ File was provided by user
         if (isset($this->options['templateFile']) && ($this->options['templateFile'] !== '')) {
             $this->options['templateFile']->move($this->options['tempDir'], $this->options['templateFile']->getClientOriginalName());
-            $this->currentTemplate = $this->options['tempDir'] . $this->options['templateFile']->getClientOriginalName();
+            $this->currentTemplate         = $this->options['tempDir'] . $this->options['templateFile']->getClientOriginalName();
             $this->currentTemplateFileName = $this->options['templateFile']->getClientOriginalName();
-            $deleteTemplate = true;
+            $deleteTemplate                = true;
         } else if (isset($this->options['template']) && (is_integer($this->options['template']))) {
             //file was choosed in template list
             $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.publipost_template');
             /** @var EntityManager $em */
-            $em = $this->em;
+            $em   = $this->em;
             $repo = $em->getRepository(get_class($templateTerm));
             /** @var PublipostTemplate[] $templates */
             $template = $repo->find($this->options['template']);
 
-            $this->currentTemplate = $template->getAbsolutePath();
+            $this->currentTemplate         = $template->getAbsolutePath();
             $this->currentTemplateFileName = $template->getFileName();
         } else {// 3/ Error...
             return '';
@@ -127,7 +126,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
      * Gets a file from module's temp dir if exists, and send it to client.
      *
      * @param $fileName
-     * @param null $outputFileName
+     * @param null  $outputFileName
      * @param array $options
      *
      * @internal param bool $pdf
@@ -153,12 +152,12 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
             //if pdf file is asked
             if (isset($options['pdf']) && $options['pdf']) {
                 $pdfName = $this->toPdf($fileName);
-                $fp = $this->options['tempDir'] . $pdfName;
+                $fp      = $this->options['tempDir'] . $pdfName;
 
                 //renaming output filename (for end user)
-                $tmp = explode('.', $outputFileName);
+                $tmp                  = explode('.', $outputFileName);
                 $tmp[count($tmp) - 1] = 'pdf';
-                $outputFileName = implode('.', $tmp);
+                $outputFileName       = implode('.', $tmp);
             }
             else {
                 $fp = $this->options['tempDir'] . $fileName;
@@ -193,9 +192,9 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
     /**
      * @param $template
      * @param $entities
-     * @param bool $getFile
+     * @param bool   $getFile
      * @param string $outputFileName
-     * @param bool $getPdf
+     * @param bool   $getPdf
      *
      * @internal param $lines
      * @internal param bool $deleteTemplate
@@ -215,24 +214,24 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         //iterating through properties to construct a (nested) array of properties => values
         foreach ($entities as $entity) {
             if ($this->securityContext->isGranted('VIEW', $entity)) {
-                $data = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
+                $data                    = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
                 $lines[$entity->getId()] = $data;
 
             }
         }
 
-        if (!empty($this->idList)) {
+        if ( ! empty($this->idList)) {
             $this->reorderByKeys($lines, $this->idList);
         }
 
         ob_start();
 
-        $alias = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getEntityAlias($this->targetClass);
+        $alias      = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getEntityAlias($this->targetClass);
         $entityName = ($alias !== null) ? $alias : 'entity';
 
         // merge all fields from the first object
         //fields are merged one by one, so that we dont have to recall a enity name for global names
-        if (!empty($lines)) {
+        if ( ! empty($lines)) {
 //            $vals = current($lines)->toArray();
 //            //var_dump($vals);die();
 //            foreach ($vals as $fieldName => $prop){
@@ -253,8 +252,8 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
             return array('error' => $error);
         }
 
-        $uid = substr(md5(rand()), 0, 5);
-        $fileName = $this->removeAccents($uid . '_' . ((!empty($this->currentTemplateFileName) ? $this->currentTemplateFileName : $template->getFileName())));
+        $uid      = substr(md5(rand()), 0, 5);
+        $fileName = $this->removeAccents($uid . '_' . (( ! empty($this->currentTemplateFileName) ? $this->currentTemplateFileName : $template->getFileName())));
         $TBS->Show(OPENTBS_FILE, $this->options['tempDir'] . $fileName);
         $TBS->_PlugIns[OPENTBS_PLUGIN]->Close();
 
@@ -278,7 +277,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
     {
         $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.publipost_template');
         /** @var EntityManager $em */
-        $em = $this->em;
+        $em   = $this->em;
         $repo = $em->getRepository(get_class($templateTerm));
         /** @var PublipostTemplate[] $templates */
         $templates = $repo->findBy(array('organization' => $this->securityContext->getToken()->getUser()->getOrganization()));
@@ -286,7 +285,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         $files = array();
         foreach ($templates as $template) {
             $templateEntity = $template->getEntity();
-            $ancestor = class_parents($this->targetClass);
+            $ancestor       = class_parents($this->targetClass);
             //file is added if its associated entity is an ancestor for current target class
             if ($templateEntity === $this->targetClass || in_array($templateEntity, $ancestor, true)) {
                 $files[] = array('id' => $template->getId(), 'name' => $template->getName(), 'fileName' => $template->getFileName());
@@ -309,17 +308,17 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         }
 
         //renaming output filename (for end user)
-        $info = pathinfo($outputFileName);
+        $info           = pathinfo($outputFileName);
         $outputFileName = $info['filename'] . '.pdf';
 
         // prepare the process
         $unoconvBin = $this->container->getParameter('unoconv_bin');
-        $args = array(
+        $args       = array(
             $unoconvBin,
             '--output=' . $this->options['tempDir'] . $outputFileName,
             $this->options['tempDir'] . $fileName,
         );
-        $pb = new ProcessBuilder($args);
+        $pb      = new ProcessBuilder($args);
         $process = $pb->getProcess();
 
         // run

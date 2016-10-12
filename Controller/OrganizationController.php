@@ -48,7 +48,7 @@ class OrganizationController extends Controller
     public function addAction(Request $request)
     {
         $organization = new Organization();
-        $form = $this->createForm(OrganizationType::class, $organization);
+        $form         = $this->createForm(OrganizationType::class, $organization);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
@@ -67,7 +67,7 @@ class OrganizationController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param Request      $request
      * @param Organization $organization
      *
      * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="organization.edit", options={"expose"=true})

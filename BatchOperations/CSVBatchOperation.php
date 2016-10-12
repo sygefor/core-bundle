@@ -10,12 +10,12 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations;
 
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperation\AbstractBatchOperation;
+use Sygefor\Bundle\CoreBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Security\Core\SecurityContext;
 use Volcanus\Csv\Writer;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
 
 /**
  * Class CSVBatchOperation.
@@ -32,13 +32,13 @@ class CSVBatchOperation extends AbstractBatchOperation
      */
     protected $options = array(
         'volcanus_config' => array(
-            'delimiter' => ';',
-            'enclose' => true,
-            'enclosure' => '"',
-            'escape' => '"',
-            'inputEncoding' => 'UTF-8',
-            'outputEncoding' => 'ISO-8859-1',
-            'writeHeaderLine' => true,
+            'delimiter'        => ';',
+            'enclose'          => true,
+            'enclosure'        => '"',
+            'escape'           => '"',
+            'inputEncoding'    => 'UTF-8',
+            'outputEncoding'   => 'ISO-8859-1',
+            'writeHeaderLine'  => true,
             'responseFilename' => 'export.csv',
         ),
     );
@@ -48,7 +48,7 @@ class CSVBatchOperation extends AbstractBatchOperation
      */
     public function __construct(SecurityContext $securityContext)
     {
-        $this->securityContext = $securityContext;
+        $this->securityContext    = $securityContext;
         $this->options['tempDir'] = sys_get_temp_dir() . '/sygefor/';
         if (!file_exists($this->options['tempDir'])) {
             mkdir($this->options['tempDir'], 0777);
@@ -111,7 +111,7 @@ class CSVBatchOperation extends AbstractBatchOperation
         }
 
         $fileName = str_replace('.csv', '_' . uniqid() . '.csv', $this->options['volcanus_config']['responseFilename']);
-        $writer = new Writer($this->options['volcanus_config']);
+        $writer   = new Writer($this->options['volcanus_config']);
         $writer->fields($fields);
         $file = new \SplFileObject($this->options['tempDir'] . $fileName, 'w+');
         $writer->setFile($file);
@@ -133,7 +133,7 @@ class CSVBatchOperation extends AbstractBatchOperation
             //security check first : if requested file path doesn't correspond to temp dir,
             //triggering error
             $path_parts = pathinfo($this->options['tempDir'] . $fileName);
-            $response = new Response();
+            $response   = new Response();
             if (realpath($path_parts['dirname']) !== $this->options['tempDir']) {
                 $response->setContent('Accès non autorisé :' . $path_parts['dirname']);
             }

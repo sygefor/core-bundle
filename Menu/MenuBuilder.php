@@ -39,7 +39,7 @@ class MenuBuilder extends ContainerAware
 
         $menu->addChild('administration', array(
             'label' => 'Administration',
-            'icon' => 'gear',
+            'icon'  => 'gear',
         ));
 
         $this->container->get('event_dispatcher')->dispatch(ConfigureMenuEvent::CONFIGURE, new ConfigureMenuEvent($this->factory, $menu));
@@ -50,7 +50,7 @@ class MenuBuilder extends ContainerAware
         }
         else {
             $manipulator = new MenuManipulator();
-            $item = $menu->getChild('administration');
+            $item        = $menu->getChild('administration');
             $manipulator->moveToLastPosition($item);
         }
 

@@ -70,16 +70,16 @@ class PDFBatchOperation extends AbstractBatchOperation
      * PDFBatchOperation constructor.
      *
      * @param LoggableGenerator $pdf
-     * @param EngineInterface $templating
-     * @param SecurityContext $securityContext
-     * @param Kernel $kernel
+     * @param EngineInterface   $templating
+     * @param SecurityContext   $securityContext
+     * @param Kernel            $kernel
      */
     public function __construct(LoggableGenerator $pdf, EngineInterface $templating, SecurityContext $securityContext, Kernel $kernel)
     {
-        $this->pdf = $pdf;
-        $this->templating = $templating;
+        $this->pdf             = $pdf;
+        $this->templating      = $templating;
         $this->securityContext = $securityContext;
-        $this->kernel = $kernel;
+        $this->kernel          = $kernel;
     }
 
     /**
@@ -131,10 +131,10 @@ class PDFBatchOperation extends AbstractBatchOperation
     public function execute(array $idList = array(), array $options = array())
     {
         $repository = $this->em->getRepository($this->targetClass);
-        $accessor = PropertyAccess::createPropertyAccessor();
+        $accessor   = PropertyAccess::createPropertyAccessor();
 
         $entities = $this->getObjectList($idList);
-        $pages = array();
+        $pages    = array();
         foreach ($entities as $entity) {
             // security check
             if ($this->securityContext->isGranted('VIEW', $entity)) {
@@ -148,7 +148,7 @@ class PDFBatchOperation extends AbstractBatchOperation
                 }
 
                 $signature = null;
-                $training = null;
+                $training  = null;
                 if ($entity instanceof Training) {
                     $training = $entity;
                 }
@@ -165,12 +165,12 @@ class PDFBatchOperation extends AbstractBatchOperation
                 }
 
                 // render the page
-                $vars = array();
+                $vars                   = array();
                 $vars[$this->entityKey] = $entity;
-                $vars['link'] = $_SERVER['DOCUMENT_ROOT'];
+                $vars['link']           = $_SERVER['DOCUMENT_ROOT'];
                 //prevent escaping quotes in rendered template.
-                $vars['autoescape'] = false;
-                $vars['signature'] = $signature;
+                $vars['autoescape']      = false;
+                $vars['signature']       = $signature;
                 $pages[$entity->getId()] = $this->templating->render($template, $vars);
             }
         }
@@ -179,7 +179,7 @@ class PDFBatchOperation extends AbstractBatchOperation
         $this->reorderByKeys($pages, $idList);
 
         // add a page break between each page
-        $html = implode('<div style="page-break-after: always;"></div>', $pages);
+        $html     = implode('<div style="page-break-after: always;"></div>', $pages);
         $filename = $this->filename ? $this->filename : 'file.pdf';
 
         // return the pdf
@@ -187,7 +187,7 @@ class PDFBatchOperation extends AbstractBatchOperation
             $this->pdf->getOutputFromHtml($html, array('print-media-type' => null)),
             200,
             array(
-                'Content-Type' => 'application/pdf',
+                'Content-Type'        => 'application/pdf',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             )
         );

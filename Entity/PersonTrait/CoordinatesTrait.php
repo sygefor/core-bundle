@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 trait CoordinatesTrait
 {
     /**
-     * @var boolean addressType
+     * @var bool addressType
      *
      * @ORM\Column(name="address_type", type="integer", nullable=true)
      * @Serializer\Groups({"Default", "trainee", "api.profile"})
@@ -91,9 +91,8 @@ trait CoordinatesTrait
         }
     }
 
-
     /**
-     * @param boolean $addressType
+     * @param bool $addressType
      */
     public function setAddressType($addressType)
     {
@@ -101,7 +100,7 @@ trait CoordinatesTrait
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getAddressType()
     {

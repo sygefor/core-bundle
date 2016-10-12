@@ -43,7 +43,7 @@ class HumanReadablePropertyAccessor
     public function toArray()
     {
         $catalog = $this->accessorFactory->getTermCatalog(get_class($this->object));
-        $return = array();
+        $return  = array();
 
         foreach ($catalog['fields'] as $name => $options) {
 
@@ -102,7 +102,7 @@ class HumanReadablePropertyAccessor
                 //trying to get property for path suffix
                 try {
                     $accessor = PropertyAccess::createPropertyAccessor();
-                    $value = $accessor->getValue($this->object, $path);
+                    $value    = $accessor->getValue($this->object, $path);
 
                 }
                 catch (NoSuchPropertyException $e) {

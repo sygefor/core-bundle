@@ -20,7 +20,7 @@ class ChangeOrganizationType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -29,8 +29,8 @@ class ChangeOrganizationType extends AbstractType
 
         $builder
             ->add('organization', EntityType::class, array(
-                'label' => 'Nouveau centre',
-                'class' => Organization::class,
+                'label'         => 'Nouveau centre',
+                'class'         => Organization::class,
                 'query_builder' => function (EntityRepository $er) use ($entity) {
                     return $er->createQueryBuilder('o')
                         ->where('o != :organization')
@@ -50,15 +50,15 @@ class ChangeOrganizationType extends AbstractType
      * Add institution field depending organization.
      *
      * @param FormInterface $form
-     * @param Organization $organization
-     * @param mixed $entity
+     * @param Organization  $organization
+     * @param mixed         $entity
      */
     function addInstitutionField(FormInterface $form, $organization, $entity)
     {
         if ($organization && method_exists($entity, 'getInstitution')) {
             $form->add('institution', EntityType::class, array(
-                'label' => 'Etablissement',
-                'class' => AbstractInstitution::class,
+                'label'         => 'Etablissement',
+                'class'         => AbstractInstitution::class,
                 'query_builder' => function (EntityRepository $er) use ($organization) {
                     return $er->createQueryBuilder('i')
                         ->where('i.organization = :organization')
@@ -67,7 +67,7 @@ class ChangeOrganizationType extends AbstractType
                         ->orderBy('i.name', 'ASC');
                 },
                 'constraints' => new NotBlank(array('message' => 'Vous devez sélectionner un établissement')),
-                'required' => true,
+                'required'    => true,
             ));
         }
     }

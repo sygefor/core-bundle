@@ -33,6 +33,7 @@ class BatchOperationRegistryTest extends \PHPUnit_Framework_TestCase
     /**
      * @param $id
      * @param $label
+     *
      * @return mixed
      */
     private function createBatchOperation($id, $label)

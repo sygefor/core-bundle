@@ -2,8 +2,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary;
 
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Sygefor\Bundle\CoreBundle\AccessRight\AbstractAccessRight;
+use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AllOrganizationVocabularyAccessRight extends AbstractAccessRight

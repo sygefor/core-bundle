@@ -72,7 +72,7 @@ class WebTestCase extends BaseWebTestCase
      */
     protected function createTempUser($username, $accessRights = array(), $properties = array())
     {
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $user = $em->getRepository('SygeforCoreBundle:User')->findOneByUsername($username);
         if ($user) {
             $em->remove($user);
@@ -112,11 +112,11 @@ class WebTestCase extends BaseWebTestCase
     {
         if (is_string($user)) {
             $repository = $this->getEntityManager()->getRepository('SygeforCoreBundle:User');
-            $user = $repository->findOneByUsername($user);
+            $user       = $repository->findOneByUsername($user);
         }
-        $session = $this->client->getContainer()->get('session');
+        $session  = $this->client->getContainer()->get('session');
         $firewall = 'main';
-        $token = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
+        $token    = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
         $session->set('_security_' . $firewall, serialize($token));
         $session->save();
 
@@ -131,9 +131,9 @@ class WebTestCase extends BaseWebTestCase
      */
     protected function loginWithRoles(array $roles)
     {
-        $session = $this->client->getContainer()->get('session');
+        $session  = $this->client->getContainer()->get('session');
         $firewall = 'main';
-        $token = new UsernamePasswordToken('user', 'user', $firewall, $roles);
+        $token    = new UsernamePasswordToken('user', 'user', $firewall, $roles);
         $session->set('_security_' . $firewall, serialize($token));
         $session->save();
 
@@ -181,7 +181,7 @@ class WebTestCase extends BaseWebTestCase
     protected function jsonRequest($method, $url, array $parameters = array())
     {
         return $this->client->request($method, $url, $parameters, array(), array(
-            'HTTP_accept' => 'application/json',
+            'HTTP_accept'           => 'application/json',
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
         ));
     }

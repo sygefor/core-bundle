@@ -43,7 +43,7 @@ class BatchOperationRegistrationPassTest extends \PHPUnit_Framework_TestCase
     public function testProcessShouldRegisterTaggedProviders()
     {
         $container = new ContainerBuilder();
-        $pass = new BatchOperationRegistrationPass();
+        $pass      = new BatchOperationRegistrationPass();
 
         $registryDefinition = new Definition();
 

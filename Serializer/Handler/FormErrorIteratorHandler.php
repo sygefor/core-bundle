@@ -22,18 +22,18 @@ class FormErrorIteratorHandler implements SubscribingHandlerInterface
         return array(
             array(
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
-                'format' => 'json',
-                'type' => 'Symfony\\Component\\Form\\FormErrorIterator',
-                'method' => 'serializeToJson',
+                'format'    => 'json',
+                'type'      => 'Symfony\\Component\\Form\\FormErrorIterator',
+                'method'    => 'serializeToJson',
             ),
         );
     }
 
     /**
      * @param JsonSerializationVisitor $visitor
-     * @param FormErrorIterator $formErrorIterator
-     * @param array $type
-     * @param SerializationContext $context
+     * @param FormErrorIterator        $formErrorIterator
+     * @param array                    $type
+     * @param SerializationContext     $context
      *
      * @return mixed
      */

@@ -20,7 +20,7 @@ class BatchOperationController extends Controller
      */
     public function dumpAction()
     {
-        $operations = $this->get('sygefor_core.batch_operation_registry')->getAll();
+        $operations       = $this->get('sygefor_core.batch_operation_registry')->getAll();
         $operations_infos = array();
 
         foreach ($operations as $operation) {
@@ -36,7 +36,7 @@ class BatchOperationController extends Controller
      */
     public function executeAction($id, Request $request)
     {
-        $ids = $request->get('ids');
+        $ids     = $request->get('ids');
         $options = $request->get('options');
 
         //we try to read option list as a JSON string (case of multipart form type)
@@ -62,7 +62,7 @@ class BatchOperationController extends Controller
 
         $batchOperation = $this->get('sygefor_core.batch_operation_registry')->get($id);
 
-        if (!$batchOperation) {
+        if ( ! $batchOperation) {
             throw new NotFoundHttpException('Operation not found : ' . $id);
         }
 
@@ -105,7 +105,7 @@ class BatchOperationController extends Controller
      */
     public function fileDownloadAction($service, $file, $filename = null, Request $request)
     {
-        $pdf = ($request->get('pdf') === 'true') ? true : false;
+        $pdf            = ($request->get('pdf') === 'true') ? true : false;
         $batchOperation = $this->get('sygefor_core.batch_operation_registry')->get($service);
 
         if (method_exists($batchOperation, 'sendFile')) {

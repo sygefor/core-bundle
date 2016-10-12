@@ -25,20 +25,20 @@ class CollectionToTagsTransformer implements DataTransformerInterface
     protected $prePersist;
 
     /**
-     * @param EntityManager $em
+     * @param EntityManager    $em
      * @param EntityChoiceList $choiceList
      * @param $property
      */
     public function __construct(EntityManager $em, EntityChoiceList $choiceList, $class, $property, $prePersist = null)
     {
-        $this->em = $em;
+        $this->em         = $em;
         $this->choiceList = $choiceList;
-        $this->property = $property;
+        $this->property   = $property;
         $this->prePersist = $prePersist;
 
         $this->classMetadata = $em->getClassMetadata($class);
-        $this->class = $this->classMetadata->getName();
-        $this->accessor = PropertyAccess::createPropertyAccessor();
+        $this->class         = $this->classMetadata->getName();
+        $this->accessor      = PropertyAccess::createPropertyAccessor();
     }
 
     /**
@@ -55,7 +55,7 @@ class CollectionToTagsTransformer implements DataTransformerInterface
         if (null === $collection) {
             return array();
         }
-        if (!$collection instanceof Collection) {
+        if ( ! $collection instanceof Collection) {
             throw new TransformationFailedException('Expected a Doctrine\Common\Collections\Collection object.');
         }
 
@@ -80,15 +80,15 @@ class CollectionToTagsTransformer implements DataTransformerInterface
             return new ArrayCollection();
         }
 
-        $entities = array();
+        $entities   = array();
         $repository = $this->em->getRepository($this->class);
-        if (!is_array($tags)) {
+        if ( ! is_array($tags)) {
             $tags = explode(',', $tags);
         }
         foreach ($tags as $tag) {
-            $tag = trim($tag);
+            $tag    = trim($tag);
             $entity = $repository->findOneBy(array($this->property => $tag));
-            if (!$entity) {
+            if ( ! $entity) {
                 $entity = new $this->class();
                 $this->accessor->setValue($entity, $this->property, $tag);
                 if ($this->prePersist) {
