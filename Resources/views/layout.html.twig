@@ -6,15 +6,17 @@
     <div role="navigation" class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed">
-                    <span class="sr-only">Afficher la navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+                <button aria-controls="bs-navbar" aria-expanded="false" class="navbar-toggle collapsed"
+                        data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
                 </button>
+                <span class="sr-only">Afficher la navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
                 <a class="navbar-brand" href="/">Sygefor<sup>3</sup></a>
             </div>
-            <div collapse="navCollapsed" class="collapse navbar-collapse navbar-responsive-collapse">
+            <nav class="navbar-collapse collapse" id="bs-navbar" aria-expanded="false">
                 {{ mopa_bootstrap_menu(knp_menu_get('main'), {'automenu': 'navbar'}) }}
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
@@ -24,7 +26,7 @@
                         </ul>
                     </li>
                 </ul>
-            </div>
+            </nav>
         </div>
     </div>
 
