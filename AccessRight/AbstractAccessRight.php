@@ -12,6 +12,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
  */
 abstract class AbstractAccessRight implements AccessRightInterface
 {
+    protected $supportedClass = 'Sygefor\Bundle\CoreBundle\Entity\Entity';
+    protected $supportedOperation = 'OPERATE';
+
     /**
      * @var int
      */
@@ -29,12 +32,39 @@ abstract class AbstractAccessRight implements AccessRightInterface
      *
      * @return bool
      */
-    public abstract function supportsClass($class);
+    public function supportsClass($class)
+    {
+        $classes = array();
+        if (!is_array($this->supportedClass)) {
+            $classes = [$this->supportedClass];
+        }
+        else {
+            $classes = $this->supportedClass;
+        }
+
+        foreach  ($classes as $supportedClass) {
+            $parentClass = get_parent_class($class);
+            if (!$parentClass) {
+                $parentClass = $class;
+            }
+
+            if ($parentClass === $supportedClass) {
+                return true;
+            }
+        }
+    }
 
     /**
      * Returns the vote for the given parameters.
      */
-    public abstract function isGranted(TokenInterface $token, $object = null, $attribute);
+    public function isGranted(TokenInterface $token, $object = null, $attribute)
+    {
+        if ($attribute !== $this->supportedOperation) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * @param int $id

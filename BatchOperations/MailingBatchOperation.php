@@ -213,7 +213,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         $lines = array();
         //iterating through properties to construct a (nested) array of properties => values
         foreach ($entities as $entity) {
-            if ($this->securityContext->isGranted('VIEW', get_parent_class($entity))) {
+            if ($this->securityContext->isGranted('VIEW', $entity)) {
                 $data                    = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
                 $lines[$entity->getId()] = $data;
 

@@ -70,7 +70,7 @@ class CSVBatchOperation extends AbstractBatchOperation
         // lines
         $lines = array();
         foreach ($entities as $entity) {
-            if (!$this->securityContext->getToken()->getUser() instanceof User || $this->securityContext->isGranted('VIEW', get_parent_class($entity))) {
+            if (!$this->securityContext->getToken()->getUser() instanceof User || $this->securityContext->isGranted('VIEW', $entity)) {
                 $data = array();
                 foreach ($this->options['fields'] as $key => $value) {
                     try {
