@@ -137,7 +137,7 @@ class PDFBatchOperation extends AbstractBatchOperation
         $pages    = array();
         foreach ($entities as $entity) {
             // security check
-            if ($this->securityContext->isGranted('VIEW', $entity)) {
+            if ($this->securityContext->isGranted('VIEW', get_parent_class($entity))) {
                 // determine the template
                 $template = $this->defaultTemplate;
                 if ($this->templateDiscriminator) {

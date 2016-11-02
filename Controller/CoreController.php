@@ -56,7 +56,7 @@ class CoreController extends Controller
 
         // security
         $security = $this->get('security.context');
-        if ( ! $security->isGranted('VIEW', $entity)) {
+        if (!$security->isGranted('VIEW', get_parent_class($entity))) {
             throw new AccessDeniedHttpException();
         }
 

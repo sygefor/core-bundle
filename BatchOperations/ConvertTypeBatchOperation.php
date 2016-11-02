@@ -78,7 +78,7 @@ class ConvertTypeBatchOperation extends AbstractBatchOperation
 
         // first create new entities and get old entity sessions
         foreach ($entities as $key => $entity) {
-            if ($this->securityContext->isGranted('EDIT', $entity)) {
+            if ($this->securityContext->isGranted('EDIT', get_parent_class($entity))) {
                 // create new entity and copy common old entity properties
                 $this->createAndCopyEntity($entity, $type, $this->em, $key);
 
@@ -101,7 +101,7 @@ class ConvertTypeBatchOperation extends AbstractBatchOperation
         // then remove old entities
         $entityRemovedIds = array();
         foreach ($entities as $entity) {
-            if ($this->securityContext->isGranted('EDIT', $entity)) {
+            if ($this->securityContext->isGranted('EDIT', get_parent_class($entity))) {
                 $entityRemovedIds[] = $entity->getId();
                 $this->em->remove($entity);
             }

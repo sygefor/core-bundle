@@ -48,9 +48,9 @@ class AccessRightsEventSubscriber implements EventSubscriberInterface
             $object = $event->getObject();
             if ($object instanceof SerializedAccessRights) {
                 $event->getVisitor()->addData('_accessRights', array(
-                    'view'   => $this->securityContext->isGranted('VIEW', $object),
-                    'edit'   => $this->securityContext->isGranted('EDIT', $object),
-                    'delete' => $this->securityContext->isGranted('DELETE', $object),
+                    'view'   => $this->securityContext->isGranted('VIEW', get_parent_class($object)),
+                    'edit'   => $this->securityContext->isGranted('EDIT', get_parent_class($object)),
+                    'delete' => $this->securityContext->isGranted('DELETE', get_parent_class($object)),
                 ));
             }
         }
