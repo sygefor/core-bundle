@@ -63,7 +63,7 @@ class TaxonomyController extends Controller
         // for mixed vocabularies
         $canEditNationalTerms = $this->get('security.context')->isGranted('VIEW', $abstractVocabulary);
 
-        if ($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_LOCAL && ! $organization) {
+        if (($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_LOCAL || $abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_MIXED) && !$organization) {
             return $this->redirect($this->generateUrl('taxonomy.view', array('vocabularyId' => $vocabularyId, 'organizationId' => $this->get('security.context')->getToken()->getUser()->getOrganization()->getId())));
         }
 
