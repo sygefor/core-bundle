@@ -23,12 +23,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
+/**
+ * @Route("/admin/users")
+ */
 class UserController extends Controller
 {
     /**
-     * @Route("/users", name="user.index")
+     * @Route("/", name="user.index")
      * @Template()
-     * @Security("is_granted('VIEW', 'SygeforCoreBundle:User\User')")
+     * @Security("is_granted('VIEW', 'SygeforCoreBundle:User\\User')")
      */
     public function indexAction()
     {
@@ -53,7 +56,7 @@ class UserController extends Controller
     /**
      * @param User $user
      *
-     * @Route("/user/{id}", requirements={"id" = "\d+"}, name="user.view", options={"expose"=true}, defaults={"_format" = "json"})
+     * @Route("/{id}", requirements={"id" = "\d+"}, name="user.view", options={"expose"=true}, defaults={"_format" = "json"})
      * @Rest\View(serializerEnableMaxDepthChecks=true)
      * @SecureParam(name="user", permissions="VIEW")
      * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
@@ -68,9 +71,9 @@ class UserController extends Controller
     /**
      * @param Request $request
      *
-     * @Route("/user/add", name="user.add")
+     * @Route("/add", name="user.add")
      * @Template("SygeforCoreBundle:User:edit.html.twig")
-     * @Security("is_granted('ADD', 'SygeforCoreBundle:User\User')")
+     * @Security("is_granted('ADD', 'SygeforCoreBundle:User\\User')")
      *
      * @return array|RedirectResponse
      */
@@ -104,7 +107,7 @@ class UserController extends Controller
      * @param Request $request
      * @param User    $user
      *
-     * @Route("/user/{id}/edit", requirements={"id" = "\d+"}, name="user.edit", options={"expose"=true})
+     * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="user.edit", options={"expose"=true})
      * @Template
      * @SecureParam(name="user", permissions="EDIT")
      * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
@@ -139,7 +142,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{id}/access-rights", requirements={"id" = "\d+"}, name="user.access_rights", options={"expose"=true})
+     * @Route("/{id}/access-rights", requirements={"id" = "\d+"}, name="user.access_rights", options={"expose"=true})
      * @Template
      * @SecureParam(name="user", permissions="EDIT")
      * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
@@ -164,7 +167,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{id}/remove", requirements={"id" = "\d+"}, name="user.remove")
+     * @Route("/{id}/remove", requirements={"id" = "\d+"}, name="user.remove")
      * @Template()
      * @SecureParam(name="user", permissions="REMOVE")
      * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
@@ -189,7 +192,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{id}/login", requirements={"id" = "\d+"}, name="user.login")
+     * @Route("/{id}/login", requirements={"id" = "\d+"}, name="user.login")
      * @ParamConverter("loginAsUser", class="SygeforCoreBundle:User\User", options={"id" = "id"})
      *
      * @param User $loginAsUser

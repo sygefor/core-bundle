@@ -91,6 +91,6 @@ abstract class AbstractAccessRight implements AccessRightInterface
      */
     public function supportsAttribute($attribute)
     {
-        return in_array($attribute, array('VIEW', 'EDIT', 'ADD', 'REMOVE', 'CREATE', 'DELETE', 'MANAGEDUPLICATE'), true);
+        return in_array($attribute, array('VIEW', 'EDIT', 'ADD', 'REMOVE', 'CREATE', 'DELETE'), true);
     }
 }
