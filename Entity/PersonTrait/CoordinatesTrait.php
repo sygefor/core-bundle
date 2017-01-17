@@ -56,6 +56,7 @@ trait CoordinatesTrait
      *
      * @ORM\Column(name="phone_number", type="string", length=255, nullable=true)
      * @Serializer\Groups({"trainee", "inscription", "trainer", "api.profile"})
+     * @Assert\Regex(pattern="/^(\+\d+(\s|-|.))?0\d(\s|-|.)?(\d{2}(\s|-|.)?){4}$/", message="Vous devez renseigner un numéro de téléphone")
      */
     protected $phoneNumber;
 
