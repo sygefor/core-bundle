@@ -101,6 +101,7 @@ trait UploadableTrait
     public function setFileName($fileName)
     {
         $this->fileName = $fileName;
+        $this->slugFileName();
     }
 
     /**
@@ -117,16 +118,18 @@ trait UploadableTrait
      */
     public function setFile(File $file = null, $name = null)
     {
-        if ( ! empty($file)) {
+        if (!empty($file)) {
             $this->uploaded = new \DateTime();
             $this->file     = $file;
             if ($this->file instanceof UploadedFile) {
                 $this->filePath = sha1(uniqid(mt_rand(), true)) . '.' . $this->file->guessClientExtension();
                 $this->fileName = $this->file->getClientOriginalName();
+                $this->slugFileName();
             }
             else {
                 $this->filePath = $file->getFileInfo()->getFilename();
                 $this->fileName = ($name) ? $name : $file->getFileInfo()->getFilename();
+                $this->slugFileName();
             }
         }
     }
@@ -140,6 +143,7 @@ trait UploadableTrait
             // nom unique du fichier.
             $this->filePath = sha1(uniqid(mt_rand(), true)) . '.' . $this->file->guessClientExtension();
             $this->fileName = $this->file->getClientOriginalName();
+            $this->slugFileName();
         }
     }
 
@@ -259,5 +263,15 @@ trait UploadableTrait
         if ($this->file->getSize() > self::$maxFileSize) {
             $context->addViolationAt('file', 'La taille du fichier dépasse la limite autorisée', array(), null);
         }
+    }
+
+    /**
+     * Slug file name for PDF generation
+     * Because pdf file name is get from file system
+     */
+    public function slugFileName()
+    {
+        $this->fileName = str_replace(' ', '_', $this->fileName);
+        $this->fileName = str_replace('\'', '-', $this->fileName);
     }
 }

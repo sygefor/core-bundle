@@ -222,7 +222,7 @@ abstract class AbstractTerm implements VocabularyInterface
      */
     public static function orderBy()
     {
-        return method_exists(__CLASS__, 'getPosition') ? 'position' : 'name';
+        return 'name';
     }
 
     /**

@@ -175,9 +175,6 @@ class PDFBatchOperation extends AbstractBatchOperation
             }
         }
 
-        // reorder
-        $this->reorderByKeys($pages, $idList);
-
         // add a page break between each page
         $html     = implode('<div style="page-break-after: always;"></div>', $pages);
         $filename = $this->filename ? $this->filename : 'file.pdf';

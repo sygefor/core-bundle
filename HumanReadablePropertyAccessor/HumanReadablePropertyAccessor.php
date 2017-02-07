@@ -67,7 +67,7 @@ class HumanReadablePropertyAccessor
     /**
      * magic getter for property path.
      *
-     * @param $property a string on the form 'myObjectAlias.MypropertyAlias'
+     * @param $property string on the form 'myObjectAlias.MyPropertyAlias'
      *
      * @return mixed|null
      */
@@ -93,6 +93,15 @@ class HumanReadablePropertyAccessor
                     $suffix = '';
                 }
                 else {
+                    if ($expl[0] === $this->accessorFactory->getEntityAlias(get_class($this->object))) {
+                        $expls = array();
+                        foreach ($expl as $key => $value) {
+                            if (isset($expl[$key + 1])) {
+                                $expls[$key] = $expl[$key + 1];
+                            }
+                        }
+                        $expl = $expls;
+                    }
                     $prefix = $expl[0];
                     $suffix = implode('.', array_slice($expl, 1));
                 }
@@ -102,7 +111,7 @@ class HumanReadablePropertyAccessor
                 //trying to get property for path suffix
                 try {
                     $accessor = PropertyAccess::createPropertyAccessor();
-                    $value    = $accessor->getValue($this->object, $path);
+                    $value    = $path ? $accessor->getValue($this->object, $path) : "Non défini";
 
                 }
                 catch (NoSuchPropertyException $e) {

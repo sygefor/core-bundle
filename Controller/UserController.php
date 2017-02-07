@@ -9,6 +9,7 @@
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\QueryBuilder;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\SecurityExtraBundle\Annotation\SecureParam;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -41,14 +42,15 @@ class UserController extends Controller
 
         $organization         = $this->get('security.context')->getToken()->getUser()->getOrganization();
         $hasAccessRightForAll = $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.user.all');
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder         = $repository->createQueryBuilder('u');
 
-        if ( ! $hasAccessRightForAll) {
+        if (!$hasAccessRightForAll) {
             $queryBuilder->where('u.organization = :organization')
                 ->setParameter('organization', $organization);
         }
 
-        $users = $queryBuilder->getQuery()->getResult();
+        $users = $queryBuilder->orderBy('u.username')->getQuery()->getResult();
 
         return array('users' => $users, 'isAdmin' => $this->getUser()->isAdmin());
     }
@@ -92,6 +94,19 @@ class UserController extends Controller
 
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($user);
+
+                $scope = $user->getAccessRightScope();
+                if ($scope) {
+                    $userAccessRights = array();
+                    $accessRights = array_keys($this->get('sygefor_core.access_right_registry')->getAccessRights());
+                    foreach ($accessRights as $accessRight) {
+                        if ((strstr($accessRight, $scope) || $scope === "all") && $this->get('sygefor_core.access_right_registry')->hasAccessRight($accessRight)) {
+                            $userAccessRights[] = $accessRight;
+                        }
+                    }
+                    $user->setAccessRights($userAccessRights);
+                }
+
                 $em->flush();
 
                 $this->get('session')->getFlashBag()->add('success', 'L\'utilisateur a bien été ajouté.');

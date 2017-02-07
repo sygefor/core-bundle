@@ -91,12 +91,4 @@ class PublipostTemplate extends AbstractTerm implements VocabularyInterface
         // le chemin absolu du répertoire où les documents uploadés doivent être sauvegardés
         return __DIR__ . '/../../../../../app/Resources/Templates/Publipost';
     }
-
-    /**
-     * @return mixed
-     */
-    public static function orderBy()
-    {
-        return 'name';
-    }
 }

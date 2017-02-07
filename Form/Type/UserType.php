@@ -76,6 +76,18 @@ class UserType extends AbstractType
             },
         ));
 
+        // add choice list for user creation
+        if (!$options['data']->getId()) {
+            $builder->add('accessRightScope', 'choice', array(
+                'label' => 'Droits d\'accès',
+                'choices' => array(
+                    'own' => 'Droits locaux',
+                    'all' => 'Tous les droits'
+                ),
+                'required' => false
+            ));
+        }
+
         // If the user does not have the rights, remove the organization field and force the value
         $hasAccessRightForAll = $this->accessRightsRegistry->hasAccessRight('sygefor_core.rights.user.all');
         if ( ! $hasAccessRightForAll) {

@@ -95,9 +95,6 @@ class CSVBatchOperation extends AbstractBatchOperation
             }
         }
 
-        // reorder
-        $this->reorderByKeys($lines, $idList);
-
         // fields
         $fields = array();
 

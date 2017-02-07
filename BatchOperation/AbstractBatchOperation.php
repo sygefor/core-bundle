@@ -109,19 +109,21 @@ abstract class AbstractBatchOperation implements BatchOperationInterface
      */
     protected function getObjectList($idList)
     {
-        return $this->em->getRepository($this->targetClass)->findBy(array('id' => $idList));
+        $entities = $this->em->getRepository($this->targetClass)->findBy(array('id' => $idList));
+        $this->reorderByKeys($entities, $idList);
+
+        return $entities;
     }
 
     /**
      * Re-order a list by keys.
      */
-    protected function reorderByKeys(&$items, $keys)
-    {
-        uksort($items, function ($a, $b) use ($keys) {
-            $position_a = array_search($a, $keys, true);
-            $position_b = array_search($b, $keys, true);
+    protected function reorderByKeys(&$items, $keys) {
+        usort($items, function ($a, $b) use ($keys) {
+            $position_a = array_search($a->getId(), $keys);
+            $position_b = array_search($b->getId(), $keys);
 
-            return $position_a < $position_b ? -1 : 1;
+            return  $position_a < $position_b ? -1 : 1;
         });
     }
 }

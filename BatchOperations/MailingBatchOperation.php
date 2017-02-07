@@ -8,6 +8,7 @@
  */
 namespace Sygefor\Bundle\CoreBundle\BatchOperations;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperation\AbstractBatchOperation;
 use Sygefor\Bundle\CoreBundle\BatchOperation\BatchOperationModalConfigInterface;
@@ -18,7 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Exception\RuntimeException;
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Security\Core\SecurityContext;
 
 /**
@@ -49,10 +51,19 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
     public function __construct(SecurityContext $securityContext)
     {
         $this->options['tempDir'] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'sygefor' . DIRECTORY_SEPARATOR;
-        if ( ! file_exists($this->options['tempDir'])) {
+        if (!file_exists($this->options['tempDir'])) {
             mkdir($this->options['tempDir'], 0777);
         }
         $this->securityContext = $securityContext;
+    }
+
+    /**
+     * Get directory where generating file are written
+     * @return string
+     */
+    public function getTempDir()
+    {
+        return isset($this->options['tempDir']) ? $this->options['tempDir'] : sys_get_temp_dir();
     }
 
     /**
@@ -89,6 +100,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
     {
         $this->idList   = $idList;
         $entities       = $this->getObjectList($idList);
+        $this->setOptions($options);
         $deleteTemplate = false;
 
         //---setting choosed template file
@@ -179,7 +191,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
                 $response->setContent(readfile($fp));
                 $response->sendContent();
 
-                //file is then deleted
+                // file is then deleted
                 unlink($fp);
 
                 return $response;
@@ -211,6 +223,60 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         $TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
 
         $lines = array();
+
+        // add global variables with publipost shorcuts
+        $classCatalog = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getTermCatalog(get_class(current($entities)));
+        if (isset($classCatalog['shorcuts'])) {
+            $aliases = $classCatalog['shorcuts'];
+
+            $propertyAccessor = new PropertyAccessor();
+            foreach ($aliases as $alias => $params) {
+                $arrayValues = array();
+                $max = count($entities);
+                if (isset($params['current']) && $params['current'] === true && $max > 0) {
+                    $max = 1;
+                }
+                $i = 0;
+                $keys = array_keys($entities);
+                // get only current entity value with path or all entities values with path
+                while ($i < $max) {
+                    try {
+                        $val = $propertyAccessor->getValue($entities[$keys[$i]], $params['path']);
+                        // create an array collection to simplify work in foreach
+                        $collection = new ArrayCollection();
+                        if (is_object($val) && $val instanceof ArrayCollection) {
+                            $collection = $val;
+                        }
+                        else {
+                            $collection->add($val);
+                        }
+                        // get human readable accessor foreach value
+                        foreach ($collection as $item) {
+                            $accessor = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($item);
+                            if (is_object($item) && method_exists($item, 'getId')) {
+                                $id = $item->getId();
+                                $arrayValues[$id] = $accessor;
+                            }
+                            else {
+                                $arrayValues[] = $accessor;
+                            }
+                        }
+                    } catch (\Exception $e) {
+
+                    }
+                    $i++;
+                }
+
+                if (isset($params['sort']) && $params['sort']) {
+                    usort($arrayValues, function($a, $b) use ($params, $propertyAccessor) {
+                        return $propertyAccessor->getValue($a, $params['sort']) > $propertyAccessor->getValue($b, $params['sort']);
+                    });
+                }
+
+                $TBS->MergeBlock($alias, $arrayValues);
+            }
+        }
+
         //iterating through properties to construct a (nested) array of properties => values
         foreach ($entities as $entity) {
             if ($this->securityContext->isGranted('VIEW', $entity)) {
@@ -218,10 +284,6 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
                 $lines[$entity->getId()] = $data;
 
             }
-        }
-
-        if ( ! empty($this->idList)) {
-            $this->reorderByKeys($lines, $this->idList);
         }
 
         ob_start();
@@ -301,7 +363,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
      *
      * @return string pdf file name, or null if error
      */
-    private function toPdf($fileName, $outputFileName = null)
+    public function toPdf($fileName, $outputFileName = null)
     {
         if (empty($outputFileName)) {
             $outputFileName = $fileName;
@@ -318,13 +380,13 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
             '--output=' . $this->options['tempDir'] . $outputFileName,
             $this->options['tempDir'] . $fileName,
         );
-        $pb      = new ProcessBuilder($args);
-        $process = $pb->getProcess();
+        $process = new Process(implode(' ', $args));
 
         // run
         try {
             $process->run();
-        } catch (RuntimeException $exception) {
+        }
+        catch (RuntimeException $exception) {
             // unoconv somtimes returns 8 (SIGFPE) error code but still produces a correct output,
             // so we can ignore it.
             if ($exception->getCode() !== 8) {
@@ -349,6 +411,9 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         //keeping only first char after '&', so that &eacute becomes e for example
         $str = preg_replace('#&([A-Za-z])(?:acute|cedil|caron|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
         $str = preg_replace('#&[^;]+;#', '', $str); // removing not recognized chars
+
+        $str = str_replace(' ', '_', $str);
+        $str = str_replace('\'', '-', $str);
 
         return $str;
     }

@@ -48,19 +48,35 @@ class EmailingBatchOperation extends AbstractBatchOperation
         $targetEntities = $this->getObjectList($idList);
 
         if (isset($options['preview']) && $options['preview']) {
-            return $this->parseAndSendMail($targetEntities[0], isset($options['subject']) ? $options['subject'] : '', isset($options['message']) ? $options['message'] : '', null, $preview = true);
+            return $this->parseAndSendMail(
+                $targetEntities[0],
+                isset($options['subject']) ? $options['subject'] : '',
+                isset($options['message']) ? $options['message'] : '',
+                isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
+                null,
+                $preview = true,
+                isset($options['organization']) ? $options['organization'] : null
+            );
         }
 
         // check if user has access
         // check trainee proxy for inscription checkout
         if (isset($options['typeUser']) && get_parent_class($options['typeUser']) !== AbstractTrainee::class) {
             foreach ($targetEntities as $key => $user) {
-                if ( ! $this->container->get('security.context')->isGranted('VIEW', $user)) {
+                if (!$this->container->get('security.context')->isGranted('VIEW', $user)) {
                     unset($targetEntities[$key]);
                 }
             }
         }
-        $this->parseAndSendMail($targetEntities, isset($options['subject']) ? $options['subject'] : '', isset($options['message']) ? $options['message'] : '', (isset($options['attachment'])) ? $options['attachment'] : null);
+        $this->parseAndSendMail(
+            $targetEntities,
+            isset($options['subject']) ? $options['subject'] : '',
+            isset($options['message']) ? $options['message'] : '',
+            isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
+            (isset($options['attachment'])) ? $options['attachment'] : null,
+            false,
+            isset($options['organization']) ? $options['organization'] : null
+        );
 
         return new Response('', 204);
     }
@@ -101,14 +117,15 @@ class EmailingBatchOperation extends AbstractBatchOperation
      * @param $subject
      * @param $body
      * @param array $attachments
+     * @param array $templateAttachments
      * @param bool  $preview
      *
      * @return array
      */
-    public function parseAndSendMail($entities, $subject, $body, $attachments = array(), $preview = false)
+    public function parseAndSendMail($entities, $subject, $body, $templateAttachments, $attachments = array(), $preview = false, $organization = null)
     {
         $doClear = true;
-        if ( ! is_array($entities)) {
+        if (!is_array($entities)) {
             $entities = array($entities);
             $doClear  = false;
         }
@@ -121,23 +138,36 @@ class EmailingBatchOperation extends AbstractBatchOperation
             return array('email' => array(
                 'subject' => $this->replaceTokens($subject, $entities[0]),
                 'message' => $this->replaceTokens($body, $entities[0]),
+                'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) { return $attachment['name']; }, $templateAttachments) : null,
+                'attachments' => $attachments
             ));
         }
         else {
+            $em = $this->em;
             $message      = \Swift_Message::newInstance();
-            $organization = $this->container->get('security.context')->getToken()->getUser()->getOrganization();
+
+            if (is_int($organization)) {
+                $organization = $this->container->get('doctrine')->getRepository('SygeforCoreBundle:Organization')->find($organization);
+            }
+            else {
+                $organization = $this->container->get('security.context')->getToken()->getUser()->getOrganization();
+            }
 
             $message->setFrom($this->container->getParameter('mailer_from'), $organization->getName());
             $message->setReplyTo($organization->getEmail());
 
             // attachements
-            if ( ! empty($attachments)) {
-                if ( ! is_array($attachments)) {
+            if (!empty($attachments)) {
+                if (!is_array($attachments)) {
                     $attachments = array($attachments);
                 }
                 foreach ($attachments as $attachment) {
-                    $attached = new \Swift_Attachment(file_get_contents($attachment), (method_exists($attachment, 'getClientOriginalName')) ? $attachment->getClientOriginalName() : $attachment->getFileName());
-                    $message->attach($attached);
+                    if (!$attachment instanceof \Swift_Attachment) {
+                        $message->attach(new \Swift_Attachment(file_get_contents($attachment), (method_exists($attachment, 'getClientOriginalName')) ? $attachment->getClientOriginalName() : $attachment->getFileName()));
+                    }
+                    else {
+                        $message->attach($attachment);
+                    }
                 }
             }
 
@@ -149,15 +179,50 @@ class EmailingBatchOperation extends AbstractBatchOperation
             }
             foreach ($entities as $entity) {
                 try {
+                    $_message = clone $message;
+                    // load publipost templates
+                    $publipostTemplates = array();
+                    if ($templateAttachments) {
+                        foreach ($templateAttachments as $templateAttachment) {
+                            if (is_int($templateAttachment)) {
+                                $publipostTemplates[] = $templateAttachment;
+                            } else if (is_array($templateAttachment) && isset($templateAttachment['id'])) {
+                                $publipostTemplates[] = $templateAttachment['id'];
+                            }
+                        }
+                        $publipostTemplates = $em->getRepository('SygeforListBundle:Term\PublipostTemplate')->findBy(array('id' => $publipostTemplates));
+                        foreach ($publipostTemplates as $publipostTemplate) {
+                            // find specific publipost service suffix
+                            $entityType = $publipostTemplate->getEntity();
+                            $entityType = explode('\\', $entityType);
+                            $entityType = $entityType[count($entityType) - 1];
+                            $serviceSuffix = strtolower($entityType);
+
+                            // call publipost action and generate pdf
+                            $publipostService = $this->container->get('sygefor_list.batch.publipost.' . $serviceSuffix);
+                            $publipostIdList = array($entity->getId());
+                            $publipostOptions = array('template' => $publipostTemplate->getId());
+                            $file = $publipostService->execute($publipostIdList, $publipostOptions);
+                            $fileName = $file['fileUrl'];
+                            $fileName = $publipostService->getTempDir() . $publipostService->toPdf($fileName);
+
+                            // attach pdf to mail
+                            if (file_exists($fileName)) {
+                                $publipostSwiftAttachment = new \Swift_Attachment(file_get_contents($fileName), $publipostTemplate->getName() . ".pdf");
+                                $_message->attach($publipostSwiftAttachment);
+                            }
+                        }
+                    }
+
                     // reload entity because of em clear
                     $entity = $em->getRepository(get_class($entity))->find($entity->getId());
 
                     $hrpa  = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
                     $email = $hrpa->email;
-                    $message->setTo($email);
-                    $message->setSubject($this->replaceTokens($subject, $entity));
-                    $message->setBody($this->replaceTokens($body, $entity));
-                    $last = $this->container->get('mailer')->send($message);
+                    $_message->setTo($email);
+                    $_message->setSubject($this->replaceTokens($subject, $entity));
+                    $_message->setBody($this->replaceTokens($body, $entity));
+                    $last = $this->container->get('mailer')->send($_message);
 
                     // save email in db
                     $email = new Email();
@@ -173,8 +238,8 @@ class EmailingBatchOperation extends AbstractBatchOperation
                         $email->setTrainee($entity->getTrainee());
                         $email->setSession($entity->getSession());
                     }
-                    $email->setSubject($message->getSubject());
-                    $email->setBody($message->getBody());
+                    $email->setSubject($_message->getSubject());
+                    $email->setBody($_message->getBody());
                     $email->setSendAt(new \DateTime('now', new \DateTimeZone('Europe/Paris')));
                     $em->persist($email);
                     if (++$i % 500 === 0) {

@@ -4,20 +4,21 @@
 /**
  * BatchMailingController
  */
-sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$modalInstance', '$dialogParams', '$dialog', 'config', 'growl', function($scope, $http, $window, $modalInstance, $dialogParams, $dialog, config, growl)
-{
+sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$modalInstance', '$dialogParams', '$dialog', 'config', 'growl', function ($scope, $http, $window, $modalInstance, $dialogParams, $dialog, config, growl) {
     $scope.dialog = $modalInstance;
     $scope.items = $dialogParams.items;
     $scope.targetClass = $dialogParams.targetClass;
 
     //building templates contents
     $scope.templates = [];
-    for(var i in config.templates) {
+    for (var i in config.templates) {
         $scope.templates[i] = {
             'key': i,
             'label': config.templates[i]['name'],
             'subject': config.templates[i]['subject'],
-            'body': config.templates[i]['body']
+            'body': config.templates[i]['body'],
+            'templateAttachments': config.templates[i]['attachmentTemplates'],
+            'templateAttachmentChecklist': []
         };
     }
 
@@ -25,7 +26,9 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
         'key': -1,
         'label': '',
         'subject': '',
-        'body': ''
+        'body': '',
+        'templateAttachments': null,
+        'templateAttachmentChecklist': []
     });
 
     if ($scope.templates.length) {
@@ -33,13 +36,18 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
             template: $scope.templates[0],
             subject: $scope.templates[0]['subject'],
             body: $scope.templates[0]['body'],
+            templateAttachments: $scope.templates[0]['templateAttachments'],
+            templateAttachmentChecklist: [],
             attachment: null
         };
-    } else {
+    }
+    else {
         $scope.message = {
             template: null,
             subject: '',
             body: '',
+            templateAttachments: null,
+            templateAttachmentChecklist: [],
             attachment: null
         };
     }
@@ -51,28 +59,29 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
      * if mail sending is performed without errors, the file is asked for download
      */
     $scope.ok = function () {
-
-        if(!($scope.message.subject || $scope.message.message)) {
-            $scope.formError = 'Pas de corps de message' ;
+        if (!($scope.message.subject || $scope.message.message)) {
+            $scope.formError = 'Pas de corps de message';
             return;
         }
 
-        $scope.formError = '' ;
-
-        var url = Routing.generate('sygefor_core.batch_operation.execute', {id: 'sygefor_core.batch.email'});
-
+        $scope.formError = '';
+        var url = Routing.generate('sygefor_list.batch_operation.execute', {id: 'sygefor_list.batch.email'});
         var data = {
             options: {
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
-                message: $scope.message.body
-                //objects: {'SygeforTrainingBundle:Session\AbstractSession': $dialogParams.session.id }
+                message: $scope.message.body,
+                templateAttachments: null,
             },
             attachment: $scope.message.attachment,
             ids: $scope.items.join(",")
         };
 
-        $http({method: 'POST',
+        // remove checkbox template values and templateAttachments unchecked
+        data.options.templateAttachments = removeUncheckedPublipostTemplate($scope.message.templateAttachments, $scope.message.templateAttachmentChecklist);
+
+        $http({
+            method: 'POST',
             url: url,
             transformRequest: function (data) {
                 var formData = new FormData();
@@ -99,13 +108,15 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
     /**
      * open a new dialog modal corresponding to a batch email operation in preview mode.
      */
-    $scope.preview = function() {
+    $scope.preview = function () {
+        var attachments = angular.copy($scope.message.templateAttachments);
         $dialog.open('batch.emailPreview', {
             ids: $scope.items[0],
             options: {
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
-                message: $scope.message.body
+                message: $scope.message.body,
+                templateAttachments: removeUncheckedPublipostTemplate(attachments, $scope.message.templateAttachmentChecklist)
             }
         });
     };
@@ -115,23 +126,30 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
      * then replaced byselected template values
      */
     $scope.$watch('message.template', function (newValue, oldValue) {
-        if(newValue) {
+        if (newValue) {
             //storing changes
             if (oldValue && (oldValue.key != newValue.key)) {
                 oldValue.subject = $scope.message.subject;
                 oldValue.body = $scope.message.body;
+                oldValue.templateAttachments = $scope.message.templateAttachments;
+                oldValue.templateAttachmentChecklist = $scope.message.templateAttachmentChecklist;
             }
             //replacing values
             $scope.message.subject = newValue.subject;
             $scope.message.body = newValue.body;
+            $scope.message.templateAttachments = newValue.templateAttachments;
+            $scope.message.templateAttachmentChecklist = [];
+            angular.forEach (newValue.templateAttachments, function(templateAttachment) {
+                $scope.message.templateAttachmentChecklist[templateAttachment['id']] = true;
+            });
         }
     });
 
     /**
      * watches file upload attachment
      */
-    $scope.fileChanged = function(element, $scope) {
-        $scope.$apply(function(scope) {
+    $scope.fileChanged = function (element, $scope) {
+        $scope.$apply(function (scope) {
             $scope.message.attachment = element.files[0];
         });
     };
@@ -141,6 +159,32 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window','$mo
      */
     $scope.resetUpload = function () {
         $scope.message.attachment = null;
-        angular.element( $('#inputAttachment')).val(null);
+        angular.element($('#inputAttachment')).val(null);
+    };
+
+    $scope.isAObject = function(mixed) {
+        return typeof mixed === "object";
     };
 }]);
+
+/**
+ * Remove checkbox template values and templateAttachments unchecked
+ * @param templateAttachments
+ * @param templateAttachmentChecklist
+ * @returns {*}
+ */
+function removeUncheckedPublipostTemplate(templateAttachments, templateAttachmentChecklist) {
+    var attachments = [];
+    for (var id in templateAttachmentChecklist) {
+        if (templateAttachmentChecklist[id] === true) {
+            for (var j in templateAttachments) {
+                if ((templateAttachments[j]['id'] + '') === id) {
+                    attachments.push(angular.copy(templateAttachments[j]));
+                    break;
+                }
+            }
+        }
+    }
+
+    return attachments;
+}

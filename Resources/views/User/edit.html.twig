@@ -6,6 +6,9 @@
     {{ form_row(form.username) }}
     {% if form.organization is defined %}
         {{ form_row(form.organization) }}
+        {% if form.accessRightScope is defined %}
+            {{ form_row(form.accessRightScope) }}
+        {% endif %}
     {% endif %}
     {{ form_row(form.email) }}
     {{ form_row(form.plainPassword) }}
