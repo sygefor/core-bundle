@@ -13,6 +13,7 @@ use FOS\ElasticaBundle\Elastica\Index;
 use Sygefor\Bundle\CoreBundle\BatchOperation\AbstractBatchOperation;
 use Sygefor\Bundle\CoreBundle\Search\SearchService;
 use Sygefor\Bundle\TrainingBundle\Model\SemesteredTraining;
+use Sygefor\Bundle\TrainingBundle\Entity\Training\AbstractTraining;
 use Sygefor\Bundle\TrainingBundle\Registry\TrainingTypeRegistry;
 use Symfony\Component\Security\Core\SecurityContext;
 
@@ -141,15 +142,15 @@ class ConvertTypeBatchOperation extends AbstractBatchOperation
     }
 
     /**
-     * @param Training      $training
+     * @param AbstractTraining      $training
      * @param string        $type
      * @param EntityManager $em
      * @param int           $key
      */
-    protected function createAndCopyEntity(Training $training, $type, EntityManager $em, $key)
+    protected function createAndCopyEntity(AbstractTraining $training, $type, EntityManager $em, $key)
     {
         // get database max number for organization
-        $query = $em->createQuery('SELECT MAX(t.number) FROM SygeforTrainingBundle:Training t WHERE t.organization = :organization')
+        $query = $em->createQuery('SELECT MAX(t.number) FROM SygeforTrainingBundle:AbstractTraining\Training t WHERE t.organization = :organization')
             ->setParameter('organization', $training->getOrganization());
         $max = (int) $query->getSingleScalarResult();
 
@@ -172,8 +173,8 @@ class ConvertTypeBatchOperation extends AbstractBatchOperation
     }
 
     /**
-     * @param Training $dest
-     * @param Training $source
+     * @param AbstractTraining $dest
+     * @param AbstractTraining $source
      */
     protected function mergeArrayCollectionsAndFlush($dest, $source)
     {

@@ -11,6 +11,9 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations;
 use Knp\Bundle\SnappyBundle\Snappy\LoggableGenerator;
 use Knp\Snappy\Pdf;
 use Sygefor\Bundle\CoreBundle\BatchOperation\AbstractBatchOperation;
+use Sygefor\Bundle\InscriptionBundle\Entity\AbstractInscription;
+use Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\TrainingBundle\Entity\Training\AbstractTraining;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Kernel;
@@ -149,13 +152,13 @@ class PDFBatchOperation extends AbstractBatchOperation
 
                 $signature = null;
                 $training  = null;
-                if ($entity instanceof Training) {
+                if ($entity instanceof AbstractTraining) {
                     $training = $entity;
                 }
-                else if ($entity instanceof Session) {
+                else if ($entity instanceof AbstractSession) {
                     $training = $entity->getTraining();
                 }
-                else if ($entity instanceof Inscription) {
+                else if ($entity instanceof AbstractInscription) {
                     $training = $entity->getSession()->getTraining();
                 }
                 //checking signature file existence

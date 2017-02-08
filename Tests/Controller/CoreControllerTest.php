@@ -50,7 +50,7 @@ class CoreControllerTest extends WebTestCase
     public function testEntity()
     {
         // get one training
-        $repository = $this->getEntityManager()->getRepository('SygeforTrainingBundle:Training');
+        $repository = $this->getEntityManager()->getRepository('SygeforTrainingBundle:Training\AbstractTraining');
         $training   = $repository->findOneBy(array());
 
         // build url

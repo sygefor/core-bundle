@@ -62,7 +62,7 @@ class BatchOperationController extends Controller
 
         $batchOperation = $this->get('sygefor_core.batch_operation_registry')->get($id);
 
-        if ( ! $batchOperation) {
+        if (!$batchOperation) {
             throw new NotFoundHttpException('Operation not found : ' . $id);
         }
 

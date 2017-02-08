@@ -63,8 +63,14 @@ class TaxonomyController extends Controller
         // for mixed vocabularies
         $canEditNationalTerms = $this->get('security.context')->isGranted('VIEW', $abstractVocabulary);
 
-        if (($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_LOCAL || $abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_MIXED) && !$organization) {
-            return $this->redirect($this->generateUrl('taxonomy.view', array('vocabularyId' => $vocabularyId, 'organizationId' => $this->get('security.context')->getToken()->getUser()->getOrganization()->getId())));
+        if (!$organization) {
+            $redirectUrl = $this->redirect($this->generateUrl('taxonomy.view', array('vocabularyId' => $vocabularyId, 'organizationId' => $this->get('security.context')->getToken()->getUser()->getOrganization()->getId())));
+            if ($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_LOCAL) {
+                return $redirectUrl;
+            }
+            else if ($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_MIXED && !$canEditNationalTerms) {
+                return $redirectUrl;
+            }
         }
 
         // set organization to abstract vocabulary to check access rights
@@ -89,7 +95,7 @@ class TaxonomyController extends Controller
         $terms = $this->getRootTerms($abstractVocabulary, $organization);
         if ($organization) {
             foreach ($terms as $key => $term) {
-                if ( ! $term->getOrganization()) {
+                if (!$term->getOrganization()) {
                     unset($terms[$key]);
                 }
             }

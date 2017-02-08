@@ -65,7 +65,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         }
 
         $scope.formError = '';
-        var url = Routing.generate('sygefor_list.batch_operation.execute', {id: 'sygefor_list.batch.email'});
+        var url = Routing.generate('sygefor_core.batch_operation.execute', {id: 'sygefor_core.batch.email'});
         var data = {
             options: {
                 targetClass: $scope.targetClass,

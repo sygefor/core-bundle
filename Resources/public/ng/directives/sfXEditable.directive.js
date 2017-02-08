@@ -178,7 +178,8 @@ sygeforApp.directive('sfXeditable', ['$timeout', function ($timeout) {
         require: '^sfXeditableForm',
         scope: {
             'sfXeditable': "=",
-            'onChange': '&'
+            'onChange': '&',
+            'sfChoices': '='
         },
         link: function (scope, element, attrs, formCtrl) {
             var $element = angular.element(element);
@@ -267,6 +268,12 @@ sygeforApp.directive('sfXeditable', ['$timeout', function ($timeout) {
                     case "checkbox":
                         // yes/no choice list
                         options.source = [{value: 1, text: "Oui"}, {value: 0, text: "Non"}];
+                        // replace option labels
+                        if (scope.sfChoices !== undefined) {
+                            for (var i in scope.sfChoices) {
+                                options.source[i].text = scope.sfChoices[i];
+                            }
+                        }
                         options.type = 'select';
                         options.value = formElt.checked ? 1 : 0;
                         options.params = function (params) {

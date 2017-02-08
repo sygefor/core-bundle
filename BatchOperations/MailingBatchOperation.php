@@ -110,9 +110,10 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
             $this->currentTemplate         = $this->options['tempDir'] . $this->options['templateFile']->getClientOriginalName();
             $this->currentTemplateFileName = $this->options['templateFile']->getClientOriginalName();
             $deleteTemplate                = true;
-        } else if (isset($this->options['template']) && (is_integer($this->options['template']))) {
+        }
+        else if (isset($this->options['template']) && (is_integer($this->options['template']))) {
             //file was choosed in template list
-            $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.publipost_template');
+            $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_publipost_template');
             /** @var EntityManager $em */
             $em   = $this->em;
             $repo = $em->getRepository(get_class($templateTerm));
@@ -121,7 +122,8 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
 
             $this->currentTemplate         = $template->getAbsolutePath();
             $this->currentTemplateFileName = $template->getFileName();
-        } else {// 3/ Error...
+        }
+        else {// 3/ Error...
             return '';
         }
 
@@ -337,7 +339,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
      */
     public function getModalConfig($options = array())
     {
-        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.publipost_template');
+        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_publipost_template');
         /** @var EntityManager $em */
         $em   = $this->em;
         $repo = $em->getRepository(get_class($templateTerm));

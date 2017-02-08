@@ -122,7 +122,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
      *
      * @return array
      */
-    public function parseAndSendMail($entities, $subject, $body, $templateAttachments, $attachments = array(), $preview = false, $organization = null)
+    public function parseAndSendMail($entities, $subject, $body, $templateAttachments = array(), $attachments = array(), $preview = false, $organization = null)
     {
         $doClear = true;
         if (!is_array($entities)) {
@@ -173,7 +173,6 @@ class EmailingBatchOperation extends AbstractBatchOperation
 
             // foreach entity
             $i  = 0;
-            $em = $this->em;
             if ($doClear) {
                 $em->clear();
             }
@@ -186,11 +185,12 @@ class EmailingBatchOperation extends AbstractBatchOperation
                         foreach ($templateAttachments as $templateAttachment) {
                             if (is_int($templateAttachment)) {
                                 $publipostTemplates[] = $templateAttachment;
-                            } else if (is_array($templateAttachment) && isset($templateAttachment['id'])) {
+                            }
+                            else if (is_array($templateAttachment) && isset($templateAttachment['id'])) {
                                 $publipostTemplates[] = $templateAttachment['id'];
                             }
                         }
-                        $publipostTemplates = $em->getRepository('SygeforListBundle:Term\PublipostTemplate')->findBy(array('id' => $publipostTemplates));
+                        $publipostTemplates = $em->getRepository('SygeforCoreBundle:Term\PublipostTemplate')->findBy(array('id' => $publipostTemplates));
                         foreach ($publipostTemplates as $publipostTemplate) {
                             // find specific publipost service suffix
                             $entityType = $publipostTemplate->getEntity();
@@ -199,7 +199,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                             $serviceSuffix = strtolower($entityType);
 
                             // call publipost action and generate pdf
-                            $publipostService = $this->container->get('sygefor_list.batch.publipost.' . $serviceSuffix);
+                            $publipostService = $this->container->get('sygefor_core.batch.publipost.' . $serviceSuffix);
                             $publipostIdList = array($entity->getId());
                             $publipostOptions = array('template' => $publipostTemplate->getId());
                             $file = $publipostService->execute($publipostIdList, $publipostOptions);
