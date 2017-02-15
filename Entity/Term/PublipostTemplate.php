@@ -78,8 +78,19 @@ class PublipostTemplate extends AbstractTerm implements VocabularyInterface
      */
     public function validateFile(ExecutionContext $context)
     {
-        if (empty($this->file)) {
-            $context->addViolationAt('file', 'Vous devez sélectionner un fichier');
+        if ($this->file && !empty($this->file) && !in_array($this->file->getMimeType(), array(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
+                "application/vnd.oasis.opendocument.text", // odt
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // xlsx
+                "application/vnd.oasis.opendocument.spreadsheet", // ods
+            ))) {
+            $context
+                ->buildViolation("Vous devez fournir un fichier docx, odt, xlsx ou ods.")
+                ->atPath('file')
+                ->addViolation();
+            $this->file = null;
+            $this->fileName = null;
+            $this->filePath = null;
         }
     }
 

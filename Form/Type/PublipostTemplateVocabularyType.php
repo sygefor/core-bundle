@@ -38,13 +38,13 @@ class PublipostTemplateVocabularyType extends VocabularyType
 
         $builder->add('entity', ChoiceType::class, array(
             'label'   => 'Entité associée',
-            'choices' => $this->HRPAFactory->getKnownEntities(false),
+            'choices' => $this->HRPAFactory->getKnownEntities(false)
         ));
 
         $builder->add('file', FileType::class, array(
             'label'      => 'Fichier du modèle',
-            'required'   => true,
             'block_name' => 'updatable_file',
+            'required'   => true
         ));
     }
 }
