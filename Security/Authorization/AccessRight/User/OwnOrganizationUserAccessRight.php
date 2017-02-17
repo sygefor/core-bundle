@@ -39,7 +39,7 @@ class OwnOrganizationUserAccessRight extends AbstractAccessRight
     public function isGranted(TokenInterface $token, $object = null, $attribute)
     {
         if ($object) {
-            return $object->getOrganization() === $token->getUser()->getOrganization();
+            return $object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId();
         }
         else {
             return true;
