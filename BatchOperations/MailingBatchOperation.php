@@ -105,10 +105,11 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
 
         //---setting choosed template file
         // 1/ File was provided by user
-        if (isset($this->options['templateFile']) && ($this->options['templateFile'] !== '')) {
-            $this->options['templateFile']->move($this->options['tempDir'], $this->options['templateFile']->getClientOriginalName());
-            $this->currentTemplate         = $this->options['tempDir'] . $this->options['templateFile']->getClientOriginalName();
-            $this->currentTemplateFileName = $this->options['templateFile']->getClientOriginalName();
+        if (isset($this->options['attachment']) && !empty($this->options['attachment'])) {
+            $attachment = $this->options['attachment'][0];
+            $attachment->move($this->options['tempDir'], $attachment->getClientOriginalName());
+            $this->currentTemplate         = $this->options['tempDir'] . $attachment->getClientOriginalName();
+            $this->currentTemplateFileName = $attachment->getClientOriginalName();
             $deleteTemplate                = true;
         }
         else if (isset($this->options['template']) && (is_integer($this->options['template']))) {
@@ -394,6 +395,10 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
             if ($exception->getCode() !== 8) {
                 throw $exception;
             }
+        }
+
+        if (!empty($process->getErrorOutput())) {
+            throw new RuntimeException("The PDF file has not been generated : " . $process->getErrorOutput());
         }
 
         return $outputFileName;

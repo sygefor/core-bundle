@@ -26,10 +26,12 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" ng-if="email.attachment">
-            <label class="col-sm-3 control-label">Pièce jointe supplémentaire</label>
+        <div class="form-group" ng-if="email.attachments.length > 0">
+            <label class="col-sm-3 control-label">Pièce{{ email.attachments.length > 1 ? 's' : '' }} jointe{{ email.attachments.length > 1 ? 's' : '' }} supplémentaire{{ email.attachments.length > 1 ? 's' : '' }}</label>
             <div class="col-md-9">
-                <div>{{ email.attachment.name }}</div>
+                <div ng-repeat="attachment in email.attachments" class="form-control" style="height: auto">
+                    <span>{{ attachment.name }}</span>
+                </div>
             </div>
         </div>
     </div>

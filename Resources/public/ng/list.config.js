@@ -64,7 +64,7 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
                 subject: email.subject,
                 message: email.message,
                 templateAttachments: email.templateAttachments,
-                attachments: email.attachments
+                attachments: $dialogParams.attachments
             };
             $scope.modalInstance = $modalInstance;
         },

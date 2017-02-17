@@ -47,9 +47,13 @@ class BatchOperationController extends Controller
             }
         }
 
-        //files are stored in option list using form name as key
-        foreach ($request->files as $key => $file) {
-            $options[$key] = $file;
+        if (count($request->files) > 0) {
+            $attachments = array();
+            //files are stored in option list using form name as key
+            foreach ($request->files as $key => $file) {
+                $attachments[] = $file;
+            }
+            $options['attachment'] = $attachments;
         }
 
         //also need to decode id list

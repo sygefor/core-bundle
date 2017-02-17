@@ -37,8 +37,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             subject: $scope.templates[0]['subject'],
             body: $scope.templates[0]['body'],
             templateAttachments: $scope.templates[0]['templateAttachments'],
-            templateAttachmentChecklist: [],
-            attachment: null
+            templateAttachmentChecklist: []
         };
     }
     else {
@@ -48,10 +47,10 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             body: '',
             templateAttachments: null,
             templateAttachmentChecklist: [],
-            attachment: null
         };
     }
 
+    $scope.message.attachments = [];
     $scope.formError = '';
 
     /**
@@ -73,7 +72,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 message: $scope.message.body,
                 templateAttachments: null,
             },
-            attachment: $scope.message.attachment,
+            attachments: $scope.message.attachments,
             ids: $scope.items.join(",")
         };
 
@@ -92,7 +91,9 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 //now add all of the assigned files
                 formData.append("ids", angular.toJson(data.ids));
                 //add each file to the form data and iteratively name them
-                formData.append("attachment", data.attachment);
+                for (var key in data.attachments) {
+                    formData.append("attachment_" + key, data.attachments[key]);
+                }
 
                 return formData;
             },
@@ -117,7 +118,8 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 subject: $scope.message.subject,
                 message: $scope.message.body,
                 templateAttachments: removeUncheckedPublipostTemplate(attachments, $scope.message.templateAttachmentChecklist)
-            }
+            },
+            attachments : $scope.message.attachments
         });
     };
 
@@ -145,20 +147,23 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         }
     });
 
-    /**
-     * watches file upload attachment
-     */
     $scope.fileChanged = function (element, $scope) {
         $scope.$apply(function (scope) {
-            $scope.message.attachment = element.files[0];
+            for (var key in element.files) {
+                if (typeof element.files[key] === "object") {
+                    $scope.message.attachments.push(element.files[key]);
+                }
+            }
         });
+        angular.element($('#inputAttachment')).val(null);
     };
 
     /**
-     * clears attachment
+     * Remove file attachment
+     * @param key
      */
-    $scope.resetUpload = function () {
-        $scope.message.attachment = null;
+    $scope.removeAttachment = function(key) {
+        $scope.message.attachments.splice(key, 1);
         angular.element($('#inputAttachment')).val(null);
     };
 
