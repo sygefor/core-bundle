@@ -50,7 +50,7 @@ class OwnOrganizationVocabularyAccessRight extends AbstractAccessRight
             return true;
         }
         else if ($object) {
-            return $object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && $object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId();
+            return ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && (!$object->getOrganization() || ($object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId())));
         }
         else {
             return true;
