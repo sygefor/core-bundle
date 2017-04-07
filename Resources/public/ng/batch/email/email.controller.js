@@ -16,6 +16,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             'key': i,
             'label': config.templates[i]['name'],
             'subject': config.templates[i]['subject'],
+            'cc': replaceCCFormat(config.templates[i]['cc']),
             'body': config.templates[i]['body'],
             'templateAttachments': config.templates[i]['attachmentTemplates'],
             'templateAttachmentChecklist': []
@@ -26,6 +27,11 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         'key': -1,
         'label': '',
         'subject': '',
+        'cc': {
+            employer: false,
+            manager: false,
+            trainingCorrespondent: false
+        },
         'body': '',
         'templateAttachments': null,
         'templateAttachmentChecklist': []
@@ -35,6 +41,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         $scope.message = {
             template: $scope.templates[0],
             subject: $scope.templates[0]['subject'],
+            cc: $scope.templates[0]['cc'],
             body: $scope.templates[0]['body'],
             templateAttachments: $scope.templates[0]['templateAttachments'],
             templateAttachmentChecklist: []
@@ -44,6 +51,11 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         $scope.message = {
             template: null,
             subject: '',
+            cc: {
+                employer: false,
+                manager: false,
+                trainingCorrespondent: false
+            },
             body: '',
             templateAttachments: null,
             templateAttachmentChecklist: [],
@@ -69,8 +81,9 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             options: {
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
+                cc: $scope.message.cc,
                 message: $scope.message.body,
-                templateAttachments: null,
+                templateAttachments: null
             },
             attachments: $scope.message.attachments,
             ids: $scope.items.join(",")
@@ -116,6 +129,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             options: {
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
+                cc: $scope.message.cc,
                 message: $scope.message.body,
                 templateAttachments: removeUncheckedPublipostTemplate(attachments, $scope.message.templateAttachmentChecklist)
             },
@@ -132,12 +146,14 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             //storing changes
             if (oldValue && (oldValue.key != newValue.key)) {
                 oldValue.subject = $scope.message.subject;
+                oldValue.cc = $scope.message.cc;
                 oldValue.body = $scope.message.body;
                 oldValue.templateAttachments = $scope.message.templateAttachments;
                 oldValue.templateAttachmentChecklist = $scope.message.templateAttachmentChecklist;
             }
             //replacing values
             $scope.message.subject = newValue.subject;
+            $scope.message.cc = newValue.cc;
             $scope.message.body = newValue.body;
             $scope.message.templateAttachments = newValue.templateAttachments;
             $scope.message.templateAttachmentChecklist = [];
@@ -171,6 +187,36 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         return typeof mixed === "object";
     };
 }]);
+
+
+/**
+ * Reformat symfony cc array to angular object
+ * @param cc
+ * @returns {{alternativeEmail: boolean, manager: boolean, trainingCorrespondent: boolean, financialCorrespondent: boolean}}
+ */
+function replaceCCFormat(cc) {
+    var reformatCC = {
+        employer: false,
+        manager: false,
+        trainingCorrespondent: false
+    };
+
+    if (cc === undefined) {
+        return reformatCC;
+    }
+
+    // force convert cc to array
+    var ccArray = [];
+    for (var key in cc) {
+        ccArray[key] = cc[key];
+    }
+
+    reformatCC.employer = ccArray.indexOf('employer') >= 0 ? true : false;
+    reformatCC.manager = ccArray.indexOf('manager') >= 0 ? true : false;
+    reformatCC.trainingCorrespondent = ccArray.indexOf('trainingCorrespondent') >= 0 ? true : false;
+
+    return reformatCC;
+}
 
 /**
  * Remove checkbox template values and templateAttachments unchecked

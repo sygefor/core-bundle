@@ -35,6 +35,10 @@ services:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\NationalVocabularyAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Vocabulaires" }
+    sygefor_core.rights.vocabulary.view.all:
+        class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\NationalVocabularyViewAccessRight
+        tags:
+            - { name: sygefor_core.right_provider, group: "Vocabulaires" }
 
     # user voters
     sygefor_core.rights.user.own:

@@ -17,6 +17,19 @@
             </div>
         </div>
         <div class="form-group">
+            <label for="message" class="col-sm-2 control-label">CC </label>
+            <div class="col-sm-10">
+                <input type="checkbox" ng-model="options.cc.employer" id="cc_1">
+                <label class="control-label" for="cc_1">Employeur</label>&nbsp;
+
+                <input type="checkbox" ng-model="options.cc.manager" id="cc_2">
+                <label class="control-label" for="cc_2">Directeur</label>&nbsp;
+
+                <input type="checkbox" ng-model="options.cc.trainingCorrespondent" id="cc_3">
+                <label class="control-label" for="cc_3">Correspondants formation</label>
+            </div>
+        </div>
+        <div class="form-group">
             <label for="message" class="col-sm-2 control-label">Message </label>
             <div class="col-sm-10">
                 <textarea class="form-control" rows="10" id="message" ng-model="options.message"  placeholder="Message du mail"></textarea>

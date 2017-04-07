@@ -10,7 +10,7 @@
                         <div class="full-height-item is-full-width is-grow is-overflow-y">
                             <div class="list-group">
                                 {% for vocabularyc in vocabularies %}
-                                    <div class="list-group-item {{ vocabularyc.id == vocabulary.vocabularyId ? 'active' : '' }}">
+                                    <div class="list-group-item {{ vocabularyc.id == vocabulary.vocabularyId ? 'active' : '' }}{{ vocabularyc.canEdit ? '' : ' locked' }}">
                                         <a href="{{ path('taxonomy.view', { 'vocabularyId': vocabularyc.id }) }}">
                                             <span class="badge pull-right" title="Vocabulaire {{ vocabularyc.scope == 0 ? 'national' : (vocabularyc.scope == 1 ? 'local' : 'mixte') }}">
                                                 {% if vocabularyc.scope == 0 %}

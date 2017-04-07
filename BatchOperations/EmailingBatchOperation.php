@@ -16,6 +16,7 @@ use Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class EmailingBatchOperation extends AbstractBatchOperation
 {
@@ -51,6 +52,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
             return $this->parseAndSendMail(
                 $targetEntities[0],
                 isset($options['subject']) ? $options['subject'] : '',
+                isset($options['cc']) ? $options['cc'] : array(),
                 isset($options['message']) ? $options['message'] : '',
                 isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
                 null,
@@ -68,12 +70,13 @@ class EmailingBatchOperation extends AbstractBatchOperation
                 }
             }
         }
-        $this->parseAndSendMail(
+        return $this->parseAndSendMail(
             $targetEntities,
             isset($options['subject']) ? $options['subject'] : '',
+            isset($options['cc']) ? $options['cc'] : array(),
             isset($options['message']) ? $options['message'] : '',
             isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
-            (isset($options['attachment'])) ? $options['attachment'] : null,
+            isset($options['attachment']) ? $options['attachment'] : null,
             false,
             isset($options['organization']) ? $options['organization'] : null
         );
@@ -91,12 +94,12 @@ class EmailingBatchOperation extends AbstractBatchOperation
         $em   = $this->em;
         $repo = $em->getRepository(get_class($templateTerm));
 
-        if ( ! empty($options['inscriptionStatus'])) {
+        if (!empty($options['inscriptionStatus'])) {
             $repoInscriptionStatus = $em->getRepository('Sygefor\Bundle\TraineeBundle\Entity\Term\InscriptionStatus');
             $inscriptionStatus     = $repoInscriptionStatus->findById($options['inscriptionStatus']);
             $templates             = $repo->findBy(array('inscriptionStatus' => $inscriptionStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
         }
-        else if ( ! empty($options['presenceStatus'])) {
+        else if (!empty($options['presenceStatus'])) {
             $repoPresenceStatus = $em->getRepository('Sygefor\Bundle\TraineeBundle\Entity\Term\PresenceStatus');
             $presenceStatus     = $repoPresenceStatus->findById($options['presenceStatus']);
             $templates          = $repo->findBy(array('presenceStatus' => $presenceStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
@@ -115,14 +118,14 @@ class EmailingBatchOperation extends AbstractBatchOperation
      *
      * @param $entities
      * @param $subject
+     * @param $cc
      * @param $body
      * @param array $attachments
-     * @param array $templateAttachments
      * @param bool  $preview
      *
      * @return array
      */
-    public function parseAndSendMail($entities, $subject, $body, $templateAttachments = array(), $attachments = array(), $preview = false, $organization = null)
+    public function parseAndSendMail($entities, $subject, $cc = array(), $body, $templateAttachments, $attachments = array(), $preview = false, $organization = null)
     {
         $doClear = true;
         if (!is_array($entities)) {
@@ -137,6 +140,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
         if ($preview) {
             return array('email' => array(
                 'subject' => $this->replaceTokens($subject, $entities[0]),
+                'cc'      => $cc,
                 'message' => $this->replaceTokens($body, $entities[0]),
                 'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) { return $attachment['name']; }, $templateAttachments) : null,
                 'attachments' => $attachments
@@ -144,7 +148,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
         }
         else {
             $em = $this->em;
-            $message      = \Swift_Message::newInstance();
+            $message = \Swift_Message::newInstance();
 
             if (is_int($organization)) {
                 $organization = $this->container->get('doctrine')->getRepository('SygeforCoreBundle:Organization')->find($organization);
@@ -185,8 +189,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                         foreach ($templateAttachments as $templateAttachment) {
                             if (is_int($templateAttachment)) {
                                 $publipostTemplates[] = $templateAttachment;
-                            }
-                            else if (is_array($templateAttachment) && isset($templateAttachment['id'])) {
+                            } else if (is_array($templateAttachment) && isset($templateAttachment['id'])) {
                                 $publipostTemplates[] = $templateAttachment['id'];
                             }
                         }
@@ -216,10 +219,15 @@ class EmailingBatchOperation extends AbstractBatchOperation
 
                     // reload entity because of em clear
                     $entity = $em->getRepository(get_class($entity))->find($entity->getId());
+                    $copies = $this->findCCRecipients($entity, $cc);
 
                     $hrpa  = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
                     $email = $hrpa->email;
                     $_message->setTo($email);
+                    $_message->setCc(array());
+                    foreach ($copies[0] as $key => $copy) {
+                        $_message->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);
+                    }
                     $_message->setSubject($this->replaceTokens($subject, $entity));
                     $_message->setBody($this->replaceTokens($body, $entity));
                     $last = $this->container->get('mailer')->send($_message);
@@ -228,6 +236,9 @@ class EmailingBatchOperation extends AbstractBatchOperation
                     $email = new Email();
                     $email->setUserFrom($em->getRepository('SygeforCoreBundle:User\User')->find($this->container->get('security.context')->getToken()->getUser()->getId()));
                     $email->setEmailFrom($organization->getEmail());
+                    foreach ($copies[0] as $key => $copy) {
+                        $email->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);
+                    }
                     if (get_parent_class($entity) === 'Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee') {
                         $email->setTrainee($entity);
                     }
@@ -279,5 +290,96 @@ class EmailingBatchOperation extends AbstractBatchOperation
             $content);
 
         return $newContent;
+    }
+
+    /**
+     * Get recipients email and name.
+     *
+     * @param $entity
+     * @param $cc
+     *
+     * @return array
+     */
+    private function findCCRecipients($entity, $cc)
+    {
+        // first retrieve trainee
+        $trainee = null;
+        if (get_parent_class($entity) === 'Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee') {
+            $trainee = $entity;
+        }
+        else if (get_parent_class($entity) === 'Sygefor\Bundle\InscriptionBundle\Entity\AbstractInscription') {
+            $trainee = $entity->getTrainee();
+        }
+
+        // if trainee not found do nothing
+        if (!$trainee) {
+            return array(array(), array());
+        }
+
+        // use property accessor to get desired values
+        $accessor            = PropertyAccess::createPropertyAccessor();
+        $propertyEmailPathes = array(
+            'employer'               => 'employer.email',
+            'manager'                => 'institution.manager.email',
+            'trainingCorrespondent'  => array('institution.trainingCorrespondents' => 'email'),
+        );
+        $propertyNamesPathes = array(
+            'employer'               => 'employer.name',
+            'manager'                => 'institution.manager.fullName',
+            'trainingCorrespondent'  => array('institution.trainingCorrespondents' => 'fullName'),
+        );
+
+        if (!$trainee->getEmployer()) {
+            unset($propertyEmailPathes['employer']);
+            unset($propertyNamesPathes['employer']);
+        }
+        if (!$trainee->getInstitution() || !$trainee->getInstitution()->getManager()) {
+            unset($propertyEmailPathes['manager']);
+            unset($propertyNamesPathes['manager']);
+        }
+        if (!$trainee->getInstitution() || $trainee->getInstitution()->getTrainingCorrespondents()->count() === 0) {
+            unset($propertyEmailPathes['trainingCorrespondent']);
+            unset($propertyNamesPathes['trainingCorrespondent']);
+        }
+
+        // get emails and names
+        $emails = array();
+        $names  = array();
+        foreach ($cc as $copy => $send) {
+            if ($send && isset($propertyEmailPathes[$copy])) {
+                if (is_string($propertyEmailPathes[$copy])) {
+                    $email = $accessor->getValue($trainee, $propertyEmailPathes[$copy]);
+                    $name  = $accessor->getValue($trainee, $propertyNamesPathes[$copy]);
+
+                    if ($email) {
+                        $emails[] = $email;
+                        if ($name) {
+                            $names[] = $name;
+                        }
+                    }
+                }
+                else if (is_array($propertyEmailPathes[$copy])) {
+                    $ccEntitiesPath = current(array_keys($propertyEmailPathes[$copy]));
+                    $ccEntities = $accessor->getValue($trainee, $ccEntitiesPath);
+                    foreach ($ccEntities as $ccEntity) {
+                        $email = $accessor->getValue($ccEntity, $propertyEmailPathes[$copy][$ccEntitiesPath]);
+                        $name  = $accessor->getValue($ccEntity, $propertyNamesPathes[$copy][$ccEntitiesPath]);
+                        if ($email) {
+                            $emails[] = $email;
+                            if ($name) {
+                                $names[] = $name;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // do not send to bad fullName
+        if (count($names) !== count($emails)) {
+            $names = array();
+        }
+
+        return array($emails, $names);
     }
 }

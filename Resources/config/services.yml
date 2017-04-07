@@ -45,6 +45,11 @@ services:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
 
+    sygefor_core.uppercase.orm.listener:
+        class: Sygefor\Bundle\CoreBundle\Listener\UppercaseListener
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+
     # taxonomy
     sygefor_core.vocabulary_registry:
         class: "%sygefor_core.vocabulary_registry.class%"

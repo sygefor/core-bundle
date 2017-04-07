@@ -78,10 +78,21 @@ class Email
     protected $subject;
 
     /**
+     * @var array
+     * @ORM\Column(name="cc", type="array", nullable=true)
+     */
+    protected $cc;
+
+    /**
      * @var string
      * @ORM\Column(name="body", type="text", nullable=true)
      */
     protected $body;
+
+    public function __construct()
+    {
+        $this->cc = array();
+    }
 
     /**
      * @return int
@@ -201,6 +212,39 @@ class Email
     public function setSubject($subject)
     {
         $this->subject = $subject;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCc()
+    {
+        return $this->cc;
+    }
+
+    /**
+     * @param array $cc
+     */
+    public function setCc($cc)
+    {
+        $this->cc = $cc;
+    }
+
+    /**
+     * @param string $cc
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function addCc($cc, $name)
+    {
+        if ( ! isset($this->cc[$cc])) {
+            $this->cc[$cc] = $name;
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

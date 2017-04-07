@@ -104,6 +104,11 @@ class UserController extends Controller
                             $userAccessRights[] = $accessRight;
                         }
                     }
+
+                    if ($scope !== "all" && $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.vocabulary.view.all')) {
+                        $userAccessRights[] = 'sygefor_core.rights.vocabulary.view.all';
+                    }
+
                     $user->setAccessRights($userAccessRights);
                 }
 

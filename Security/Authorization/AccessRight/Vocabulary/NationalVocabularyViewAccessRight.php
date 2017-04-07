@@ -2,18 +2,18 @@
 
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary;
 
-use Sygefor\Bundle\CoreBundle\AccessRight\AbstractAccessRight;
 use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
+use Sygefor\Bundle\CoreBundle\AccessRight\AbstractAccessRight;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class OwnOrganizationVocabularyAccessRight extends AbstractAccessRight
+class NationalVocabularyViewAccessRight extends AbstractAccessRight
 {
     /**
      * @return string
      */
     public function getLabel()
     {
-        return 'Gestion des vocabulaires locaux de son propre centre';
+        return 'Voir les vocabulaires de tous les centres';
     }
 
     /**
@@ -34,11 +34,9 @@ class OwnOrganizationVocabularyAccessRight extends AbstractAccessRight
 
             return $refl->isSubclassOf('Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface');
         }
-        catch (\ReflectionException $re) {
+        catch (\ReflectionException $re){
             return false;
         }
-
-        return false;
     }
 
     /**
@@ -46,22 +44,16 @@ class OwnOrganizationVocabularyAccessRight extends AbstractAccessRight
      */
     public function isGranted(TokenInterface $token, $object = null, $attribute)
     {
-        if (is_string($object)) {
-            return true;
+        if (is_string($token)) {
+            return $attribute === 'VIEW';
         }
         else if ($object) {
-            if ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL) {
-                if (!$object->getOrganization()) {
-                    return false;
-                }
-
-                return ($object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId());
-            }
-
-            return false;
+            return ($attribute === 'VIEW' && (
+                $object->getVocabularyStatus() === VocabularyInterface::VOCABULARY_NATIONAL ||
+                ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !$object->getOrganization())));
         }
         else {
-            return true;
+            return $attribute === 'VIEW';
         }
     }
 }
