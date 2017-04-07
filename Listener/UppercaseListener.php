@@ -40,7 +40,6 @@ class UppercaseListener implements EventSubscriber
         $entity = $eventArgs->getEntity();
         if ($this->isAPerson($entity)) {
             $entity->setLastName($this->upperString($entity->getLastName()));
-            $entity->setMaidenName($this->upperString($entity->getMaidenName()));
         }
         if ($this->hasAddress($entity)) {
             $entity->setAddress($this->upperString($entity->getAddress()));
@@ -73,8 +72,7 @@ class UppercaseListener implements EventSubscriber
      */
     protected function isAPerson($entity)
     {
-        return method_exists($entity, 'getLastName') && method_exists($entity, 'setLastName') &&
-                method_exists($entity, 'getMaidenName') && method_exists($entity, 'setMaidenName');
+        return method_exists($entity, 'getLastName') && method_exists($entity, 'setLastName');
     }
 
     /**
