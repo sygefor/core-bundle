@@ -33,6 +33,13 @@ trait ProfessionalSituationTrait
     protected $publicType;
 
     /**
+     * @var string
+     * @ORM\Column(name="otherPublicType", type="string", length=255, nullable=true)
+     * @Serializer\Groups({"trainee", "trainer", "inscription", "api.profile"})
+     */
+    protected $otherPublicType;
+
+    /**
      * @var string service
      * @ORM\Column(name="service", type="string", length=255, nullable=true)
      * @Serializer\Groups({"trainee", "trainer", "inscription", "api.profile"})
@@ -61,7 +68,7 @@ trait ProfessionalSituationTrait
     public function copyProfessionalSituation($entity, $force = true)
     {
         $propertyAccessor = new PropertyAccessor();
-        foreach (array('institution', 'publicType', 'service', 'isPaying', 'status') as $property) {
+        foreach (array('institution', 'publicType', 'otherPublicType', 'service', 'isPaying', 'status') as $property) {
             $thisValue = $propertyAccessor->getValue($this, $property);
             if ($force || ! $thisValue) {
                 $propertyAccessor->setValue($this, $property, $propertyAccessor->getValue($entity, $property));
@@ -98,6 +105,22 @@ trait ProfessionalSituationTrait
     public function getPublicType()
     {
         return $this->publicType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOtherPublicType()
+    {
+        return $this->otherPublicType;
+    }
+
+    /**
+     * @param string $otherPublicType
+     */
+    public function setOtherPublicType($otherPublicType)
+    {
+        $this->otherPublicType = $otherPublicType;
     }
 
     /**
