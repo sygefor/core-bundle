@@ -80,7 +80,7 @@ trait AccountTrait
      */
     public function setUsername($username)
     {
-        $this->email = $username;
+        $this->email = mb_strtolower($username, 'UTF-8');
     }
 
     /**

@@ -169,7 +169,7 @@ trait CoordinatesTrait
      */
     public function setEmail($email)
     {
-        $this->email = $email;
+        $this->email = mb_strtolower($email, 'UTF-8');
     }
 
     /**
