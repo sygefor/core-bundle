@@ -1,4 +1,4 @@
-image: conjecto/datatourisme-webapp
+image: sygefor3/core-bundle
 
 cache:
   paths:
