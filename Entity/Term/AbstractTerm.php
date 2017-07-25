@@ -5,7 +5,6 @@ namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Sygefor\Bundle\CoreBundle\Entity\Organization;
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -184,7 +183,7 @@ abstract class AbstractTerm implements VocabularyInterface
      */
     public function isLocked($machineName = null)
     {
-        return ! empty($this->machineName);
+        return !empty($this->machineName);
     }
 
     /**

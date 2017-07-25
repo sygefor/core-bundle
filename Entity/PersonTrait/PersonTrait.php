@@ -84,13 +84,13 @@ trait PersonTrait
      */
     public function getFullName()
     {
-        return $this->getLastName() . ' ' . $this->getFirstName();
+        return $this->getLastName().' '.$this->getFirstName();
     }
 
     /**
      * @return string
      */
-    function __toString()
+    public function __toString()
     {
         return $this->getFullName();
     }

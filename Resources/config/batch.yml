@@ -1,15 +1,21 @@
 services:
     # batch operations registry
-    sygefor_core.batch_operation_registry: # todo blaise : rename to sygefor_core.batch_registry
-        class:  Sygefor\Bundle\CoreBundle\BatchOperation\BatchOperationRegistry
+    sygefor_core.batch_registry:
+        class:  Sygefor\Bundle\CoreBundle\BatchOperations\BatchOperationRegistry
+
+    # property accessor factory
+    sygefor_core.human_readable_property_accessor_factory:
+        class: Sygefor\Bundle\CoreBundle\Utils\HumanReadable\HumanReadablePropertyAccessorFactory
+        arguments:
+            - "@doctrine.orm.entity_manager"
 
     # batch operations decorators
     sygefor_core.batch.convert_type:
-        class: Sygefor\Bundle\CoreBundle\BatchOperations\ConvertTypeBatchOperation
+        class: Sygefor\Bundle\CoreBundle\BatchOperations\Training\ConvertTypeBatchOperation
         abstract: true
         arguments:
             - "@security.context"
-            - "@sygefor_training.type.registry"
+            - "@sygefor_core.registry.training_type"
             - "@sygefor_training.semestered.search"
             - "@fos_elastica.client"
             - "@fos_elastica.index"
@@ -17,13 +23,13 @@ services:
 
     # batch operations decorators
     sygefor_core.batch.csv:
-        class: Sygefor\Bundle\CoreBundle\BatchOperations\CSVBatchOperation
+        class: Sygefor\Bundle\CoreBundle\BatchOperations\Generic\CSVBatchOperation
         abstract: true
         arguments:
             - "@security.context"
 
     sygefor_core.batch.publipost:
-        class: Sygefor\Bundle\CoreBundle\BatchOperations\MailingBatchOperation
+        class: Sygefor\Bundle\CoreBundle\BatchOperations\Generic\MailingBatchOperation
         abstract: true
         arguments:
             - "@security.context"
@@ -31,7 +37,7 @@ services:
             - [ setContainer, [ "@service_container" ] ]
 
     sygefor_core.batch.pdf:
-        class: Sygefor\Bundle\CoreBundle\BatchOperations\PDFBatchOperation
+        class: Sygefor\Bundle\CoreBundle\BatchOperations\Generic\PDFBatchOperation
         abstract: true
         arguments:
             - "@knp_snappy.pdf"
@@ -40,7 +46,7 @@ services:
             - "@kernel"
 
     sygefor_core.batch.email:
-          class: Sygefor\Bundle\CoreBundle\BatchOperations\EmailingBatchOperation
+          class: Sygefor\Bundle\CoreBundle\BatchOperations\Generic\EmailingBatchOperation
           arguments:
               - "@security.context"
           calls:
@@ -48,9 +54,20 @@ services:
           tags:
               - {name: sygefor_core.batch_operation_provider}
 
-    # property accessor factory
-    sygefor_core.human_readable_property_accessor_factory:
-        class: Sygefor\Bundle\CoreBundle\HumanReadablePropertyAccessor\HumanReadablePropertyAccessorFactory
+    sygefor_core.batch.session_registration_change:
+          class: Sygefor\Bundle\CoreBundle\BatchOperations\Session\SessionRegistrationChangeBatchOperation
+          arguments:
+              - "@doctrine.orm.entity_manager"
+          calls:
+              - [ setContainer, [ "@service_container" ] ]
+          tags:
+              - {name: sygefor_core.batch_operation_provider}
+
+    sygefor_core.batch.inscription_status_change:
+        class: Sygefor\Bundle\CoreBundle\BatchOperations\Inscription\InscriptionStatusChangeBatchOperation
         arguments:
             - "@doctrine.orm.entity_manager"
-        # setTermCatalog called by the compilation
+        calls:
+            - [ setContainer, [ "@service_container" ] ]
+        tags:
+            - {name: sygefor_core.batch_operation_provider}

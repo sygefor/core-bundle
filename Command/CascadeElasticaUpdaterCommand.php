@@ -6,9 +6,10 @@
  * Date: 28/08/14
  * Time: 11:24.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Command;
 
-use Sygefor\Bundle\CoreBundle\MappingProvider\MappingProvider;
+use Sygefor\Bundle\CoreBundle\Utils\ElasticaMappingProvider;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,9 +21,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CascadeElasticaUpdaterCommand extends ContainerAwareCommand
 {
-    /**
-     *
-     */
     protected function configure()
     {
         $this->visitedEntities = array();
@@ -39,25 +37,25 @@ class CascadeElasticaUpdaterCommand extends ContainerAwareCommand
      * @param OutputInterface $output
      *
      * @return int|null|void
-     *                       indicative example command : php app/console sygeforelasticascade:cascade [1188] SygeforTrainingBundle:Session {1188: [dateBegin]}
+     *                       indicative example command : php app/console sygeforelasticascade:cascade [1188] SygeforCoreBundle:Session {1188: [dateBegin]}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var MappingProvider $mappingProvider */
+        /** @var ElasticaMappingProvider $mappingProvider */
         $mappingProvider = $this->getContainer()->get('sygefor_core.elastica_mapping_provider');
 
-        $class      = $input->getArgument('entityClass');
-        $allIds     = $input->getArgument('entityIds') ? json_decode($input->getArgument('entityIds'), true) : array();
+        $class = $input->getArgument('entityClass');
+        $allIds = $input->getArgument('entityIds') ? json_decode($input->getArgument('entityIds'), true) : array();
         $properties = $input->getArgument('entityProperties') ? json_decode($input->getArgument('entityProperties'), true) : array();
 
         $mappingProvider->findLinkedEntities($class, null, $allIds, true);
 
         //updating index
-        if ( ! $input->getOption('show')) {
+        if (!$input->getOption('show')) {
             $mappingProvider->updateIndex();
         }
 
-        if ($input->getOption('verbose') || $input->getOption('show') ) {
+        if ($input->getOption('verbose') || $input->getOption('show')) {
             $output->writeln('Updates:');
             $output->writeln($mappingProvider->getStats());
         }

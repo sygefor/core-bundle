@@ -6,6 +6,7 @@
  * Date: 01/09/14
  * Time: 10:23.
  */
+
 namespace Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;

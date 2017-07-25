@@ -6,6 +6,7 @@
  * Date: 5/30/16
  * Time: 5:41 PM.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -48,7 +49,7 @@ class OrganizationController extends Controller
     public function addAction(Request $request)
     {
         $organization = new Organization();
-        $form         = $this->createForm(OrganizationType::class, $organization);
+        $form = $this->createForm(OrganizationType::class, $organization);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);

@@ -3,7 +3,7 @@
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
-use Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -30,43 +30,43 @@ class OrganizationType extends AbstractType
                 'label' => 'Email',
             ))
             ->add('phoneNumber', 'text', array(
-                'label'    => 'Téléphone',
+                'label' => 'Téléphone',
                 'required' => false,
             ))
             ->add('faxNumber', 'text', array(
-                'label'    => 'Numéro de fax',
+                'label' => 'Numéro de fax',
                 'required' => false,
             ))
             ->add('address', 'textarea', array(
-                'label'    => 'Adresse',
+                'label' => 'Adresse',
                 'required' => false,
             ))
             ->add('zip', 'text', array(
-                'label'    => 'Code postal',
+                'label' => 'Code postal',
                 'required' => false,
             ))
             ->add('city', 'text', array(
-                'label'    => 'Ville',
+                'label' => 'Ville',
                 'required' => false,
             ))
             ->add('website', 'url', array(
-                'label'    => 'Site internet',
+                'label' => 'Site internet',
                 'required' => false,
             ))
             ->add('traineeRegistrable', 'checkbox', array(
-                'label'    => 'Les stagiaires peuvent choisir cette organisation',
+                'label' => 'Les stagiaires peuvent choisir cette organisation',
                 'required' => false,
             ));
 
         // PRE_SET_DATA for the parent form
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-              $builder = $event->getForm();
-              $organization = $event->getData();
+            $builder = $event->getForm();
+            $organization = $event->getData();
 
-              $builder->add('institution', 'entity', array(
-                  'label'         => 'Etablissement de rattachement',
-                  'class'         => AbstractInstitution::class,
-                  'required'      => false,
+            $builder->add('institution', 'entity', array(
+                  'label' => 'Etablissement de rattachement',
+                  'class' => AbstractInstitution::class,
+                  'required' => false,
                   'query_builder' => $organization->getId() ? function (EntityRepository $er) use ($organization) {
                       return $er->createQueryBuilder('i')
                         ->where('i.organization = :organization')
@@ -75,6 +75,6 @@ class OrganizationType extends AbstractType
                         ->orderBy('i.name');
                   } : null,
                 ));
-          });
+        });
     }
 }

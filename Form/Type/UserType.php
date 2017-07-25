@@ -6,10 +6,11 @@
  * Date: 18/03/14
  * Time: 10:18.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
-use Sygefor\Bundle\CoreBundle\AccessRight\AccessRightRegistry;
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
 use Sygefor\Bundle\CoreBundle\Entity\User\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -44,33 +45,33 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('username', 'text', array(
-            'constraints'     => new Length(array('min' => 4)),
+            'constraints' => new Length(array('min' => 4)),
             'invalid_message' => 'Le nom d\'utilisateur est trop court',
-            'label'           => 'Nom d\'utilisateur',
+            'label' => 'Nom d\'utilisateur',
         ))
             ->add('email', 'email', array(
                 'constraints' => new Email(array('message' => 'Invalid email address')),
-                'label'       => 'Email',
+                'label' => 'Email',
             ));
 
         $builder->add('plainPassword', 'repeated', array(
-            'type'            => 'password',
-            'constraints'     => new Length(array('min' => 4)),
-            'required'        => ! $builder->getForm()->getData()->getId(),
+            'type' => 'password',
+            'constraints' => new Length(array('min' => 4)),
+            'required' => !$builder->getForm()->getData()->getId(),
             'invalid_message' => 'Les mots de passe doivent correspondre',
-            'first_options'   => array('label' => 'Mot de passe'),
-            'second_options'  => array('label' => 'Confirmation'),
+            'first_options' => array('label' => 'Mot de passe'),
+            'second_options' => array('label' => 'Confirmation'),
         ));
 
         $builder->add('enabled', 'checkbox', array(
             'required' => false,
-            'label'    => 'Compte activé',
+            'label' => 'Compte activé',
         ));
 
         $builder->add('organization', 'entity', array(
-            'required'      => true,
-            'class'         => 'Sygefor\Bundle\CoreBundle\Entity\Organization',
-            'label'         => 'Centre',
+            'required' => true,
+            'class' => 'Sygefor\Bundle\CoreBundle\Entity\Organization',
+            'label' => 'Centre',
             'query_builder' => function (EntityRepository $er) {
                 return $er->createQueryBuilder('o')->orderBy('o.name', 'ASC');
             },
@@ -82,17 +83,17 @@ class UserType extends AbstractType
                 'label' => 'Droits d\'accès',
                 'choices' => array(
                     'own' => 'Droits locaux',
-                    'all' => 'Tous les droits'
+                    'all' => 'Tous les droits',
                 ),
-                'required' => false
+                'required' => false,
             ));
         }
 
         // If the user does not have the rights, remove the organization field and force the value
         $hasAccessRightForAll = $this->accessRightsRegistry->hasAccessRight('sygefor_core.rights.user.all');
-        if ( ! $hasAccessRightForAll) {
+        if (!$hasAccessRightForAll) {
             $securityContext = $this->accessRightsRegistry->getSecurityContext();
-            $user            = $securityContext->getToken()->getUser();
+            $user = $securityContext->getToken()->getUser();
             $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($user) {
                 $trainer = $event->getData();
                 $trainer->setOrganization($user->getOrganization());

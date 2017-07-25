@@ -4,7 +4,7 @@ namespace Sygefor\Bundle\CoreBundle\Security\Authorization\Voter;
 
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManager;
-use Sygefor\Bundle\CoreBundle\AccessRight\AccessRightRegistry;
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
 use Sygefor\Bundle\CoreBundle\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -27,9 +27,9 @@ class AccessRightVoter implements VoterInterface
     /**
      * Construct.
      */
-    function __construct(AccessRightRegistry $registry, EntityManager $entityManager = null)
+    public function __construct(AccessRightRegistry $registry, EntityManager $entityManager = null)
     {
-        $this->registry      = $registry;
+        $this->registry = $registry;
         $this->entityManager = $entityManager;
     }
 
@@ -65,22 +65,22 @@ class AccessRightVoter implements VoterInterface
     public function vote(TokenInterface $token, $object, array $attributes)
     {
         // the current token must have a User
-        if ( ! ($token->getUser() instanceof User)) {
+        if (!($token->getUser() instanceof User)) {
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
         // support of Doctrine namespace alias
         if (is_string($object) && strpos($object, ':') && $this->entityManager) {
             list($alias, $class) = explode(':', $object);
-            $namespace           = $this->entityManager->getConfiguration()->getEntityNamespace($alias);
-            $object              = $namespace . '\\' . $class;
+            $namespace = $this->entityManager->getConfiguration()->getEntityNamespace($alias);
+            $object = $namespace.'\\'.$class;
         }
 
         // Run overs user access rights
         foreach ($attributes as $attribute) {
             foreach ($token->getUser()->getAccessRights() as $accessRightId) {
                 //$className = is_string($object) ? $object : get_class($object);
-                $className   = is_string($object) ? $object : ClassUtils::getRealClass(get_class($object));
+                $className = is_string($object) ? $object : ClassUtils::getRealClass(get_class($object));
                 $accessRight = $this->registry->getAccessRightById($accessRightId);
                 if ($accessRight && $accessRight->supportsClass($className) && $accessRight->supportsAttribute($attribute)) {
                     if ($accessRight->isGranted($token, is_object($object) ? $object : null, $attribute)) {

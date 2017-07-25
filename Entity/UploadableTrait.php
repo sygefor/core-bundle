@@ -6,6 +6,7 @@
  * Date: 10/07/14
  * Time: 14:45.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -53,17 +54,17 @@ trait UploadableTrait
     /**
      * @var
      */
-    static protected $maxFileSize = 50000000;
+    protected static $maxFileSize = 50000000;
 
     public function __clone()
     {
         $file = $this->getFile();
-        if ( ! empty($file)) {
-            $this->id    = null;
-            $fs          = new Filesystem();
-            $tmpFileName = sha1(uniqid(mt_rand(), true)) . '.' . $file->getFileInfo()->getExtension();
-            $fs->copy($this->getTemplatesRootDir() . '/' . $this->filePath, $this->getTemplatesRootDir() . '/' . $tmpFileName);
-            $this->setFile(new File($this->getTemplatesRootDir() . '/' . $tmpFileName), $this->getFileName());
+        if (!empty($file)) {
+            $this->id = null;
+            $fs = new Filesystem();
+            $tmpFileName = sha1(uniqid(mt_rand(), true)).'.'.$file->getFileInfo()->getExtension();
+            $fs->copy($this->getTemplatesRootDir().'/'.$this->filePath, $this->getTemplatesRootDir().'/'.$tmpFileName);
+            $this->setFile(new File($this->getTemplatesRootDir().'/'.$tmpFileName), $this->getFileName());
         }
     }
 
@@ -81,7 +82,7 @@ trait UploadableTrait
     public function getFile()
     {
         if ($this->filePath !== null) {
-            $this->file = new File($this->getTemplatesRootDir() . '/' . $this->filePath);
+            $this->file = new File($this->getTemplatesRootDir().'/'.$this->filePath);
         }
 
         return $this->file;
@@ -120,13 +121,12 @@ trait UploadableTrait
     {
         if (!empty($file)) {
             $this->uploaded = new \DateTime();
-            $this->file     = $file;
+            $this->file = $file;
             if ($this->file instanceof UploadedFile) {
-                $this->filePath = sha1(uniqid(mt_rand(), true)) . '.' . $this->file->guessClientExtension();
+                $this->filePath = sha1(uniqid(mt_rand(), true)).'.'.$this->file->guessClientExtension();
                 $this->fileName = $this->file->getClientOriginalName();
                 $this->slugFileName();
-            }
-            else {
+            } else {
                 $this->filePath = $file->getFileInfo()->getFilename();
                 $this->fileName = ($name) ? $name : $file->getFileInfo()->getFilename();
                 $this->slugFileName();
@@ -141,7 +141,7 @@ trait UploadableTrait
     {
         if (null !== $this->file && ($this->file instanceof UploadedFile)) {
             // nom unique du fichier.
-            $this->filePath = sha1(uniqid(mt_rand(), true)) . '.' . $this->file->guessClientExtension();
+            $this->filePath = sha1(uniqid(mt_rand(), true)).'.'.$this->file->guessClientExtension();
             $this->fileName = $this->file->getClientOriginalName();
             $this->slugFileName();
         }
@@ -172,10 +172,8 @@ trait UploadableTrait
         //a new file is set : we delete the old one
         if ($args->hasChangedField('uploaded')) {//new uploaded file : old one is deleted
             try {
-                unlink($this->getTemplatesRootDir() . '/' . $args->getOldValue('filePath'));
-            }
-            catch (\Exception $e) {
-
+                unlink($this->getTemplatesRootDir().'/'.$args->getOldValue('filePath'));
+            } catch (\Exception $e) {
             }
         }
     }
@@ -202,9 +200,7 @@ trait UploadableTrait
         if ($file = $this->getAbsolutePath()) {
             try {
                 unlink($file);
-            }
-            catch (\Exception $e) {
-
+            } catch (\Exception $e) {
             }
         }
     }
@@ -214,7 +210,7 @@ trait UploadableTrait
      */
     public function getAbsolutePath()
     {
-        return (null === $this->filePath) ? null : $this->getTemplatesRootDir() . '/' . $this->filePath;
+        return (null === $this->filePath) ? null : $this->getTemplatesRootDir().'/'.$this->filePath;
     }
 
     /**
@@ -223,7 +219,7 @@ trait UploadableTrait
     protected function getTemplatesRootDir()
     {
         // le chemin absolu du répertoire où les documents uploadés doivent être sauvegardés
-        return __DIR__ . '/../../../../../../app/Resources/default';
+        return __DIR__.'/../../../../../../app/Resources/default';
     }
 
     /**
@@ -247,7 +243,7 @@ trait UploadableTrait
 
         // Set headers
         $response->headers->set('Cache-Control', 'private');
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $this->getFileName() . '";');
+        $response->headers->set('Content-Disposition', 'attachment; filename="'.$this->getFileName().'";');
         $response->headers->set('Content-length', filesize($fp));
         $response->sendHeaders();
         $response->setContent(readfile($fp));
@@ -267,7 +263,7 @@ trait UploadableTrait
 
     /**
      * Slug file name for PDF generation
-     * Because pdf file name is get from file system
+     * Because pdf file name is get from file system.
      */
     public function slugFileName()
     {

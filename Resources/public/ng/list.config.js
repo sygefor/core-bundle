@@ -1,5 +1,5 @@
 /**
- * TrainingBundle
+ * CoreBundle
  */
 sygeforApp.config(['$dialogProvider', function($dialogProvider) {
 

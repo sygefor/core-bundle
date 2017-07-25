@@ -8,6 +8,7 @@ use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\DisableListenersPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\DynamicMappingPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\MappingProviderPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\ReplaceTransformerClassPass;
+use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\TrainingTypeRegistryPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\VocabularyRegistrationPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -33,6 +34,8 @@ class SygeforCoreBundle extends Bundle
 
         // taxonomy compiler pass
         $container->addCompilerPass(new VocabularyRegistrationPass());
+
+        $container->addCompilerPass(new TrainingTypeRegistryPass());
     }
 
     public function getParent()

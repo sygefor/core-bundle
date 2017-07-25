@@ -6,6 +6,7 @@
  * Date: 24/08/2015
  * Time: 14:34.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -45,21 +46,21 @@ class Email
 
     /**
      * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainee;
 
     /**
      * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TrainerBundle\Entity\AbstractTrainer")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainer;
 
     /**
      * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     protected $session;
@@ -238,7 +239,7 @@ class Email
      */
     public function addCc($cc, $name)
     {
-        if ( ! isset($this->cc[$cc])) {
+        if (!isset($this->cc[$cc])) {
             $this->cc[$cc] = $name;
 
             return true;

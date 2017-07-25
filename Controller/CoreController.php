@@ -7,8 +7,8 @@ use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sygefor\Bundle\TrainingBundle\Entity\Training\AbstractTraining;
-use Sygefor\Bundle\TrainingBundle\Entity\Training\SingleSessionTraining;
+use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\Training\SingleSessionTraining;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -46,11 +46,11 @@ class CoreController extends Controller
     public function entityAction(Request $request)
     {
         // retrieve the entity
-        $em     = $this->getDoctrine()->getManager();
-        $class  = $request->get('class');
-        $id     = $request->get('id');
+        $em = $this->getDoctrine()->getManager();
+        $class = $request->get('class');
+        $id = $request->get('id');
         $entity = $em->getRepository($class)->find($id);
-        if ( ! $entity) {
+        if (!$entity) {
             throw new NotFoundHttpException();
         }
 
@@ -68,7 +68,7 @@ class CoreController extends Controller
                 $groups[] = 'session';
             }
         }
-        $reflect  = new \ReflectionClass($entity);
+        $reflect = new \ReflectionClass($entity);
         $groups[] = strtolower($reflect->getShortName());
 
         // return the view

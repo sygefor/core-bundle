@@ -6,11 +6,12 @@
  * Date: 27/05/14
  * Time: 16:43.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity\PersonTrait\Term;
 
 use Doctrine\ORM\Mapping as ORM;
 use Sygefor\Bundle\CoreBundle\Entity\Term\AbstractTerm;
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
+use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 
 /**
  * Civilité.
@@ -25,7 +26,7 @@ class Title extends AbstractTerm implements VocabularyInterface
      *
      * @var bool
      */
-    static $replacementRequired = true;
+    public static $replacementRequired = true;
 
     /**
      * @return mixed

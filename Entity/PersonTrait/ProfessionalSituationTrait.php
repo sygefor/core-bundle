@@ -3,11 +3,12 @@
 /**
  * Auteur: Blaise de Carné - blaise@concretis.com.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity\PersonTrait;
 
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution;
-use Sygefor\Bundle\TraineeBundle\Entity\Term\PublicType;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PublicType;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 /**
@@ -18,7 +19,7 @@ trait ProfessionalSituationTrait
     /**
      * @var AbstractInstitution Institution
      * @Assert\NotNull(message="Vous devez renseigner un établissement ou une entreprise.", groups={"api.profile"})
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      * @Serializer\Groups({"trainee", "trainer", "inscription", "session", "api.profile"})
      */
@@ -26,7 +27,7 @@ trait ProfessionalSituationTrait
 
     /**
      * @var PublicType
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TraineeBundle\Entity\Term\PublicType")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\PublicType")
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Groups({"trainee", "trainer", "inscription", "api.profile"})
      */
@@ -70,7 +71,7 @@ trait ProfessionalSituationTrait
         $propertyAccessor = new PropertyAccessor();
         foreach (array('institution', 'publicType', 'otherPublicType', 'service', 'isPaying', 'status') as $property) {
             $thisValue = $propertyAccessor->getValue($this, $property);
-            if ($force || ! $thisValue) {
+            if ($force || !$thisValue) {
                 $propertyAccessor->setValue($this, $property, $propertyAccessor->getValue($entity, $property));
             }
         }
@@ -83,6 +84,7 @@ trait ProfessionalSituationTrait
     {
         $this->institution = $institution;
     }
+
     /**
      * @return AbstractInstitution
      */

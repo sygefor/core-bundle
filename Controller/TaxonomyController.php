@@ -14,7 +14,7 @@ use Sygefor\Bundle\CoreBundle\Entity\Organization;
 use Sygefor\Bundle\CoreBundle\Entity\Term\AbstractTerm;
 use Sygefor\Bundle\CoreBundle\Entity\Term\TreeTrait;
 use Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType;
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
+use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -34,10 +34,9 @@ class TaxonomyController extends Controller
      */
     public function indexAction()
     {
-        if ($this->get('security.context')->isGranted('VIEW', 'Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface')) {
+        if ($this->get('security.context')->isGranted('VIEW', 'Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface')) {
             return array('vocabularies' => $this->getVocabulariesList());
-        }
-        else {
+        } else {
             throw new AccessDeniedException();
         }
     }
@@ -72,8 +71,7 @@ class TaxonomyController extends Controller
             $redirectUrl = $this->redirect($this->generateUrl('taxonomy.view', array('vocabularyId' => $vocabularyId, 'organizationId' => $this->getUser()->getOrganization()->getId())));
             if ($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_LOCAL) {
                 return $redirectUrl;
-            }
-            else if ($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_MIXED && !$userVocabularyAccessRights['allView'] && !$userVocabularyAccessRights['nationalEdit']) {
+            } elseif ($abstractVocabulary->getVocabularyStatus() === VocabularyInterface::VOCABULARY_MIXED && !$userVocabularyAccessRights['allView'] && !$userVocabularyAccessRights['nationalEdit']) {
                 return $redirectUrl;
             }
         }
@@ -87,7 +85,7 @@ class TaxonomyController extends Controller
         // needed for template organization tabs
         $organizations = array();
         if ($abstractVocabulary->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL) {
-            $alterOrganizations      = $this->getDoctrine()->getManager()->getRepository('SygeforCoreBundle:Organization')->findAll();
+            $alterOrganizations = $this->getDoctrine()->getManager()->getRepository('SygeforCoreBundle:Organization')->findAll();
             $alterAbstractVocabulary = $this->get('sygefor_core.vocabulary_registry')->getVocabularyById($vocabularyId);
             foreach ($alterOrganizations as $alterOrganization) {
                 $alterAbstractVocabulary->setOrganization($alterOrganization);
@@ -107,14 +105,14 @@ class TaxonomyController extends Controller
         }
 
         return array(
-            'organization'                  => $organization,
-            'organizations'                 => $organizations,
-            'userVocabularyAccessRights'    => $userVocabularyAccessRights,
-            'terms'                         => $terms,
-            'vocabulary'                    => $abstractVocabulary,
-            'vocabularies'                  => $this->getVocabulariesList(),
-            'sortable'                      => $abstractVocabulary::orderBy() === 'position',
-            'depth'                         => method_exists($abstractVocabulary, 'getChildren') ? 2 : 1,
+            'organization' => $organization,
+            'organizations' => $organizations,
+            'userVocabularyAccessRights' => $userVocabularyAccessRights,
+            'terms' => $terms,
+            'vocabulary' => $abstractVocabulary,
+            'vocabularies' => $this->getVocabulariesList(),
+            'sortable' => $abstractVocabulary::orderBy() === 'position',
+            'depth' => method_exists($abstractVocabulary, 'getChildren') ? 2 : 1,
         );
     }
 
@@ -129,11 +127,11 @@ class TaxonomyController extends Controller
         if ($organizationId) {
             $organization = $this->getDoctrine()->getManager()->getRepository('SygeforCoreBundle:Organization')->find($organizationId);
         }
-        $term               = null;
+        $term = null;
         $abstractVocabulary = $this->get('sygefor_core.vocabulary_registry')->getVocabularyById($vocabularyId);
         $abstractVocabulary->setVocabularyId($vocabularyId);
         $termClass = get_class($abstractVocabulary);
-        $em        = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
 
         // find term
         if ($id) {
@@ -141,12 +139,12 @@ class TaxonomyController extends Controller
         }
 
         // create term if not found
-        if ( ! $term) {
+        if (!$term) {
             $term = new $termClass();
             $term->setOrganization($organization);
         }
 
-        if ( ! $this->get('security.context')->isGranted('EDIT', $term)) {
+        if (!$this->get('security.context')->isGranted('EDIT', $term)) {
             throw new AccessDeniedException();
         }
 
@@ -175,11 +173,11 @@ class TaxonomyController extends Controller
         }
 
         return array(
-            'vocabulary'   => $abstractVocabulary,
+            'vocabulary' => $abstractVocabulary,
             'organization' => $organization,
-            'term'         => $term,
-            'id'           => $id,
-            'form'         => $form->createView(),
+            'term' => $term,
+            'id' => $id,
+            'form' => $form->createView(),
             'vocabularies' => $this->getVocabulariesList(),
         );
     }
@@ -194,11 +192,11 @@ class TaxonomyController extends Controller
         $abstractVocabulary = $this->get('sygefor_core.vocabulary_registry')->getVocabularyById($vocabularyId);
         $abstractVocabulary->setVocabularyId($vocabularyId);
         $termClass = get_class($abstractVocabulary);
-        $em        = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
 
         // find term
         $term = $em->find($termClass, $id);
-        if ( ! $term) {
+        if (!$term) {
             throw new NotFoundHttpException();
         }
 
@@ -207,14 +205,14 @@ class TaxonomyController extends Controller
             throw new AccessDeniedException("This term can't be removed");
         }
 
-        if ( ! $this->get('security.context')->isGranted('REMOVE', $term)) {
+        if (!$this->get('security.context')->isGranted('REMOVE', $term)) {
             throw new AccessDeniedException();
         }
 
         // get term usage
         $count = $this->get('sygefor_core.vocabulary_registry')->getTermUsages($em, $term);
 
-        $formB      = $this->createFormBuilder(null, array('validation_groups' => array('taxonomy_term_remove')));
+        $formB = $this->createFormBuilder(null, array('validation_groups' => array('taxonomy_term_remove')));
         $constraint = new NotBlank(array('message' => 'Vous devez sélectionner un terme de substitution'));
         $constraint->addImplicitGroupName('taxonomy_term_remove');
 
@@ -223,7 +221,7 @@ class TaxonomyController extends Controller
             ->select('t')
             ->from($termClass, 't')
             ->where('t.id != :id')->setParameter('id', $id)
-            ->orderBy('t.' . $abstractVocabulary::orderBy());
+            ->orderBy('t.'.$abstractVocabulary::orderBy());
         if ($term->getOrganization()) {
             $queryBuilder
                 ->andWhere('t.organization = :organization')
@@ -233,17 +231,17 @@ class TaxonomyController extends Controller
 
         //if entities are linked to current
         if ($count > 0) {
-            $required = ! empty($abstractVocabulary::$replacementRequired);
+            $required = !empty($abstractVocabulary::$replacementRequired);
             $formB
                 ->add('term', 'entity',
                     array(
-                        'class'         => $termClass,
-                        'expanded'      => true,
-                        'label'         => 'Terme de substitution',
-                        'required'      => $required,
-                        'constraints'   => $required ? $constraint : null,
+                        'class' => $termClass,
+                        'expanded' => true,
+                        'label' => 'Terme de substitution',
+                        'required' => $required,
+                        'constraints' => $required ? $constraint : null,
                         'query_builder' => $queryBuilder,
-                        'empty_value'   => $required ? null : '- Aucun -',
+                        'empty_value' => $required ? null : '- Aucun -',
                     )
                 );
         }
@@ -272,17 +270,16 @@ class TaxonomyController extends Controller
 
                 return $this->redirect($this->generateUrl('taxonomy.view', array('vocabularyId' => $vocabularyId, 'organizationId' => $organization_id)));
             }
-
         }
 
         return array(
-            'vocabulary'      => $abstractVocabulary,
-            'organization'    => $term->getOrganization(),
+            'vocabulary' => $abstractVocabulary,
+            'organization' => $term->getOrganization(),
             'organization_id' => $organization_id,
-            'term'            => $term,
-            'vocabularies'    => $this->getVocabulariesList(),
-            'count'           => $count,
-            'form'            => $form->createView(),
+            'term' => $term,
+            'vocabularies' => $this->getVocabulariesList(),
+            'count' => $count,
+            'form' => $form->createView(),
         );
     }
 
@@ -297,10 +294,10 @@ class TaxonomyController extends Controller
         $abstractVocabulary->setVocabularyId($vocabulary);
         $termClass = get_class($abstractVocabulary);
 
-        $em         = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $repository = $em->getRepository($termClass);
         $serialized = $request->get('serialized');
-        $process    = function ($objects, $parent = null) use ($em, $repository, &$process) {
+        $process = function ($objects, $parent = null) use ($em, $repository, &$process) {
             $pos = 0;
             foreach ($objects as $object) {
                 /** @var TreeTrait $entity */
@@ -334,15 +331,14 @@ class TaxonomyController extends Controller
      */
     private function getRootTerms($vocabulary, $organization)
     {
-        $class      = get_class($vocabulary);
+        $class = get_class($vocabulary);
         $repository = $this->getDoctrine()->getManager()->getRepository($class);
 
         if ($repository instanceof NestedTreeRepository) {
             $qb = $repository->getRootNodesQueryBuilder('position');
-        }
-        else {
+        } else {
             $qb = $repository->createQueryBuilder('node');
-            $qb->orderBy('node.' . $vocabulary::orderBy(), 'ASC');
+            $qb->orderBy('node.'.$vocabulary::orderBy(), 'ASC');
         }
 
         if ($vocabulary->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL) {
@@ -350,8 +346,7 @@ class TaxonomyController extends Controller
                 $qb->where('node.organization = :organization')
                     ->setParameter('organization', $organization)
                     ->orWhere('node.organization is null');
-            }
-            else {
+            } else {
                 $qb->where('node.organization is null');
             }
         }
@@ -365,14 +360,14 @@ class TaxonomyController extends Controller
     private function getVocabulariesList()
     {
         $vocRegistry = $this->get('sygefor_core.vocabulary_registry');
-        $vocsGroups  = $vocRegistry->getGroups();
-        $userOrg     = $this->get('security.context')->getToken()->getUser()->getOrganization();
+        $vocsGroups = $vocRegistry->getGroups();
+        $userOrg = $this->get('security.context')->getToken()->getUser()->getOrganization();
 
         //getting vocabularies list, grouped by vocabularies groups
         $vocNames = array();
         foreach ($vocsGroups as $group => $vocs) {
             foreach ($vocs as $vid => $voc) {
-                if ($voc->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && ! empty($userOrg)) {
+                if ($voc->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !empty($userOrg)) {
                     $voc->setOrganization($userOrg);
                 }
                 if ($this->get('security.context')->isGranted('VIEW', $voc)) {
@@ -383,8 +378,9 @@ class TaxonomyController extends Controller
                         'vocabulary' => $voc,
                         'name' => $voc->getVocabularyName(),
                         'scope' => $voc->getVocabularyStatus(),
-                        'canEdit' => $this->get('security.context')->isGranted('EDIT', $voc)
-                    );                }
+                        'canEdit' => $this->get('security.context')->isGranted('EDIT', $voc),
+                    );
+                }
             }
         }
 
@@ -406,12 +402,12 @@ class TaxonomyController extends Controller
          * @var AbstractTerm
          */
         $vocabulary = $this->get('sygefor_core.vocabulary_registry')->getVocabularyById($vocabularyId);
-        if ( ! $vocabulary) {
+        if (!$vocabulary) {
             throw new \InvalidArgumentException('This vocabulary does not exists.');
         }
 
         $userOrg = $this->getUser()->getOrganization();
-        $terms   = $this->getRootTerms($vocabulary, $userOrg);
+        $terms = $this->getRootTerms($vocabulary, $userOrg);
 
         return $terms;
     }

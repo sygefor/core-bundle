@@ -6,6 +6,7 @@
  * Date: 13/03/14
  * Time: 15:18.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
 use Doctrine\ORM\EntityManager;
@@ -37,13 +38,13 @@ class UserController extends Controller
     public function indexAction()
     {
         /* @var EntityManager */
-        $em         = $this->get('doctrine')->getManager();
+        $em = $this->get('doctrine')->getManager();
         $repository = $em->getRepository('SygeforCoreBundle:User\User');
 
-        $organization         = $this->get('security.context')->getToken()->getUser()->getOrganization();
+        $organization = $this->get('security.context')->getToken()->getUser()->getOrganization();
         $hasAccessRightForAll = $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.user.all');
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder         = $repository->createQueryBuilder('u');
+        $queryBuilder = $repository->createQueryBuilder('u');
 
         if (!$hasAccessRightForAll) {
             $queryBuilder->where('u.organization = :organization')
@@ -100,12 +101,12 @@ class UserController extends Controller
                     $userAccessRights = array();
                     $accessRights = array_keys($this->get('sygefor_core.access_right_registry')->getAccessRights());
                     foreach ($accessRights as $accessRight) {
-                        if ((strstr($accessRight, $scope) || $scope === "all") && $this->get('sygefor_core.access_right_registry')->hasAccessRight($accessRight)) {
+                        if ((strstr($accessRight, $scope) || $scope === 'all') && $this->get('sygefor_core.access_right_registry')->hasAccessRight($accessRight)) {
                             $userAccessRights[] = $accessRight;
                         }
                     }
 
-                    if ($scope !== "all" && $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.vocabulary.view.all')) {
+                    if ($scope !== 'all' && $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.vocabulary.view.all')) {
                         $userAccessRights[] = 'sygefor_core.rights.vocabulary.view.all';
                     }
 
@@ -137,7 +138,7 @@ class UserController extends Controller
     public function editAction(Request $request, User $user)
     {
         $oldPwd = $user->getPassword();
-        $form   = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
@@ -147,8 +148,7 @@ class UserController extends Controller
                     $factory = $this->get('security.encoder_factory');
                     $encoder = $factory->getEncoder($user);
                     $user->setPassword($encoder->encodePassword($newPwd, $user->getSalt()));
-                }
-                else {
+                } else {
                     $user->setPassword($oldPwd);
                 }
                 $this->getDoctrine()->getManager()->flush();
@@ -221,7 +221,7 @@ class UserController extends Controller
      */
     public function loginAsAction(User $loginAsUser)
     {
-        if ( ! $this->getUser()->isAdmin()) {
+        if (!$this->getUser()->isAdmin()) {
             throw new AccessDeniedHttpException('You can\'t do this action');
         }
         $token = new UsernamePasswordToken($loginAsUser, null, 'user_db', $loginAsUser->getRoles());

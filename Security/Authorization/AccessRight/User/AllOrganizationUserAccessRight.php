@@ -6,10 +6,12 @@
  * Date: 20/03/14
  * Time: 16:46.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\User;
 
-use Sygefor\Bundle\CoreBundle\AccessRight\AbstractAccessRight;
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AbstractAccessRight;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Sygefor\Bundle\CoreBundle\Entity\User\User;
 
 class AllOrganizationUserAccessRight extends AbstractAccessRight
 {
@@ -30,7 +32,7 @@ class AllOrganizationUserAccessRight extends AbstractAccessRight
      */
     public function supportsClass($class)
     {
-        return 'Sygefor\Bundle\CoreBundle\Entity\User\User' === $class;
+        return User::class === $class;
     }
 
     /**
@@ -40,5 +42,4 @@ class AllOrganizationUserAccessRight extends AbstractAccessRight
     {
         return true;
     }
-
 }

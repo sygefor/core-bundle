@@ -86,7 +86,7 @@ trait CoordinatesTrait
         $propertyAccessor = new PropertyAccessor();
         foreach (array('addressType', 'address', 'zip', 'city', 'email', 'phoneNumber', 'faxNumber', 'website') as $property) {
             $thisValue = $propertyAccessor->getValue($this, $property);
-            if ($force || ! $thisValue) {
+            if ($force || !$thisValue) {
                 $propertyAccessor->setValue($this, $property, $propertyAccessor->getValue($entity, $property));
             }
         }
@@ -232,7 +232,7 @@ trait CoordinatesTrait
             $lines[] = $this->getAddress();
         }
         if ($this->getCity()) {
-            $lines[] = ($this->getZip() ? $this->getZip() . ' ' : '') . $this->getCity();
+            $lines[] = ($this->getZip() ? $this->getZip().' ' : '').$this->getCity();
         }
 
         return implode("\n", $lines);

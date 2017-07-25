@@ -38,7 +38,7 @@ class User extends BaseUser
     protected $accessRights;
 
     /**
-     * @var string $accessRightScope
+     * @var string
      */
     protected $accessRightScope;
 
@@ -50,7 +50,7 @@ class User extends BaseUser
         parent::__construct();
 
         $this->accessRights = array();
-        $this->enabled      = true;
+        $this->enabled = true;
     }
 
     /**
@@ -128,6 +128,6 @@ class User extends BaseUser
      */
     public function setEmailCanonical($emailCanonical)
     {
-        return parent::setEmailCanonical(strval(uniqid()) . $emailCanonical);
+        return parent::setEmailCanonical(strval(uniqid()).$emailCanonical);
     }
 }

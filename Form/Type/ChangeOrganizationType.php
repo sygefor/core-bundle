@@ -4,7 +4,7 @@ namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\Entity\Organization;
-use Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -29,8 +29,8 @@ class ChangeOrganizationType extends AbstractType
 
         $builder
             ->add('organization', EntityType::class, array(
-                'label'         => 'Nouveau centre',
-                'class'         => Organization::class,
+                'label' => 'Nouveau centre',
+                'class' => Organization::class,
                 'query_builder' => function (EntityRepository $er) use ($entity) {
                     return $er->createQueryBuilder('o')
                         ->where('o != :organization')
@@ -53,12 +53,12 @@ class ChangeOrganizationType extends AbstractType
      * @param Organization  $organization
      * @param mixed         $entity
      */
-    function addInstitutionField(FormInterface $form, $organization, $entity)
+    public function addInstitutionField(FormInterface $form, $organization, $entity)
     {
         if ($organization && method_exists($entity, 'getInstitution')) {
             $form->add('institution', EntityType::class, array(
-                'label'         => 'Etablissement',
-                'class'         => AbstractInstitution::class,
+                'label' => 'Etablissement',
+                'class' => AbstractInstitution::class,
                 'query_builder' => function (EntityRepository $er) use ($organization) {
                     return $er->createQueryBuilder('i')
                         ->where('i.organization = :organization')
@@ -67,7 +67,7 @@ class ChangeOrganizationType extends AbstractType
                         ->orderBy('i.name', 'ASC');
                 },
                 'constraints' => new NotBlank(array('message' => 'Vous devez sélectionner un établissement')),
-                'required'    => true,
+                'required' => true,
             ));
         }
     }

@@ -6,6 +6,7 @@
  * Date: 5/25/16
  * Time: 10:21 AM.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity\PersonTrait;
 
 /**
@@ -216,7 +217,6 @@ trait AccountTrait
      */
     public function eraseCredentials()
     {
-
     }
 
     /**

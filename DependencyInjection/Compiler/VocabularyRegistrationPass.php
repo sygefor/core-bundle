@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler;
 
+use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -18,16 +19,16 @@ class VocabularyRegistrationPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if ( ! $container->hasDefinition('sygefor_core.vocabulary_registry')) {
+        if (!$container->hasDefinition('sygefor_core.vocabulary_registry')) {
             return;
         }
 
-        $definition        = $container->getDefinition('sygefor_core.vocabulary_registry');
+        $definition = $container->getDefinition('sygefor_core.vocabulary_registry');
         $vocabularySevices = $container->findTaggedServiceIds('sygefor_core.vocabulary_provider');
         foreach ($vocabularySevices as $id => $tagAttributes) {
             //checking class
             $class = $container->getDefinition($id)->getClass();
-            if ( ! $class || ! $this->isVocabularyProviderImplementation($class)) {
+            if (!$class || !$this->isVocabularyProviderImplementation($class)) {
                 throw new \InvalidArgumentException(sprintf('Vocabulary Registration : %s must implement VocabularyInterface', $class));
             }
             foreach ($tagAttributes as $attributes) {
@@ -49,6 +50,6 @@ class VocabularyRegistrationPass implements CompilerPassInterface
     {
         $refl = new \ReflectionClass($class);
 
-        return $refl->implementsInterface('Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface');
+        return $refl->implementsInterface(VocabularyInterface::class);
     }
 }

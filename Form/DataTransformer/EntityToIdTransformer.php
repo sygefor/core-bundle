@@ -6,10 +6,10 @@
  * Date: 25/06/14
  * Time: 15:02.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Form\DataTransformer;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
@@ -67,13 +67,13 @@ class EntityToIdTransformer implements DataTransformerInterface
      *
      * @param mixed $id The value in the transformed representation
      *
-     * @throws TransformationFailedException When the transformation fails.
+     * @throws TransformationFailedException when the transformation fails
      *
      * @return mixed The value in the original representation
      */
     public function reverseTransform($id)
     {
-        if ( ! $id) {
+        if (!$id) {
             return;
         }
 
@@ -84,7 +84,7 @@ class EntityToIdTransformer implements DataTransformerInterface
                 'An instance of "%s" with id "%s" does not exist!',
                 $this->entityClass,
                 $id
-            ));// return null;
+            )); // return null;
         }
 
         return $object;

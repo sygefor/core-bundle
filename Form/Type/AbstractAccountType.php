@@ -33,28 +33,28 @@ abstract class AbstractAccountType extends AbstractType
                 'label' => 'Email',
             ))
             ->add('phoneNumber', null, array(
-                'label'    => 'Numéro de téléphone',
+                'label' => 'Numéro de téléphone',
                 'required' => false,
             ))
 
             ->add('addressType', ChoiceType::class, array(
                 'label' => 'Type d\'adresse',
-                'choices'  => array(
+                'choices' => array(
                     '0' => 'Adresse personnelle',
                     '1' => 'Adresse professionnelle',
                 ),
                 'required' => false,
             ))
             ->add('address', null, array(
-                'label'    => 'Adresse',
+                'label' => 'Adresse',
                 'required' => false,
             ))
             ->add('zip', null, array(
-                'label'    => 'Code postal',
+                'label' => 'Code postal',
                 'required' => false,
             ))
             ->add('city', null, array(
-                'label'    => 'Ville',
+                'label' => 'Ville',
                 'required' => false,
             ));
     }

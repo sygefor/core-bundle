@@ -6,6 +6,7 @@
  * Date: 07/07/14
  * Time: 14:12.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Sygefor\Bundle\CoreBundle\HumanReadablePropertyAccessor\HumanReadablePropertyAccessorFactory;
@@ -37,14 +38,14 @@ class PublipostTemplateVocabularyType extends VocabularyType
         parent::buildForm($builder, $options);
 
         $builder->add('entity', ChoiceType::class, array(
-            'label'   => 'Entité associée',
-            'choices' => $this->HRPAFactory->getKnownEntities(false)
+            'label' => 'Entité associée',
+            'choices' => $this->HRPAFactory->getKnownEntities(false),
         ));
 
         $builder->add('file', FileType::class, array(
-            'label'      => 'Fichier du modèle',
+            'label' => 'Fichier du modèle',
             'block_name' => 'updatable_file',
-            'required'   => true
+            'required' => true,
         ));
     }
 }

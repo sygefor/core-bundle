@@ -2,8 +2,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary;
 
-use Sygefor\Bundle\CoreBundle\AccessRight\AbstractAccessRight;
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AbstractAccessRight;
+use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AllOrganizationVocabularyAccessRight extends AbstractAccessRight
@@ -25,16 +25,15 @@ class AllOrganizationVocabularyAccessRight extends AbstractAccessRight
      */
     public function supportsClass($class)
     {
-        if ($class === 'Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface') {
+        if ($class === VocabularyInterface::class) {
             return true;
         }
 
         try {
             $refl = new \ReflectionClass($class);
 
-            return $refl->isSubclassOf('Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface');
-        }
-        catch (\ReflectionException $re) {
+            return $refl->isSubclassOf(VocabularyInterface::class);
+        } catch (\ReflectionException $re) {
             return false;
         }
 
@@ -48,11 +47,9 @@ class AllOrganizationVocabularyAccessRight extends AbstractAccessRight
     {
         if (is_string($object)) {
             return true;
-        }
-        else if ($object) {
+        } elseif ($object) {
             return $object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && $object->getOrganization();
-        }
-        else {
+        } else {
             return true;
         }
     }

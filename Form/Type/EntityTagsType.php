@@ -52,7 +52,7 @@ class EntityTagsType extends EntityType
             $tags[] = (string) $tag;
         }
         $view->vars['attr']['data-select2-tags'] = json_encode($tags);
-        $view->vars['choices']                   = $this->_choiceList->getRemainingViews();
+        $view->vars['choices'] = $this->_choiceList->getRemainingViews();
     }
 
     /**
@@ -64,9 +64,9 @@ class EntityTagsType extends EntityType
 
         $resolver->setDefaults(array(
             'preferred_choices' => array(),
-            'multiple'          => true,
-            'property'          => 'name',
-            'prePersist'        => null,
+            'multiple' => true,
+            'property' => 'name',
+            'prePersist' => null,
         ));
     }
 

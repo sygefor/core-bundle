@@ -1,7 +1,16 @@
 parameters:
     sygefor_core.taxonomy.group: "Sygefor3"
+    sygefor_inscription.taxonomy.group: "Inscription"
+    sygefor_institution.taxonomy.group: "Etablissement"
+    sygefor_trainee.taxonomy.group: "Public"
+    sygefor_trainer.taxonomy.group: "Intervenant"
+    sygefor_training.taxonomy.group: "Formation"
 
 services:
+    # taxonomy
+    sygefor_core.vocabulary_registry:
+        class: Sygefor\Bundle\CoreBundle\Utils\VocabularyRegistry
+
     sygefor_core.vocabulary_title:
         class:        Sygefor\Bundle\CoreBundle\Entity\PersonTrait\Term\Title
         tags:
@@ -11,3 +20,68 @@ services:
         class:        Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate
         tags:
             - { name: sygefor_core.vocabulary_provider, group: "%sygefor_core.taxonomy.group%" }
+
+    sygefor_core.vocabulary_inscription_status:
+            class:        Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus
+            tags:
+                - { name: sygefor_core.vocabulary_provider, group: "%sygefor_inscription.taxonomy.group%" }
+
+    sygefor_core.vocabulary_presence_status:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_inscription.taxonomy.group%" }
+
+    sygefor_core.vocabulary_institution_type:
+        class:  Sygefor\Bundle\CoreBundle\Entity\Term\InstitutionType
+        tags:
+              - { name: sygefor_taxonomy.vocabulary_provider, group: "%sygefor_institution.taxonomy.group%" }
+
+    sygefor_core.vocabulary_geographic_origin:
+        class:  Sygefor\Bundle\CoreBundle\Entity\Term\GeographicOrigin
+        tags:
+              - { name: sygefor_taxonomy.vocabulary_provider, group: "%sygefor_institution.taxonomy.group%" }
+
+    sygefor_core.vocabulary_email_template:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_trainee.taxonomy.group%" }
+
+    sygefor_core.vocabulary_public_type:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\PublicType
+        tags:
+            - { name: sygefor_core.vocabulary_provider,  group: "%sygefor_trainee.taxonomy.group%" }
+
+    sygefor_core.vocabulary_disciplinary:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\Disciplinary
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_trainee.taxonomy.group%" }
+
+    sygefor_core.vocabulary_trainer_type:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\TrainerType
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_trainer.taxonomy.group%" }
+
+    sygefor_core.vocabulary_training_theme:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Training\Term\AbstractTheme
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_training.taxonomy.group%" }
+
+    sygefor_core.vocabulary_session_place:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Session\Term\Place
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_training.taxonomy.group%" }
+
+    sygefor_core.vocabulary_session_type:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Session\Term\SessionType
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_training.taxonomy.group%" }
+
+    sygefor_core.vocabulary_training_tag:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Training\Term\Tag
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_training.taxonomy.group%" }
+
+    sygefor_core.vocabulary_training_category:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Training\Term\TrainingCategory
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_training.taxonomy.group%" }

@@ -6,7 +6,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\CoordinatesTrait;
-use Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 
@@ -64,7 +63,7 @@ class Organization
 
     /**
      * @var AbstractInstitution
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\InstitutionBundle\Entity\AbstractInstitution")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $institution;
@@ -85,7 +84,7 @@ class Organization
      */
     public function __construct()
     {
-        $this->users       = new ArrayCollection();
+        $this->users = new ArrayCollection();
         $this->departments = new ArrayCollection();
     }
 
@@ -217,7 +216,7 @@ class Organization
         $this->traineeRegistrable = $traineeRegistrable;
     }
 
-    function __toString()
+    public function __toString()
     {
         return $this->name;
     }

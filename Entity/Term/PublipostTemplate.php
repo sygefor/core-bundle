@@ -6,12 +6,12 @@
  * Date: 07/07/14
  * Time: 14:07.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 
 use Doctrine\ORM\Mapping as ORM;
 use Sygefor\Bundle\CoreBundle\Entity\UploadableTrait;
 use Sygefor\Bundle\CoreBundle\Form\Type\PublipostTemplateVocabularyType;
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContext;
 
@@ -79,13 +79,13 @@ class PublipostTemplate extends AbstractTerm implements VocabularyInterface
     public function validateFile(ExecutionContext $context)
     {
         if ($this->file && !empty($this->file) && !in_array($this->file->getMimeType(), array(
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
-                "application/vnd.oasis.opendocument.text", // odt
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // xlsx
-                "application/vnd.oasis.opendocument.spreadsheet", // ods
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+                'application/vnd.oasis.opendocument.text', // odt
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+                'application/vnd.oasis.opendocument.spreadsheet', // ods
             ))) {
             $context
-                ->buildViolation("Vous devez fournir un fichier docx, odt, xlsx ou ods.")
+                ->buildViolation('Vous devez fournir un fichier docx, odt, xlsx ou ods.')
                 ->atPath('file')
                 ->addViolation();
             $this->file = null;
@@ -100,6 +100,6 @@ class PublipostTemplate extends AbstractTerm implements VocabularyInterface
     protected function getTemplatesRootDir()
     {
         // le chemin absolu du répertoire où les documents uploadés doivent être sauvegardés
-        return __DIR__ . '/../../../../../app/Resources/Templates/Publipost';
+        return __DIR__.'/../../../../../app/Resources/Templates/Publipost';
     }
 }
