@@ -2,7 +2,6 @@
 
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
-use \Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -12,7 +11,6 @@ use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAcces
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Sygefor\Bundle\CoreBundle\Form\BaseInscriptionType;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
