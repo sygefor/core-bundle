@@ -9,6 +9,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
+use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Sygefor\Bundle\CoreBundle\HumanReadablePropertyAccessor\HumanReadablePropertyAccessorFactory;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -46,6 +47,13 @@ class PublipostTemplateVocabularyType extends VocabularyType
             'label' => 'Fichier du modèle',
             'block_name' => 'updatable_file',
             'required' => true,
+        ));
+    }
+
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => PublipostTemplate::class,
         ));
     }
 }

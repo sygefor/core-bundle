@@ -9,6 +9,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Form;
 
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
 use Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType;
 use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractParticipation;
 use Symfony\Component\Form\AbstractType;
@@ -26,12 +28,12 @@ class ParticipationType extends AbstractType
         $builder
             ->add('trainer', EntityHiddenType::class, array(
                 'label' => 'Intervenant',
-                'class' => 'SygeforCoreBundle:AbstractTrainer',
+                'class' => AbstractTrainer::class,
                 'constraints' => new NotBlank(array('message' => 'Vous devez sélectionner un intervenant.')),
             ))
             ->add('session', EntityHiddenType::class, array(
                 'label' => 'Session',
-                'class' => 'SygeforCoreBundle:Session\AbstractSession',
+                'class' => AbstractSession::class,
                 'constraints' => $notBlank,
             ));
     }

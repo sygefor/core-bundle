@@ -1,20 +1,18 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
-use Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Class BaseInscriptionType.
+ * Class AbstractInscriptionType.
  */
-class BaseInscriptionType extends AbstractType
+class AbstractInscriptionType extends AbstractType
 {
     protected $organization;
 
@@ -30,8 +28,6 @@ class BaseInscriptionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $organization = $this->organization;
-        /** @var AbstractSession $session */
-        $session = $options['data']->getSession();
 
         $builder
             ->add('trainee', EntityHiddenType::class, array(
@@ -41,7 +37,7 @@ class BaseInscriptionType extends AbstractType
             ))
             ->add('session', EntityHiddenType::class, array(
                 'label' => 'Session',
-                'class' => 'SygeforCoreBundle:Session\AbstractSession',
+                'class' => 'SygeforCoreBundle:AbstractSession',
                 'invalid_message' => 'Session non reconnue',
             ))
             ->add('inscriptionStatus', EntityType::class, array(

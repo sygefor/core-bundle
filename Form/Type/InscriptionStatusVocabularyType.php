@@ -8,6 +8,9 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 
+/**
+ * Class InscriptionStatusVocabularyType.
+ */
 class InscriptionStatusVocabularyType extends VocabularyType
 {
     /**
@@ -39,5 +42,15 @@ class InscriptionStatusVocabularyType extends VocabularyType
     public function getParent()
     {
         return VocabularyType::class;
+    }
+
+    /**
+     * @param OptionsResolverInterface $resolver
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => InscriptionStatus::class,
+        ));
     }
 }

@@ -9,28 +9,20 @@
 
 namespace Sygefor\Bundle\CoreBundle\Form;
 
-use Doctrine\ORM\EntityRepository;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
 use Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Session\Term\Place;
-use Sygefor\Bundle\CoreBundle\Entity\Session\Term\SessionType as Type;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Class BaseSessionType.
+ * Class AbstractSessionType.
  */
-class BaseSessionType extends AbstractType
+class AbstractSessionType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -38,17 +30,11 @@ class BaseSessionType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var AbstractSession $session */
-        $session = isset($options['data']) ? $options['data'] : null;
-
         $builder
             ->add('training', EntityHiddenType::class, array(
                 'label' => 'Formation',
                 'class' => AbstractTraining::class,
                 'required' => true,
-            ))
-            ->add('promote', CheckboxType::class, array(
-                'label' => 'Promouvoir',
             ))
             ->add('registration', ChoiceType::class, array(
                 'label' => 'Inscriptions',
@@ -79,25 +65,6 @@ class BaseSessionType extends AbstractType
                 'widget' => 'single_text',
                 'format' => 'dd/MM/yyyy',
                 'required' => false,
-            ))
-            ->add('schedule', null, array(
-                'label' => 'Horaires',
-                'required' => false,
-            ))
-            ->add('hourNumber', null, array(
-                'label' => "Nombre d'heures",
-                'required' => false,
-                'attr' => array(
-                    'min' => 0,
-                ),
-            ))
-            ->add('dayNumber', null, array(
-                'label' => 'Nombre de jours',
-                'required' => false,
-                'attr' => array(
-                    'min' => 0,
-                    'step' => 0.5,
-                ),
             ))
             ->add('status', ChoiceType::class, array(
                 'label' => 'Statut',
@@ -130,58 +97,7 @@ class BaseSessionType extends AbstractType
             ->add('comments', 'textarea', array(
                 'required' => false,
                 'label' => 'Commentaires',
-            ))
-            ->add('participantsSummaries', 'collection', array(
-                'type' => new ParticipantsSummaryType(),
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
             ));
-
-        // PRE_SET_DATA for the parent form
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-            $this->addPlaceField($event->getForm(), $event->getData());
-        });
-
-        // POST_SUBMIT for each field
-        if ($builder->has('organization')) {
-            $builder->get('organization')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-                $this->addPlaceField($event->getForm()->getParent(), $event->getForm()->getData());
-            });
-        }
-    }
-
-    /**
-     * Add institution field depending organization.
-     *
-     * @param FormInterface $form
-     * @param $data
-     */
-    public function addPlaceField(FormInterface $form, $data)
-    {
-        if ($data) {
-            $organization = null;
-            if (get_parent_class($data) === AbstractSession::class) {
-                $organization = $data->getTraining()->getOrganization();
-            } elseif ($data instanceof Organization) {
-                $organization = $data;
-            }
-
-            if ($organization) {
-                $form->add('place', EntityType::class, array(
-                    'required' => false,
-                    'class' => Place::class,
-                    'label' => 'Lieu',
-                    'query_builder' => function (EntityRepository $er) use ($organization) {
-                        return $er->createQueryBuilder('i')
-                            ->where('i.organization = :organization')
-                            ->setParameter('organization', $organization)
-                            ->orWhere('i.organization is null')
-                            ->orderBy('i.name', 'ASC');
-                    },
-                ));
-            }
-        }
     }
 
     /**

@@ -3,6 +3,10 @@
 namespace Sygefor\Bundle\CoreBundle\Form;
 
 use Doctrine\ORM\EntityRepository;
+use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
+use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -32,7 +36,7 @@ class EmailTemplateVocabularyType extends VocabularyType
         $builder->add('inscriptionStatus', 'entity', array(
             'required' => false,
             'label' => "Status d'inscription",
-            'class' => 'SygeforCoreBundle:Term\InscriptionStatus',
+            'class' => InscriptionStatus::class,
             'empty_value' => '',
             'empty_data' => null,
             'query_builder' => function (EntityRepository $er) {
@@ -45,7 +49,7 @@ class EmailTemplateVocabularyType extends VocabularyType
         $builder->add('attachmentTemplates', 'entity', array(
             'required' => false,
             'label' => 'Modèles de pièces jointes',
-            'class' => 'SygeforCoreBundle:Term\PublipostTemplate',
+            'class' => PublipostTemplate::class,
             'query_builder' => function (EntityRepository $er) {
                 return $er->createQueryBuilder('d')
                     ->where('d.organization = :orgId')->setParameters(array('orgId' => $this->securityContext->getToken()->getUser()->getOrganization()->getId()))
@@ -59,7 +63,7 @@ class EmailTemplateVocabularyType extends VocabularyType
         $builder->add('presenceStatus', 'entity', array(
             'required' => false,
             'label' => 'Statut de présence',
-            'class' => 'SygeforCoreBundle:Term\PresenceStatus',
+            'class' => PresenceStatus::class,
             'empty_value' => '',
             'empty_data' => null,
             'query_builder' => function (EntityRepository $er) {
@@ -76,5 +80,15 @@ class EmailTemplateVocabularyType extends VocabularyType
     public function getParent()
     {
         return VocabularyType::class;
+    }
+
+    /**
+     * @param OptionsResolverInterface $resolver
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => EmailTemplate::class,
+        ));
     }
 }

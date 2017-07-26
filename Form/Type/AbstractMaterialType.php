@@ -9,14 +9,15 @@
 
 namespace Sygefor\Bundle\CoreBundle\Form;
 
+use Sygefor\Bundle\CoreBundle\Entity\AbstractMaterial;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Class MaterialType.
+ * Class AbstractMaterialType.
  */
-class MaterialType extends AbstractType
+class AbstractMaterialType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -24,10 +25,6 @@ class MaterialType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('file', 'file', array(
-            'attr' => array('multiple' => true),
-            'label' => 'Supports',
-        ));
     }
 
     /**
@@ -36,6 +33,7 @@ class MaterialType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
+            'data_class' => AbstractMaterial::class,
             'csrf_protection' => false,
         ));
     }
