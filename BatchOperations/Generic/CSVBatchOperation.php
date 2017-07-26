@@ -11,7 +11,7 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
+use Sygefor\Bundle\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;

@@ -28,6 +28,11 @@ services:
         tags:
             - { name: kernel.event_listener, event: sygefor_core.menu_configure, method: onMenuConfigure }
 
+    # training types registry
+    sygefor_core.registry.training_type:
+        class: Sygefor\Bundle\CoreBundle\Utils\TrainingTypeRegistry
+        arguments: [null]
+
     # Serialization
     sygefor_core.serializer.handler.form_view:
         class: Sygefor\Bundle\CoreBundle\EventListener\Handler\FormViewHandler
@@ -51,22 +56,3 @@ services:
         class: Sygefor\Bundle\CoreBundle\EventListener\TreeTraitListener
         tags:
             - { name: doctrine.event_subscriber, connection: default }
-
-    sygefor_core.uppercase.orm.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\UppercaseListener
-        tags:
-            - { name: doctrine.event_subscriber, connection: default }
-
-    # Trainee provider
-    sygefor_core.trainee_repository:
-        class: Sygefor\Bundle\CoreBundle\Repository\TraineeRepository
-        factory_service:  doctrine
-        factory_method:   getRepository
-        arguments:
-            - 'Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee'
-
-    # training types registry
-    sygefor_core.registry.training_type:
-        class: Sygefor\Bundle\CoreBundle\Utils\TrainingTypeRegistry
-        arguments: [null]
-

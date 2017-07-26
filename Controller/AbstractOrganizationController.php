@@ -12,8 +12,7 @@ namespace Sygefor\Bundle\CoreBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
-use Sygefor\Bundle\CoreBundle\Form\Type\OrganizationType;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,15 +22,17 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Route("/admin/organizations")
  */
-class OrganizationController extends Controller
+abstract class AbstractOrganizationController extends Controller
 {
+    protected $organizationClass = AbstractOrganization::class;
+
     /**
      * @Route("/", name="organization.index")
      * @Security("is_granted('VIEW', 'SygeforCoreBundle:Organization')")
      */
     public function indexAction()
     {
-        $organizations = $this->get('doctrine')->getManager()->getRepository('SygeforCoreBundle:Organization')->findAll();
+        $organizations = $this->get('doctrine')->getManager()->getRepository($this->organizationClass)->findAll();
 
         return $this->render('organization/index.html.twig', array(
             'organizations' => $organizations,
@@ -48,8 +49,8 @@ class OrganizationController extends Controller
      */
     public function addAction(Request $request)
     {
-        $organization = new Organization();
-        $form = $this->createForm(OrganizationType::class, $organization);
+        $organization = new $this->organizationClass();
+        $form = $this->createForm($organization::getFormType(), $organization);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
@@ -72,7 +73,7 @@ class OrganizationController extends Controller
 
     /**
      * @param Request      $request
-     * @param Organization $organization
+     * @param AbstractOrganization $organization
      *
      * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="organization.edit", options={"expose"=true})
      * @ParamConverter("organization", class="SygeforCoreBundle:Organization", options={"id" = "id"})
@@ -80,9 +81,9 @@ class OrganizationController extends Controller
      *
      * @return array|RedirectResponse
      */
-    public function editAction(Request $request, Organization $organization)
+    public function editAction(Request $request, AbstractOrganization $organization)
     {
-        $form = $this->createForm(OrganizationType::class, $organization);
+        $form = $this->createForm($organization::getFormType(), $organization);
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {

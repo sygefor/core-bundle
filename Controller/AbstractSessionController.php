@@ -8,9 +8,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractParticipation;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractParticipation;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -62,17 +62,6 @@ abstract class AbstractSessionController extends Controller
             if ($form->isValid()) {
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($session);
-
-                if (method_exists($session, 'getNewModule')) {
-                    $newModule = $session->getNewModule();
-                    if ($newModule && $session->getNewModule()->getName()) {
-                        $em->persist($newModule);
-                        $newModule->setTraining($session->getTraining());
-                        $session->setModule($newModule);
-                        $session->setNewModule(null);
-                    }
-                }
-
                 $training->updateTimestamps();
                 $em->flush();
             }
@@ -170,6 +159,7 @@ abstract class AbstractSessionController extends Controller
             $form
                 ->add('inscriptionManagement', ChoiceType::class, array(
                     'label' => 'Choisir la méthode d\'importation des inscriptions',
+                    'mapped' => false,
                     'choices' => array(
                         'none' => 'Ne pas importer les inscriptions',
                         'copy' => 'Copier les inscriptions',
@@ -230,7 +220,7 @@ abstract class AbstractSessionController extends Controller
         // retrieve inscriptions and session
         if ($inscriptionIds) {
             $inscriptions = $this->getDoctrine()->getManager()
-                ->getRepository('SygeforCoreBundle:AbstractInscription')
+                ->getRepository(AbstractInscription::class)
                 ->findById($inscriptionIds);
 
             if (empty($inscriptions)) {
@@ -268,8 +258,6 @@ abstract class AbstractSessionController extends Controller
             $newParticipation = new $this->participationClass();
             $newParticipation->setSession($cloned);
             $newParticipation->setTrainer($participation->getTrainer());
-            $newParticipation->setOrganization($participation->getTrainer()->getOrganization());
-            $newParticipation->setIsOrganization($participation->getTrainer()->getIsOrganization());
             $cloned->addParticipation($newParticipation);
             $em->persist($newParticipation);
         }

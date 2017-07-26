@@ -4,14 +4,9 @@ namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\PersistentCollection;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\CoordinatesTrait;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\PersonTrait;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\ProfessionalSituationTrait;
-use Sygefor\Bundle\CoreBundle\Entity\Term\TrainerType;
 use Sygefor\Bundle\CoreBundle\Form\BaseTrainerType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -30,8 +25,6 @@ abstract class AbstractTrainer implements SerializedAccessRights
 {
     use ORMBehaviors\Timestampable\Timestampable;
     use PersonTrait;
-    use CoordinatesTrait;
-    use ProfessionalSituationTrait;
 
     /**
      * @var int id
@@ -44,8 +37,8 @@ abstract class AbstractTrainer implements SerializedAccessRights
     protected $id;
 
     /**
-     * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Organization")
+     * @var AbstractOrganization
+     * @ORM\ManyToOne(targetEntity="AbstractOrganization")
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Groups({"trainer"})
      */
@@ -53,59 +46,21 @@ abstract class AbstractTrainer implements SerializedAccessRights
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\AbstractParticipation", mappedBy="trainer", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="AbstractParticipation", mappedBy="trainer", cascade={"remove"})
      * @Serializer\Exclude
      */
     protected $participations;
 
     /**
-     * @var TrainerType
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\TrainerType")
-     * @ORM\JoinColumn(nullable=true)
-     * @Serializer\Groups({"trainer"})
-     */
-    protected $trainerType;
-
-    /**
-     * @var bool
-     * @ORM\Column(name="is_archived", type="boolean", nullable=true)
-     * @Serializer\Groups({"trainer"})
-     */
-    protected $isArchived;
-
-    /**
-     * @var bool
-     * @ORM\Column(name="is_allow_send_mail", type="boolean", nullable=true)
-     * @Serializer\Groups({"trainer", "api.training", "api.trainer"})
-     */
-    protected $isAllowSendMail = false;
-
-    /**
-     * @var bool
-     * @ORM\Column(name="is_organization", type="boolean", nullable=true)
-     * @Serializer\Groups({"trainer"})
-     */
-    protected $isOrganization;
-
-    /**
-     * @var bool
-     * @ORM\Column(name="is_public", type="boolean")
-     * @Serializer\Groups({"trainer"})
-     */
-    protected $isPublic;
-
-    /**
      * @var string
-     * @ORM\Column(name="observations", type="text", nullable=true)
+     * @ORM\Column(name="comments", type="text", nullable=true)
      * @Serializer\Groups({"trainer"})
      */
-    protected $observations;
+    protected $comments;
 
     public function __construct()
     {
         $this->participations = new ArrayCollection();
-        $this->isPublic = false;
-        $this->addressType = 0;
     }
 
     /**
@@ -113,27 +68,6 @@ abstract class AbstractTrainer implements SerializedAccessRights
      */
     public function changePropertiesOrganization()
     {
-        $excludedProperties = array('participations', 'institution');
-
-        foreach (array_keys(get_object_vars($this)) as $key) {
-            if (!in_array($key, $excludedProperties, true)) {
-                if (is_object($this->$key)) {
-                    if ($this->$key instanceof PersistentCollection) {
-                        foreach ($this->$key as $item) {
-                            if (is_object($item) && method_exists($item, 'getOrganization')) {
-                                if ($item->getOrganization() !== null && $item->getOrganization() !== $this->getOrganization()) {
-                                    $this->$key->removeElement($item);
-                                }
-                            }
-                        }
-                    } elseif (method_exists($this->$key, 'getOrganization')) {
-                        if ($this->$key->getOrganization() !== null && $this->$key->getOrganization() !== $this->getOrganization()) {
-                            $this->$key = null;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -145,15 +79,7 @@ abstract class AbstractTrainer implements SerializedAccessRights
     }
 
     /**
-     * @param int $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return mixed
+     * @return AbstractOrganization
      */
     public function getOrganization()
     {
@@ -161,7 +87,7 @@ abstract class AbstractTrainer implements SerializedAccessRights
     }
 
     /**
-     * @param mixed $organization
+     * @param AbstractOrganization
      */
     public function setOrganization($organization)
     {
@@ -201,99 +127,27 @@ abstract class AbstractTrainer implements SerializedAccessRights
     }
 
     /**
-     * @return TrainerType
-     */
-    public function getTrainerType()
-    {
-        return $this->trainerType;
-    }
-
-    /**
-     * @param TrainerType $trainerType
-     */
-    public function setTrainerType($trainerType)
-    {
-        $this->trainerType = $trainerType;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isIsArchived()
-    {
-        return $this->isArchived;
-    }
-
-    /**
-     * @param bool $isArchived
-     */
-    public function setIsArchived($isArchived)
-    {
-        $this->isArchived = $isArchived;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isIsAllowSendMail()
-    {
-        return $this->isAllowSendMail;
-    }
-
-    /**
-     * @param bool $isAllowSendMail
-     */
-    public function setIsAllowSendMail($isAllowSendMail)
-    {
-        $this->isAllowSendMail = $isAllowSendMail;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getIsOrganization()
-    {
-        return $this->isOrganization;
-    }
-
-    /**
-     * @param bool $isOrganization
-     */
-    public function setIsOrganization($isOrganization)
-    {
-        $this->isOrganization = $isOrganization;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isIsPublic()
-    {
-        return $this->isPublic;
-    }
-
-    /**
-     * @param bool $isPublic
-     */
-    public function setIsPublic($isPublic)
-    {
-        $this->isPublic = $isPublic;
-    }
-
-    /**
      * @return string
      */
-    public function getObservations()
+    public function getComments()
     {
-        return $this->observations;
+        return $this->comments;
     }
 
     /**
-     * @param string $observations
+     * @param string $comments
      */
-    public function setObservations($observations)
+    public function setComments($comments)
     {
-        $this->observations = $observations;
+        $this->comments = $comments;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getFormType()
+    {
+        return BaseTrainerType::class;
     }
 
     /**
@@ -313,19 +167,6 @@ abstract class AbstractTrainer implements SerializedAccessRights
         $metadata->addPropertyConstraint('lastName', new Assert\NotBlank(array(
             'message' => 'Vous devez renseigner un nom de famille.',
         )));
-
-        // CoordinateTrait
-        $metadata->addPropertyConstraint('email', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner un email.',
-        )));
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function getFormType()
-    {
-        return BaseTrainerType::class;
     }
 
     /**

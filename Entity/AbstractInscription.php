@@ -2,18 +2,17 @@
 
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
+use \Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\CoordinatesTrait;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\ProfessionalSituationTrait;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Sygefor\Bundle\CoreBundle\Form\BaseInscriptionType;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,8 +29,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 abstract class AbstractInscription implements SerializedAccessRights
 {
     use ORMBehaviors\Timestampable\Timestampable;
-    use CoordinatesTrait;
-    use ProfessionalSituationTrait;
 
     /**
      * @var int id
@@ -44,7 +41,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee", inversedBy="inscriptions")
+     * @ORM\ManyToOne(targetEntity="AbstractTrainee", inversedBy="inscriptions")
      * @ORM\JoinColumn(name="trainee_id", referencedColumnName="id")
      * @Assert\NotNull(message="Vous devez sélectionner un stagiaire.")
      * @Serializer\Groups({"inscription", "session"})
@@ -52,7 +49,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $trainee;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession", inversedBy="inscriptions")
+     * @ORM\ManyToOne(targetEntity="AbstractSession", inversedBy="inscriptions")
      * @ORM\JoinColumn(name="session_id", referencedColumnName="id")
      * @Assert\NotNull()
      * @Serializer\Groups({"inscription", "trainee", "api"})
@@ -60,23 +57,17 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $session;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus")
+     * @ORM\ManyToOne(targetEntity="Term\InscriptionStatus")
      * @Assert\NotNull(message="Vous devez spécifier un status d'inscription.")
      * @Serializer\Groups({"Default", "api"})
      */
     protected $inscriptionStatus;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus")
+     * @ORM\ManyToOne(targetEntity="Term\PresenceStatus")
      * @Serializer\Groups({"Default", "api"})
      */
     protected $presenceStatus;
-
-    /**
-     * @var \DateTime
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    protected $inscriptionStatusUpdatedAt;
 
     /**
      * @var bool
@@ -100,7 +91,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     }
 
     /**
-     * @param mixed $inscriptionStatus
+     * @param InscriptionStatus
      */
     public function setInscriptionStatus($inscriptionStatus)
     {
@@ -116,7 +107,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     }
 
     /**
-     * @param mixed $presenceStatus
+     * @param PresenceStatus
      */
     public function setPresenceStatus($presenceStatus)
     {
@@ -132,7 +123,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     }
 
     /**
-     * @param mixed $session
+     * @param AbstractSession
      */
     public function setSession($session)
     {
@@ -148,7 +139,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     }
 
     /**
-     * @param mixed $trainee
+     * @param AbstractTrainee
      */
     public function setTrainee($trainee)
     {
@@ -180,16 +171,6 @@ abstract class AbstractInscription implements SerializedAccessRights
     }
 
     /**
-     * @return \DateTime
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api"})
-     */
-    public function getDate()
-    {
-        return $this->getCreatedAt();
-    }
-
-    /**
      * Set the default inscription status (1).
      *
      * @ORM\PreUpdate
@@ -198,88 +179,18 @@ abstract class AbstractInscription implements SerializedAccessRights
     public function setDefaultInscriptionStatus(LifecycleEventArgs $eventArgs)
     {
         if (!$this->getInscriptionStatus()) {
-            $repository = $eventArgs->getEntityManager()->getRepository('SygeforCoreBundle:Term\InscriptionStatus');
+            $repository = $eventArgs->getEntityManager()->getRepository(InscriptionStatus::class);
             $status = $repository->findOneBy(array('machineName' => 'waiting'));
             $this->setInscriptionStatus($status);
         }
     }
 
     /**
-     * Save update date for property inscription status.
-     *
-     * @ORM\PreUpdate
-     * @ORM\PrePersist
-     */
-    public function setInscriptionStatusUpdatedAtLifecycle(LifecycleEventArgs $eventArgs)
-    {
-        $uow = $eventArgs->getEntityManager()->getUnitOfWork();
-        $changeset = $uow->getEntityChangeSet($this);
-        if (isset($changeset['inscriptionStatus'])) {
-            $this->setInscriptionStatusUpdatedAt((new \DateTime('now', new \DateTimeZone('Europe/Paris'))));
-        }
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getInscriptionStatusUpdatedAt()
-    {
-        return $this->inscriptionStatusUpdatedAt;
-    }
-
-    /**
-     * @param \DateTime $inscriptionStatusUpdatedAt
-     */
-    public function setInscriptionStatusUpdatedAt($inscriptionStatusUpdatedAt)
-    {
-        $this->inscriptionStatusUpdatedAt = $inscriptionStatusUpdatedAt;
-    }
-
-    /**
-     * @return \Sygefor\Bundle\CoreBundle\Entity\Organization
+     * @return AbstractOrganization
      */
     public function getOrganization()
     {
         return $this->getSession()->getTraining()->getOrganization();
-    }
-
-    /**
-     * For activity report.
-     *
-     * @return string
-     */
-    public function getZoneCompetence()
-    {
-        $organization = $this->getSession()->getTraining()->getOrganization();
-
-        // Etablissement de rattachement
-        if ($organization->getInstitution() && $this->getInstitution() === $organization->getInstitution()) {
-            return 'Etablissement de rattachement';
-        }
-
-        // Agglomération
-        if ($this->getInstitution()) {
-            $organizationCity = trim(current(preg_split('/cedex/si', $organization->getCity())));
-            $institutionCity = trim(current(preg_split('/cedex/si', $this->getInstitution()->getCity())));
-            if ($organizationCity === $institutionCity) {
-                return 'Agglomération';
-            }
-        }
-
-        // Zone de compétence
-        $zip = null;
-        if ($this->getInstitution()) {
-            $zip = $this->getInstitution()->getZip();
-        }
-        if (!$zip) {
-            $zip = $this->getZip();
-        }
-        $dpt = substr($zip, 0, 2);
-        if (in_array($dpt, $organization->getDepartments(), true)) {
-            return 'Zone de compétence';
-        }
-
-        return 'Hors zone';
     }
 
     /**

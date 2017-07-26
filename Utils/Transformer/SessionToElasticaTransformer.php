@@ -4,7 +4,7 @@ namespace Sygefor\Bundle\CoreBundle\Utils\Transformer;
 
 use Doctrine\ORM\EntityManager;
 use Elastica\Document;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Component\DependencyInjection\Container;
 
 /**

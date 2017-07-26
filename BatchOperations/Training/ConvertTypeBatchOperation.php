@@ -13,7 +13,7 @@ use FOS\ElasticaBundle\Elastica\Index;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
 use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
 use Sygefor\Bundle\CoreBundle\Model\SemesteredTraining;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Utils\TrainingTypeRegistry;
 use Symfony\Component\Security\Core\SecurityContext;
 

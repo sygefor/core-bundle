@@ -35,19 +35,19 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
     private $body;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus")
+     * @ORM\ManyToOne(targetEntity="InscriptionStatus")
      *
      * @var InscriptionStatus
      */
     protected $inscriptionStatus;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus")
+     * @ORM\ManyToOne(targetEntity="PresenceStatus")
      */
     protected $presenceStatus;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate")
+     * @ORM\ManyToMany(targetEntity="PublipostTemplate")
      * @ORM\JoinTable(name="email_templates__publipost_templates",
      *      joinColumns={@ORM\JoinColumn(name="email_template_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="publipost_template_id", referencedColumnName="id")}
@@ -58,7 +58,7 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
     protected $attachmentTemplates;
 
     /**
-     * @param \Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate $attachmentTemplates
+     * @param PublipostTemplate $attachmentTemplates
      */
     public function setAttachmentTemplates($attachmentTemplates)
     {
@@ -66,19 +66,11 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
     }
 
     /**
-     * @return \Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate
+     * @return PublipostTemplate
      */
     public function getAttachmentTemplates()
     {
         return $this->attachmentTemplates;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getVocabularyName()
-    {
-        return 'Modèles d\'emails stagiaires';
     }
 
     /**
@@ -159,6 +151,14 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
     public function getPresenceStatus()
     {
         return $this->presenceStatus;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVocabularyName()
+    {
+        return 'Modèles d\'emails stagiaires';
     }
 
     /**

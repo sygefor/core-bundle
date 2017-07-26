@@ -7,7 +7,7 @@ use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegi
 use Sygefor\Bundle\CoreBundle\Entity\Organization;
 use Sygefor\Bundle\CoreBundle\Form\Type\EntityTagsType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Entity\Training\Term\Tag;
 use Sygefor\Bundle\CoreBundle\Entity\Training\Term\AbstractTheme;
 use Sygefor\Bundle\CoreBundle\Entity\Training\Term\TrainingCategory;

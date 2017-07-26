@@ -11,7 +11,7 @@ namespace Sygefor\Bundle\CoreBundle\Form;
 
 use Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType;
 use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractModule;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;

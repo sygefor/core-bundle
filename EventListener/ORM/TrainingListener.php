@@ -3,10 +3,9 @@
 namespace Sygefor\Bundle\CoreBundle\EventListener\ORM;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Utils\TrainingTypeRegistry;
 
 /**
@@ -34,7 +33,6 @@ class TrainingListener implements EventSubscriber
     {
         return array(
             Events::loadClassMetadata,
-            Events::prePersist,
         );
     }
 
@@ -57,23 +55,6 @@ class TrainingListener implements EventSubscriber
                 $map[$key] = $type['class'];
             }
             $classMetadata->setDiscriminatorMap($map);
-        }
-    }
-
-    /**
-     * Increment the local training number.
-     *
-     * @param LifecycleEventArgs $eventArgs The event arguments
-     */
-    public function prePersist(LifecycleEventArgs $eventArgs)
-    {
-        $training = $eventArgs->getEntity();
-        if ($training instanceof AbstractTraining && !$training->getNumber()) {
-            $em = $eventArgs->getEntityManager();
-            $query = $em->createQuery('SELECT MAX(t.number) FROM SygeforCoreBundle:Training\AbstractTraining t WHERE t.organization = :organization')
-              ->setParameter('organization', $training->getOrganization());
-            $max = (int) $query->getSingleScalarResult();
-            $training->setNumber($max + 1);
         }
     }
 }

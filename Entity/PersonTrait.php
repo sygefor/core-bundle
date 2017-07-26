@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
 trait PersonTrait
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\PersonTrait\Term\Title")
+     * @ORM\ManyToOne(targetEntity="Term\Title")
      * @Serializer\Groups({"Default", "api"})
      */
     protected $title;
@@ -83,6 +83,16 @@ trait PersonTrait
      * @Serializer\Groups({"Default", "api"})
      */
     public function getFullName()
+    {
+        return $this->getFirstName().' '.$this->getLastName();
+    }
+
+    /**
+     * @return string
+     * @Serializer\VirtualProperty
+     * @Serializer\Groups({"Default", "api"})
+     */
+    public function getReverseFullName()
     {
         return $this->getLastName().' '.$this->getFirstName();
     }

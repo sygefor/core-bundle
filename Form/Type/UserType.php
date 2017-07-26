@@ -11,7 +11,8 @@ namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
+use Sygefor\Bundle\CoreBundle\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -70,7 +71,7 @@ class UserType extends AbstractType
 
         $builder->add('organization', 'entity', array(
             'required' => true,
-            'class' => 'Sygefor\Bundle\CoreBundle\Entity\Organization',
+            'class' => AbstractOrganization::class,
             'label' => 'Centre',
             'query_builder' => function (EntityRepository $er) {
                 return $er->createQueryBuilder('o')->orderBy('o.name', 'ASC');

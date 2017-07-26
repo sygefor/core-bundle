@@ -1,17 +1,16 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Entity\User;
+namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use FOS\UserBundle\Entity\User as BaseUser;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User.
  *
  * @ORM\Table(name="user")
- * @ORM\Entity(repositoryClass="Sygefor\Bundle\CoreBundle\Entity\User\UserRepository")
+ * @ORM\Entity()
  */
 class User extends BaseUser
 {
@@ -25,8 +24,8 @@ class User extends BaseUser
     protected $id;
 
     /**
-     * @var Organization
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Organization", inversedBy="users", cascade={"persist", "merge"})
+     * @var AbstractOrganization
+     * @ORM\ManyToOne(targetEntity="AbstractOrganization", inversedBy="users", cascade={"persist", "merge"})
      * @Assert\NotNull()
      */
     protected $organization;
@@ -64,7 +63,7 @@ class User extends BaseUser
     }
 
     /**
-     * @param Organization $organization
+     * @param AbstractOrganization $organization
      */
     public function setOrganization($organization)
     {
@@ -72,7 +71,7 @@ class User extends BaseUser
     }
 
     /**
-     * @return Organization
+     * @return AbstractOrganization
      */
     public function getOrganization()
     {

@@ -9,13 +9,13 @@
 
 namespace Sygefor\Bundle\CoreBundle\EventListener;
 
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
 use Sygefor\Bundle\CoreBundle\Entity\Term\AbstractTerm;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\User;
 use Sygefor\Bundle\CoreBundle\Event\ConfigureMenuEvent;
 use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Component\Routing\Router;
@@ -95,14 +95,6 @@ class ConfigureMenuListener
                 ));
             }
 
-            if ($this->securityContext->isGranted('VIEW', AbstractInstitution::class)) {
-                $menu->addChild('institutions', array(
-                    'label' => 'Etablissements',
-                    'icon' => 'university',
-                    'uri' => $this->router->generate('core.index').'#/institution',
-                ));
-            }
-
             if ($this->securityContext->isGranted('VIEW', AbstractTrainer::class)) {
                 $menu->addChild('trainers', array(
                     'label' => 'Intervenants',
@@ -111,7 +103,7 @@ class ConfigureMenuListener
                 ));
             }
 
-            if ($this->securityContext->isGranted('VIEW', 'Sygefor\Bundle\CoreBundle\Entity\Organization')) {
+            if ($this->securityContext->isGranted('VIEW', AbstractOrganization::class)) {
                 $adminMenu->addChild('organizations', array(
                         'label' => 'Centres',
                         'route' => 'organization.index',

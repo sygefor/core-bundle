@@ -11,7 +11,6 @@ namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
 
 /**
  * Email.
@@ -32,7 +31,7 @@ class Email
 
     /**
      * @var User
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\User\User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      * @Serializer\Groups({"user"})
      */
@@ -46,21 +45,21 @@ class Email
 
     /**
      * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee")
+     * @ORM\ManyToOne(targetEntity="AbstractTrainee")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainee;
 
     /**
      * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer")
+     * @ORM\ManyToOne(targetEntity="AbstractTrainer")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainer;
 
     /**
      * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession")
+     * @ORM\ManyToOne(targetEntity="AbstractSession")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     protected $session;

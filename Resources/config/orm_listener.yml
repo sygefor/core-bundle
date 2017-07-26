@@ -1,8 +1,8 @@
 services:
-    sygefor_core.organization_changed.orm.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\OrganizationChangedListener
+    sygefor_core.serializer.inscription.event_subscriber:
+        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\InscriptionEventSubscriber
         tags:
-            - { name: doctrine.event_subscriber, connection: default }
+            - { name: jms_serializer.event_subscriber }
 
     sygefor_core.inscription.orm.listener:
         class: Sygefor\Bundle\CoreBundle\EventListener\InscriptionListener
@@ -11,29 +11,10 @@ services:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
 
-    sygefor_core.profesionnal_situation.orm.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\TraineeInscriptionListener
+    sygefor_core.organization_changed.orm.listener:
+        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\OrganizationChangedListener
         tags:
             - { name: doctrine.event_subscriber, connection: default }
-
-    sygefor_core.trainee.orm.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\TraineeListener
-        arguments:
-            - "@service_container"
-        tags:
-            - { name: doctrine.event_subscriber, connection: default }
-
-    sygefor_core.training.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\TrainingListener
-        arguments:
-            - "@sygefor_core.registry.training_type"
-        tags:
-            - { name: doctrine.event_subscriber }
-
-    sygefor_core.session.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\SessionListener
-        tags:
-            - { name: doctrine.event_subscriber }
 
     sygefor_core.semestered_training_listener:
         class: Sygefor\Bundle\CoreBundle\EventListener\ORM\SemesteredTrainingListener
@@ -45,23 +26,14 @@ services:
             - { name: doctrine.event_subscriber, connection: default  }
             - { name: fos_elastica.listener }
 
-    sygefor_core.participation.orm.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\TrainerParticipationListener
-        tags:
-            - { name: doctrine.event_subscriber, connection: default }
-
-    sygefor_core.serializer.inscription.event_subscriber:
-        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\InscriptionEventSubscriber
-        tags:
-            - { name: jms_serializer.event_subscriber }
-
     sygefor_core.serializer.training.event_subscriber:
         class: Sygefor\Bundle\CoreBundle\EventListener\TrainingEventSubscriber
         tags:
             - { name: jms_serializer.event_subscriber }
 
-    sygefor_core.serializer.session.event_subscriber:
-        class: Sygefor\Bundle\CoreBundle\EventListener\SessionEventSubscriber
-        arguments: ["@service_container"]
+    sygefor_core.training.listener:
+        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\TrainingListener
+        arguments:
+            - "@sygefor_core.registry.training_type"
         tags:
-            - { name: jms_serializer.event_subscriber }
+            - { name: doctrine.event_subscriber }

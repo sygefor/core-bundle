@@ -11,7 +11,7 @@ namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\User;
 
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AbstractAccessRight;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
+use Sygefor\Bundle\CoreBundle\Entity\User;
 
 class OwnOrganizationUserAccessRight extends AbstractAccessRight
 {

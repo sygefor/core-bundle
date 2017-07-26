@@ -1,11 +1,9 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Entity\Session;
+namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,7 +29,7 @@ abstract class AbstractParticipation
 
     /**
      * @var AbstractTrainer
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer", inversedBy="participations")
+     * @ORM\ManyToOne(targetEntity="AbstractTrainer", inversedBy="participations")
      * @ORM\JoinColumn(name="trainer_id", referencedColumnName="id")
      * @Assert\NotNull(message="Vous devez sélectionner un intervenant")
      * @Serializer\Groups({"participation", "session", "api.training"})
@@ -40,92 +38,12 @@ abstract class AbstractParticipation
 
     /**
      * @var AbstractSession
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession", inversedBy="participations")
+     * @ORM\ManyToOne(targetEntity="AbstractSession", inversedBy="participations")
      * @ORM\JoinColumn(name="session_id", referencedColumnName="id")
      * @Assert\NotNull()
      * @Serializer\Groups({"participation", "trainer"})
      */
     protected $session;
-
-    /**
-     * @var bool
-     * @ORM\Column(name="is_organization", type="boolean", nullable=true)
-     * @Serializer\Groups({"participation"})
-     */
-    protected $isOrganization;
-
-    /**
-     * @var Organization
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Organization")
-     * @ORM\JoinColumn(nullable=true)
-     * @Serializer\Groups({"Default", "api"})
-     * @Serializer\Groups({"participation"})
-     */
-    protected $organization;
-
-    /**
-     * @return AbstractTrainer
-     */
-    public function getTrainer()
-    {
-        return $this->trainer;
-    }
-
-    /**
-     * @param mixed $trainer
-     */
-    public function setTrainer($trainer)
-    {
-        $this->trainer = $trainer;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSession()
-    {
-        return $this->session;
-    }
-
-    /**
-     * @param mixed $session
-     */
-    public function setSession($session)
-    {
-        $this->session = $session;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIsOrganization()
-    {
-        return $this->isOrganization;
-    }
-
-    /**
-     * @param mixed $isOrganization
-     */
-    public function setIsOrganization($isOrganization)
-    {
-        $this->isOrganization = $isOrganization;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOrganization()
-    {
-        return $this->organization;
-    }
-
-    /**
-     * @param mixed $organization
-     */
-    public function setOrganization($organization)
-    {
-        $this->organization = $organization;
-    }
 
     /**
      * @return int
@@ -136,11 +54,35 @@ abstract class AbstractParticipation
     }
 
     /**
-     * @return bool
+     * @return AbstractTrainer
      */
-    public function getIsLocal()
+    public function getTrainer()
     {
-        return $this->session->getTraining()->getOrganization()->getId() === $this->organization->getId();
+        return $this->trainer;
+    }
+
+    /**
+     * @param AbstractTrainer
+     */
+    public function setTrainer($trainer)
+    {
+        $this->trainer = $trainer;
+    }
+
+    /**
+     * @return AbstractSession
+     */
+    public function getSession()
+    {
+        return $this->session;
+    }
+
+    /**
+     * @param AbstractSession
+     */
+    public function setSession($session)
+    {
+        $this->session = $session;
     }
 
     /**
@@ -148,7 +90,7 @@ abstract class AbstractParticipation
      */
     public static function getFormType()
     {
-        return 'Sygefor\Bundle\CoreBundle\Form\ParticipationType';
+        return BaseParticipationType::class;
     }
 
     /**

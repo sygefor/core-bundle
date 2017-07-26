@@ -16,7 +16,8 @@ use Elastica\Type;
 use FOS\ElasticaBundle\Doctrine\Listener;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use FOS\ElasticaBundle\Provider\IndexableInterface;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Model\SemesteredTraining;
 
 /**
@@ -87,13 +88,13 @@ class SemesteredTrainingListener extends Listener
     {
         $object = $this->getDoctrineObject($eventArgs);
 
-        if (in_array('Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining', class_parents(get_class($object)), true)) {
+        if (in_array(AbstractTraining::class, class_parents(get_class($object)), true)) {
             $semTrainings = SemesteredTraining::getSemesteredTrainingsForTraining($object);
             foreach ($semTrainings as $semT) {
                 $this->scheduledForDeletion[] = $semT->getId();
             }
             $this->scheduledForDeletion[] = $object->getId().'_'.$object->getFirstSessionPeriodYear().'_'.$object->getFirstSessionPeriodSemester();
-        } elseif (get_class($object) === 'Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession') {
+        } elseif (get_class($object) === AbstractSession::class) {
             $training = $object->getTraining();
             if ($training) {
                 // remove all semestered training associated to this training because of root id change possibility
@@ -122,10 +123,10 @@ class SemesteredTrainingListener extends Listener
     {
         $object = $this->getDoctrineObject($eventArgs);
 
-        if (in_array('Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining', class_parents(get_class($object)), true)) {
+        if (in_array(AbstractTraining::class, class_parents(get_class($object)), true)) {
             $semTrainings = SemesteredTraining::getSemesteredTrainingsForTraining($object);
             $this->scheduledForInsertion = array_merge($this->scheduledForInsertion, $semTrainings);
-        } elseif (get_class($object) === 'Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession') {
+        } elseif (get_class($object) === AbstractSession::class) {
             //building SemesteredTraining object
             $training = $object->getTraining();
             if ($training) {
@@ -161,10 +162,10 @@ class SemesteredTrainingListener extends Listener
         /** @var AbstractSession $object */
         $object = $this->getDoctrineObject($eventArgs);
 
-        if (in_array('Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining', class_parents(get_class($object)), true)) {
+        if (in_array(AbstractTraining::class, class_parents(get_class($object)), true)) {
             $semTrainings = SemesteredTraining::getSemesteredTrainingsForTraining($object);
             $this->scheduledForUpdate = array_merge($this->scheduledForUpdate, $semTrainings);
-        } elseif (get_class($object) === 'Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession') {
+        } elseif (get_class($object) === AbstractSession::class) {
             $training = $object->getTraining();
             if ($training) {
                 $query = new Match();

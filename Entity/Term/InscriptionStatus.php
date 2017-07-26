@@ -63,6 +63,22 @@ class InscriptionStatus extends AbstractTerm implements VocabularyInterface
         return $this->status;
     }
 
+    /**
+     * @return int
+     */
+    public function getNotify()
+    {
+        return $this->notify;
+    }
+
+    /**
+     * @param int $notify
+     */
+    public function setNotify($notify)
+    {
+        $this->notify = $notify;
+    }
+
     public static function getVocabularyStatus()
     {
         return VocabularyInterface::VOCABULARY_MIXED;
@@ -84,21 +100,5 @@ class InscriptionStatus extends AbstractTerm implements VocabularyInterface
     public static function getFormType()
     {
         return InscriptionStatusVocabularyType::class;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNotify()
-    {
-        return $this->notify;
-    }
-
-    /**
-     * @param int $notify
-     */
-    public function setNotify($notify)
-    {
-        $this->notify = $notify;
     }
 }

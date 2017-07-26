@@ -7,7 +7,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\PersistentCollection;
-use Sygefor\Bundle\CoreBundle\Entity\Trainer;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 class OrganizationChangedListener implements EventSubscriber
@@ -117,8 +117,7 @@ class OrganizationChangedListener implements EventSubscriber
     protected function getExcludedProperties($class)
     {
         $excludedProperties = array(
-          Trainer::class => array(
-              'institution',
+          AbstractTrainer::class => array(
               'participations',
           ),
         );

@@ -11,7 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Form\BaseInscriptionType;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -48,7 +48,7 @@ abstract class AbstractInscriptionController extends Controller
      * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", options={"id" = "session"})
      * @Rest\View(serializerGroups={"Default", "inscription"}, serializerEnableMaxDepthChecks=true)
      */
-    public function createAction(AbstractSession $session, Request $request)
+    public function createAction(Request $request, AbstractSession $session)
     {
         /** @var AbstractInscription $inscription */
         $inscription = $this->createInscription($session);
@@ -127,12 +127,12 @@ abstract class AbstractInscriptionController extends Controller
         $inscription->setSession($session);
 
         // national inscription status
-        $defaultInscriptionStatus = $em->getRepository('SygeforCoreBundle:Term\InscriptionStatus')->findOneBy(
+        $defaultInscriptionStatus = $em->getRepository(InscriptionStatus::class)->findOneBy(
             array('organization' => null, 'status' => InscriptionStatus::STATUS_PENDING));
 
         // local inscription status if national is not found
         if (!$defaultInscriptionStatus) {
-            $defaultInscriptionStatus = $em->getRepository('SygeforCoreBundle:Term\InscriptionStatus')->findOneBy(
+            $defaultInscriptionStatus = $em->getRepository(InscriptionStatus::class)->findOneBy(
                 array('organization' => $this->getUser()->getOrganization(), 'status' => InscriptionStatus::STATUS_PENDING));
         }
 

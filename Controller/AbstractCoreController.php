@@ -7,14 +7,14 @@ use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Entity\Training\SingleSessionTraining;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class CoreController extends Controller
+abstract class AbstractCoreController extends Controller
 {
     /**
      * @Route("/", name="core.index")
@@ -64,9 +64,6 @@ class CoreController extends Controller
         $groups = array('Default');
         if ($entity instanceof AbstractTraining) {
             $groups[] = 'training';
-            if ($entity instanceof SingleSessionTraining) {
-                $groups[] = 'session';
-            }
         }
         $reflect = new \ReflectionClass($entity);
         $groups[] = strtolower($reflect->getShortName());

@@ -12,8 +12,8 @@ namespace Sygefor\Bundle\CoreBundle\Model;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\Expr\Join;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 
 class SemesteredTraining
 {
@@ -301,7 +301,7 @@ class SemesteredTraining
         }
         $arrayIds = array_unique($arrayIds);
 
-        $allEntities = $em->getRepository('SygeforCoreBundle:Training\AbstractTraining')
+        $allEntities = $em->getRepository(AbstractTraining::class)
             ->findBy(array('id' => $arrayIds));
 
         $notMeetingEntities = array();
@@ -327,8 +327,8 @@ class SemesteredTraining
         //building DQL query to get needed sessions objects
         $qb = $em->createQueryBuilder()
             ->select('s')
-            ->from('SygeforCoreBundle:Training\AbstractTraining', 't')
-                ->leftJoin('SygeforCoreBundle:Session\AbstractSession', 's', Join::WITH, 't = s.training');
+            ->from(AbstractTraining::class, 't')
+                ->leftJoin(AbstractSession::class, 's', Join::WITH, 't = s.training');
 
         $paramCount = 0;
         $parameters = array();
@@ -384,7 +384,7 @@ class SemesteredTraining
                     $tmpSessions = $sessions[$params[0]][$params[1]][$params[2]];
                     $semTrains[] = new self($params[1], $params[2], $tmpSessions[0]->getTraining(), $tmpSessions);
                 } else {
-                    $semTrains[] = new self($params[1], $params[2], $em->getRepository('SygeforCoreBundle:Training\AbstractTraining')->find($params[0]), array());
+                    $semTrains[] = new self($params[1], $params[2], $em->getRepository(AbstractTraining::class)->find($params[0]), array());
                 }
             }
         }

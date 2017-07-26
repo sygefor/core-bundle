@@ -9,7 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\Term\AbstractTerm;
 use Sygefor\Bundle\CoreBundle\Entity\Term\TreeTrait;
 use Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType;
@@ -43,7 +43,7 @@ class TaxonomyController extends Controller
 
     /**
      * @param AbstractTerm $term
-     * @param Organization $organization
+     * @param AbstractOrganization $organization
      *
      * @Route("/{vocabularyId}/view/{organizationId}", name="taxonomy.view", defaults={"organizationId" = null})
      * @Security("is_granted('VIEW', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
@@ -84,7 +84,7 @@ class TaxonomyController extends Controller
         // needed for template organization tabs
         $organizations = array();
         if ($abstractVocabulary->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL) {
-            $alterOrganizations = $this->getDoctrine()->getManager()->getRepository('SygeforCoreBundle:Organization')->findAll();
+            $alterOrganizations = $this->getDoctrine()->getManager()->getRepository(AbstractOrganization::class)->findAll();
             $alterAbstractVocabulary = $this->get('sygefor_core.vocabulary_registry')->getVocabularyById($vocabularyId);
             foreach ($alterOrganizations as $alterOrganization) {
                 $alterAbstractVocabulary->setOrganization($alterOrganization);
@@ -123,7 +123,7 @@ class TaxonomyController extends Controller
     {
         $organization = null;
         if ($organizationId) {
-            $organization = $this->getDoctrine()->getManager()->getRepository('SygeforCoreBundle:Organization')->find($organizationId);
+            $organization = $this->getDoctrine()->getManager()->getRepository(AbstractOrganization::class)->find($organizationId);
         }
         $term = null;
         $abstractVocabulary = $this->get('sygefor_core.vocabulary_registry')->getVocabularyById($vocabularyId);

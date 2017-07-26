@@ -9,8 +9,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training;
 
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Model\SemesteredTraining;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AbstractAccessRight;
 

@@ -12,11 +12,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractModule;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
-use Sygefor\Bundle\CoreBundle\Entity\Training\SingleSessionTraining;
-use Sygefor\Bundle\CoreBundle\Form\BaseModuleType;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -95,7 +92,6 @@ abstract class AbstractTrainingController extends Controller
             if ($this->get('security.context')->isGranted('VIEW', $training)) {
                 return array('training' => $training);
             }
-
             throw new AccessDeniedException('Action non autorisée');
         }
 
@@ -107,17 +103,8 @@ abstract class AbstractTrainingController extends Controller
                 $em->flush();
             }
         }
-        $return = array('form' => $form->createView(), 'training' => $training);
 
-        // if the training is single session, add 'session' to the serialization groups
-        if ($training instanceof SingleSessionTraining) {
-            $view = new View($return);
-            $view->setSerializationContext(SerializationContext::create()->setGroups(array('Default', 'training', 'session')));
-
-            return $view;
-        }
-
-        return $return;
+        return array('form' => $form->createView(), 'training' => $training);
     }
 
     /**
@@ -135,33 +122,6 @@ abstract class AbstractTrainingController extends Controller
         $this->get('fos_elastica.index')->refresh();
 
         return $this->redirect($this->generateUrl('training.search'));
-    }
-
-    /**
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param AbstractModule                            $module
-     *
-     * @Route("/module/{id}/edit", requirements={"id" = "\d+"}, name="module.edit", options={"expose"=true}, defaults={"_format" = "json"})
-     * @ParamConverter("module", class="SygeforCoreBundle:Training\AbstractModule", options={"id" = "id"})
-     * @Rest\View(serializerGroups={"Default", "training"}, serializerEnableMaxDepthChecks=true)
-     *
-     * @return array
-     */
-    public function editModuleAction(Request $request, $module)
-    {
-        if (!$this->get('security.context')->isGranted('EDIT', $module->getTraining())) {
-            throw new AccessDeniedException('Action non autorisée');
-        }
-
-        $form = $this->createForm(new BaseModuleType(), $module);
-        if ($request->getMethod() === 'POST') {
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-                $this->getDoctrine()->getManager()->flush();
-            }
-        }
-
-        return array('form' => $form->createView(), 'modules' => $module->getTraining()->getModules());
     }
 
     /**
@@ -217,56 +177,11 @@ abstract class AbstractTrainingController extends Controller
             $cloned->copyProperties($training);
         }
 
-        // special operations for meeting session duplicate
-        $session = null;
-        if ($typeClass['label'] === 'Rencontre scientifique') {
-            if ($training->getType() === 'meeting') {
-                $session = clone $cloned->getSession();
-            } else {
-                if ($training->getSessions() && $training->getSessions()->count() > 0) {
-                    $session = clone $training->getSessions()->last();
-                } else {
-                    $session = new $this->sessionClass();
-                }
-            }
-            $session->setNumberOfRegistrations(0);
-            $session->setTraining($cloned);
-            $cloned->setSession($session);
-        }
-
-        // verify if training category matches with new type
-        /** @var RepositoryFactory $repository */
-        $repository = $this->getDoctrine()->getRepository('SygeforCoreBundle:Training\Term\TrainingCategory');
-        /** @var QueryBuilder $qb */
-        $qb = $repository->createQueryBuilder('t')
-            ->where('t.trainingType = :trainingType')
-            ->orWhere('t.trainingType IS NULL')
-            ->setParameter('trainingType', $training->getType());
-        $trainingTypes = $qb->getQuery()->execute();
-
-        $found = false;
-        if ($cloned->getCategory()) {
-            foreach ($trainingTypes as $trainingType) {
-                if ($trainingType->getId() === $cloned->getCategory()->getId()) {
-                    $found = true;
-                    break;
-                }
-            }
-        }
-        if (!$found) {
-            $cloned->setCategory(null);
-        }
-
         $form = $this->createForm($typeClass['class']::getFormType(), $cloned);
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
-                // if meeting assign cloned training to the session
-                if ($cloned->getType() === 'meeting') {
-                    $cloned->getSession()->setTraining($cloned);
-                }
                 $this->mergeArrayCollectionsAndFlush($cloned, $training);
-
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($cloned);
                 $em->flush();
@@ -284,13 +199,6 @@ abstract class AbstractTrainingController extends Controller
      */
     protected function mergeArrayCollectionsAndFlush($dest, $source)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        // clone common arrayCollections
-        if (method_exists($source, 'getTags')) {
-            $dest->duplicateArrayCollection('addTag', $source->getTags());
-        }
-
         // clone duplicate materials
         $tmpMaterials = $source->getMaterials();
         if (!empty($tmpMaterials)) {

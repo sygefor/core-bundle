@@ -5,7 +5,7 @@ namespace Sygefor\Bundle\CoreBundle\EventListener\ORM;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Exception\InvalidArgumentException;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 
 /**
  * Training serialization event subscriber.

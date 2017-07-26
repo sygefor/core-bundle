@@ -3,8 +3,8 @@
 namespace Sygefor\Bundle\CoreBundle\Form;
 
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Model\SemesteredTraining;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;

@@ -5,9 +5,6 @@ namespace Sygefor\Bundle\CoreBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\CoordinatesTrait;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 /**
  * Organization.
@@ -21,10 +18,8 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
  * @ORM\Table(name="organization")
  * @ORM\Entity
  */
-class Organization
+abstract class AbstractOrganization
 {
-    use CoordinatesTrait;
-
     /**
      * @var int
      *
@@ -49,29 +44,10 @@ class Organization
     protected $code;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="departments", type="json_array")
-     */
-    protected $departments;
-
-    /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Sygefor\Bundle\CoreBundle\Entity\User\User", mappedBy="organization", cascade={"persist", "merge"})
+     * @ORM\OneToMany(targetEntity="User", mappedBy="organization", cascade={"persist", "merge"})
      */
     private $users;
-
-    /**
-     * @var AbstractInstitution
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
-     */
-    private $institution;
-
-    /**
-     * @ORM\Column(name="map", type="json_array", nullable=true)
-     */
-    protected $map;
 
     /**
      * @var bool
@@ -85,7 +61,6 @@ class Organization
     public function __construct()
     {
         $this->users = new ArrayCollection();
-        $this->departments = new ArrayCollection();
     }
 
     /**
@@ -137,22 +112,6 @@ class Organization
     }
 
     /**
-     * @return array
-     */
-    public function getDepartments()
-    {
-        return $this->departments;
-    }
-
-    /**
-     * @param array $departments
-     */
-    public function setDepartments($departments)
-    {
-        $this->departments = $departments;
-    }
-
-    /**
      * @param ArrayCollection $users
      */
     public function setUsers($users)
@@ -166,38 +125,6 @@ class Organization
     public function getUsers()
     {
         return $this->users;
-    }
-
-    /**
-     * @param mixed $map
-     */
-    public function setMap($map)
-    {
-        $this->map = $map;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getMap()
-    {
-        return $this->map;
-    }
-
-    /**
-     * @return AbstractInstitution
-     */
-    public function getInstitution()
-    {
-        return $this->institution;
-    }
-
-    /**
-     * @param AbstractInstitution $institution
-     */
-    public function setInstitution($institution)
-    {
-        $this->institution = $institution;
     }
 
     /**
@@ -219,27 +146,5 @@ class Organization
     public function __toString()
     {
         return $this->name;
-    }
-
-    /**
-     * loadValidatorMetadata.
-     *
-     * @param ClassMetadata $metadata
-     */
-    public static function loadValidatorMetadata(ClassMetadata $metadata)
-    {
-        // CoordinateTrait
-        $metadata->addPropertyConstraint('address', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner une adresse.',
-        )));
-        $metadata->addPropertyConstraint('zip', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner un code postal.',
-        )));
-        $metadata->addPropertyConstraint('city', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner une ville.',
-        )));
-        $metadata->addPropertyConstraint('email', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner un email.',
-        )));
     }
 }

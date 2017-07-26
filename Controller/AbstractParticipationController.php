@@ -15,8 +15,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractParticipation;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractParticipation;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\FormError;
@@ -55,7 +55,7 @@ abstract class AbstractParticipationController extends Controller
      * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", options={"id" = "session"})
      * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
      */
-    public function addParticipationAction(AbstractSession $session, Request $request)
+    public function addParticipationAction(Request $request, AbstractSession $session)
     {
         /** @var AbstractParticipation $participation */
         $participation = new $this->participationClass();

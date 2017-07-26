@@ -12,6 +12,7 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
 use Sygefor\Bundle\CoreBundle\Entity\Email;
+use Sygefor\Bundle\CoreBundle\Entity\User;
 use Sygefor\Bundle\CoreBundle\HumanReadablePropertyAccessor\HumanReadablePropertyAccessor;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -231,7 +232,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
 
                     // save email in db
                     $email = new Email();
-                    $email->setUserFrom($em->getRepository('SygeforCoreBundle:User\User')->find($this->container->get('security.context')->getToken()->getUser()->getId()));
+                    $email->setUserFrom($em->getRepository(User::class)->find($this->container->get('security.context')->getToken()->getUser()->getId()));
                     $email->setEmailFrom($organization->getEmail());
                     foreach ($copies[0] as $key => $copy) {
                         $email->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);

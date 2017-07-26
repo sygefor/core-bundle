@@ -14,9 +14,6 @@ namespace Sygefor\Bundle\CoreBundle\Entity\PersonTrait;
  */
 trait AccountTrait
 {
-    use PersonTrait;
-    use CoordinatesTrait;
-
     /**
      * @ORM\Column(type="string", length=32)
      * @Serializer\Exclude

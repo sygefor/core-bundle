@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Class BatchOperationController.
  */
-class BatchOperationController extends Controller
+abstract class AbstractBatchOperationController extends Controller
 {
     /**
      * @Route("/batchoperation/dump", name="sygefor_core.batch.dump")

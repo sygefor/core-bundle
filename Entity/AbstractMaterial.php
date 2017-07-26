@@ -1,11 +1,9 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Entity\Material;
+namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
 
 /**
  * Material.
@@ -16,7 +14,7 @@ use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
  * @ORM\DiscriminatorMap({})
  * @ORM\InheritanceType("JOINED")
  */
-abstract class Material
+abstract class AbstractMaterial
 {
     /**
      * @var int
@@ -37,7 +35,7 @@ abstract class Material
 
     /**
      * @var AbstractTraining
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining", inversedBy="materials")
+     * @ORM\ManyToOne(targetEntity="AbstractTraining", inversedBy="materials")
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Exclude
      */
@@ -45,7 +43,7 @@ abstract class Material
 
     /**
      * @var AbstractSession
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession", inversedBy="materials")
+     * @ORM\ManyToOne(targetEntity="AbstractSession", inversedBy="materials")
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Exclude
      */
@@ -66,7 +64,7 @@ abstract class Material
      *
      * @param string $name
      *
-     * @return Material
+     * @return self
      */
     public function setName($name)
     {

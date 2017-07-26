@@ -2,7 +2,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 
 /**
  * Interface VocabularyInterface.
@@ -19,12 +19,12 @@ interface VocabularyInterface
     public static function getVocabularyStatus();
 
     /**
-     * @return Organization|null mixed
+     * @return AbstractOrganization|null mixed
      */
     public function getOrganization();
 
     /**
-     * @param Organization $organization
+     * @param AbstractOrganization $organization
      */
     public function setOrganization($organization);
 

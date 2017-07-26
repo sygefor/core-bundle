@@ -9,7 +9,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight;
 
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
+use Sygefor\Bundle\CoreBundle\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 

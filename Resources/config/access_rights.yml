@@ -63,42 +63,6 @@ services:
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
 
-
-    # institution access rights
-    sygefor_core.rights.institution.own.view:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\OwnInstitutionViewAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-    sygefor_core.rights.institution.own.create:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\OwnInstitutionCreateAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-    sygefor_core.rights.institution.own.update:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\OwnInstitutionUpdateAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-    sygefor_core.rights.institution.own.delete:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\OwnInstitutionDeleteAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-
-    sygefor_core.rights.institution.all.view:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\AllInstitutionViewAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-    sygefor_core.rights.institution.all.create:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\AllInstitutionCreateAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-    sygefor_core.rights.institution.all.update:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\AllInstitutionUpdateAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-    sygefor_core.rights.institution.all.delete:
-        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Institution\AllInstitutionDeleteAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Etablissements" }
-
     # trainee access rights
     sygefor_core.rights.trainee.own.view:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\OwnTraineeViewAccessRight

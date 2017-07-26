@@ -1,21 +1,13 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Entity\Session;
+namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
-use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractInstitution;
-use Sygefor\Bundle\CoreBundle\Entity\Term\GeographicOrigin;
-use Sygefor\Bundle\CoreBundle\Entity\Material\Material;
-use Sygefor\Bundle\CoreBundle\Entity\Session\Term\Place;
-use Sygefor\Bundle\CoreBundle\Entity\Session\Term\SessionType;
-use Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Form\BaseSessionType;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -57,7 +49,7 @@ abstract class AbstractSession implements SerializedAccessRights
 
     /**
      * @var AbstractTraining
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Training\AbstractTraining", inversedBy="sessions")
+     * @ORM\ManyToOne(targetEntity="AbstractTraining", inversedBy="sessions")
      * @ORM\JoinColumn(onDelete="CASCADE")
      * @Serializer\Groups({"session", "inscription", "trainee", "trainer", "api"})
      */
@@ -70,30 +62,11 @@ abstract class AbstractSession implements SerializedAccessRights
     protected $participations;
 
     /**
-     * @ORM\OneToMany(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractInscription", mappedBy="session", fetch="EXTRA_LAZY", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="AbstractInscription", mappedBy="session", fetch="EXTRA_LAZY", cascade={"remove"})
      * @ORM\OrderBy({"createdAt" = "DESC"})
      * @Serializer\Groups({"session"})
      */
     protected $inscriptions;
-
-    /**
-     * @ORM\Column(name="promote", type="boolean")
-     * @Serializer\Groups({"Default", "session", "api"})
-     */
-    protected $promote = false;
-
-    /**
-     * @ORM\Column(name="registration", type="integer")
-     */
-    protected $registration = self::REGISTRATION_CLOSED;
-
-    /**
-     * @ORM\Column(name="displayOnline", type="boolean")
-     *
-     * @var bool
-     * @Serializer\Groups({"Default", "session", "api"})
-     */
-    protected $displayOnline = false;
 
     /**
      * @var \DateTime
@@ -113,52 +86,23 @@ abstract class AbstractSession implements SerializedAccessRights
     protected $dateEnd;
 
     /**
-     * @var SessionType
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\Term\SessionType")
-     * @ORM\JoinColumn(name="sessionType_id", referencedColumnName="id", onDelete="SET NULL")
-     * @Serializer\Groups({"session", "inscription", "api"})
+     * @ORM\Column(name="registration", type="integer")
      */
-    protected $sessionType;
-
-    /**
-     * @ORM\Column(name="hourNumber", type="float", nullable=true)
-     * @Serializer\Groups({"session", "inscription", "api"})
-     */
-    protected $hourNumber;
-
-    /**
-     * @ORM\Column(name="dayNumber", type="float", nullable=true)
-     * @Serializer\Groups({"session", "inscription", "api"})
-     */
-    protected $dayNumber;
-
-    /**
-     * @ORM\Column(name="schedule", type="string", length=512, nullable=true)
-     * @Serializer\Groups({"session", "inscription", "api"})
-     */
-    protected $schedule;
-
-    /**
-     * @var Place
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\Term\Place", cascade={"persist"})
-     * @ORM\JoinColumn(name="place_id", referencedColumnName="id", onDelete="SET NULL")
-     * @Serializer\Groups({"session", "inscription", "api"})
-     */
-    protected $place;
-
-    /**
-     * @ORM\Column(name="comments", type="text", nullable=true)
-     *
-     * @var string
-     * @Serializer\Groups({"session"})
-     */
-    protected $comments;
+    protected $registration = self::REGISTRATION_CLOSED;
 
     /**
      * @ORM\Column(name="status", type="integer")
      * @Serializer\Groups({"session", "training", "inscription", "api"})
      */
     protected $status = self::STATUS_OPEN;
+
+    /**
+     * @ORM\Column(name="displayOnline", type="boolean")
+     *
+     * @var bool
+     * @Serializer\Groups({"Default", "session", "api"})
+     */
+    protected $displayOnline = false;
 
     /**
      * @ORM\Column(name="numberOfRegistrations", type="integer", nullable=true)
@@ -180,14 +124,16 @@ abstract class AbstractSession implements SerializedAccessRights
     protected $limitRegistrationDate;
 
     /**
-     * @ORM\OneToMany(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Session\ParticipantsSummary", mappedBy="session", fetch="EXTRA_LAZY", cascade={"persist", "remove"})
+     * @ORM\Column(name="comments", type="text", nullable=true)
+     *
+     * @var string
      * @Serializer\Groups({"session"})
      */
-    protected $participantsSummaries;
+    protected $comments;
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Material\Material", mappedBy="session", cascade={"remove", "persist"})
+     * @ORM\OneToMany(targetEntity="Material", mappedBy="session", cascade={"remove", "persist"})
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Groups({"training", "session", "api.attendance"})
      */
@@ -199,17 +145,10 @@ abstract class AbstractSession implements SerializedAccessRights
      */
     protected $allMaterials;
 
-    /**
-     * @var string
-     *             Used for session duplication
-     */
-    protected $inscriptionManagement;
-
     public function __construct()
     {
         $this->inscriptions = new ArrayCollection();
         $this->participations = new ArrayCollection();
-        $this->participantsSummaries = new ArrayCollection();
         $this->materials = new ArrayCollection();
     }
 
@@ -218,7 +157,6 @@ abstract class AbstractSession implements SerializedAccessRights
         $this->setId(null);
         $this->inscriptions = new ArrayCollection();
         $this->participations = new ArrayCollection();
-        $this->participantsSummaries = new ArrayCollection();
         $this->materials = new ArrayCollection();
     }
 
@@ -390,22 +328,6 @@ abstract class AbstractSession implements SerializedAccessRights
     /**
      * @return mixed
      */
-    public function getPromote()
-    {
-        return $this->promote;
-    }
-
-    /**
-     * @param mixed $promote
-     */
-    public function setPromote($promote)
-    {
-        $this->promote = $promote;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getRegistration()
     {
         return $this->registration;
@@ -516,22 +438,6 @@ abstract class AbstractSession implements SerializedAccessRights
     }
 
     /**
-     * @return SessionType
-     */
-    public function getSessionType()
-    {
-        return $this->sessionType;
-    }
-
-    /**
-     * @param SessionType $sessionType
-     */
-    public function setSessionType($sessionType)
-    {
-        $this->sessionType = $sessionType;
-    }
-
-    /**
      * Get date range for OpenTBS.
      *
      * @Serializer\VirtualProperty
@@ -599,86 +505,6 @@ abstract class AbstractSession implements SerializedAccessRights
         }
 
         return 'du '.$this->letterDateBegin().' au '.$this->letterDateEnd();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getHourNumber()
-    {
-        return $this->hourNumber;
-    }
-
-    /**
-     * @param mixed $hourNumber
-     */
-    public function setHourNumber($hourNumber)
-    {
-        $this->hourNumber = $hourNumber;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDayNumber()
-    {
-        return $this->dayNumber;
-    }
-
-    /**
-     * @param mixed $dayNumber
-     */
-    public function setDayNumber($dayNumber)
-    {
-        $this->dayNumber = $dayNumber;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDuration()
-    {
-        if ($this->getHourNumber() !== null && $this->getDayNumber() !== null) {
-            return $this->getHourNumber().' heure(s) sur '.$this->getDayNumber().' jour(s)';
-        } elseif ($this->getHourNumber() !== null && $this->getDayNumber() === null) {
-            return $this->getHourNumber().' heure(s)';
-        } elseif ($this->getHourNumber() === null && $this->getDayNumber() !== null) {
-            return $this->getDayNumber().' jour(s)';
-        }
-
-        return '';
-    }
-
-    /**
-     * @return Place
-     */
-    public function getPlace()
-    {
-        return $this->place;
-    }
-
-    /**
-     * @param Place $place
-     */
-    public function setPlace($place)
-    {
-        $this->place = $place;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSchedule()
-    {
-        return $this->schedule;
-    }
-
-    /**
-     * @param mixed $schedule
-     */
-    public function setSchedule($schedule)
-    {
-        $this->schedule = $schedule;
     }
 
     /**
@@ -933,212 +759,6 @@ abstract class AbstractSession implements SerializedAccessRights
     public function setAllMaterials($allMaterials)
     {
         $this->allMaterials = $allMaterials;
-    }
-
-    /**
-     * @return mixed
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"session", "training"})
-     */
-    public function getNumberOfParticipants()
-    {
-        $count = 0;
-        if ($this->getRegistration() === self::REGISTRATION_DEACTIVATED) {
-            foreach ($this->getParticipantsSummaries() as $summary) {
-                $count += $summary->getCount();
-            }
-        } else {
-            /** @var AbstractInscription $inscription */
-            foreach ($this->getInscriptions() as $inscription) {
-                if ($inscription->getPresenceStatus() && $inscription->getPresenceStatus()->getStatus() === PresenceStatus::STATUS_PRESENT) {
-                    ++$count;
-                }
-            }
-        }
-
-        return $count;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getParticipantsSummaries()
-    {
-        return $this->participantsSummaries;
-    }
-
-    /**
-     * @param ArrayCollection $participantsSummaries
-     */
-    public function setParticipantsSummaries($participantsSummaries)
-    {
-        /** @var ParticipantsSummary $summary */
-        foreach ($participantsSummaries as $summary) {
-            $summary->setSession($this);
-        }
-        $this->participantsSummaries = $participantsSummaries;
-    }
-
-    /**
-     * @param ParticipantsSummary $participantsSummary
-     *
-     * @return bool
-     */
-    public function addParticipantsSummary($participantsSummary)
-    {
-        foreach ($this->participantsSummaries as $participantsSummaryOne) {
-            if ($participantsSummaryOne->getPublicType() === $participantsSummary->getPublicType() &&
-                $participantsSummaryOne->getSession() === $participantsSummary->getSession()) {
-                $participantsSummaryOne->setCount($participantsSummaryOne->getCount() + $participantsSummary->getCount());
-
-                return false;
-            }
-        }
-
-        $participantsSummary->setSession($this);
-        $this->participantsSummaries->add($participantsSummary);
-
-        return true;
-    }
-
-    /**
-     * @param ParticipantsSummary $participantsSummary
-     *
-     * @return bool
-     */
-    public function removeParticipantsSummary($participantsSummary)
-    {
-        if ($this->participantsSummaries->contains($participantsSummary)) {
-            $this->participantsSummaries->removeElement($participantsSummary);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Return participants stats for ActivityReport.
-     */
-    public function getParticipantsStats()
-    {
-        $stats = array();
-
-        // helper function
-        $getStat = function ($publicType, $geographicOrigin = null) use (&$stats) {
-            $hash = array(
-                $publicType ? $publicType->getId() : 0,
-                $geographicOrigin ? $geographicOrigin->getId() : 0,
-            );
-            $id = implode('-', $hash);
-            if (isset($stats[$id])) {
-                return $stats[$id];
-            }
-            $stat = new ParticipantsStat();
-            $stat->setSession($this);
-            $stat->setPublicType($publicType);
-            $stat->setGeographicOrigin($geographicOrigin);
-            $stats[$id] = $stat;
-
-            return $stat;
-        };
-
-        if ($this->getRegistration() > self::REGISTRATION_DEACTIVATED) {
-            // if the registration is not deactivated, get info from inscriptions
-            /** @var AbstractInscription $inscription */
-            foreach ($this->getInscriptions() as $inscription) {
-                if ($inscription->getPresenceStatus() && $inscription->getPresenceStatus()->getStatus() === PresenceStatus::STATUS_PRESENT) {
-                    $geographicOrigin = $this->getGeographicOriginFromInscription($inscription);
-                    $publicType = $inscription->getPublicType();
-                    $getStat($publicType, $geographicOrigin)->incrementCount();
-                }
-            }
-        }
-        // get it from participants summaries
-        else {
-            foreach ($this->getParticipantsSummaries() as $summary) {
-                $geographicOrigin = $this->getGeographicOriginFromInscription();
-                $publicType = $summary->getPublicType();
-                if ($summary->getCount()) {
-                    $getStat($publicType, $geographicOrigin)->setCount($summary->getCount());
-                }
-            }
-        }
-
-        return $stats;
-    }
-
-    /**
-     * Try to return geographic origin for a given inscription, from training otherwise.
-     *
-     * @param AbstractInscription $inscription
-     *
-     * @return GeographicOrigin
-     */
-    public function getGeographicOriginFromInscription($inscription = null)
-    {
-        /** @var AbstractInstitution $institution */
-        $institution = null;
-
-        // fetch institution...
-        if ($inscription && $inscription->getInstitution()) {
-            // ... from inscription
-            $institution = $inscription->getInstitution();
-        } elseif ($inscription && $inscription->getTrainee()->getInstitution()) {
-            // ... from trainee
-            $institution = $inscription->getTrainee()->getInstitution();
-        } elseif (method_exists($this->getTraining(), 'getInstitution') && $this->getTraining()->getInstitution()) {
-            // ... from training
-            $institution = $this->getTraining()->getInstitution();
-        } else {
-            // impossible à gérer
-            // cf transformer : "Autre"
-        }
-
-        if ($institution) {
-            return $institution->getGeographicOrigin();
-        }
-
-        return;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInscriptionManagement()
-    {
-        return $this->inscriptionManagement;
-    }
-
-    /**
-     * @param string $inscriptionManagement
-     */
-    public function setInscriptionManagement($inscriptionManagement)
-    {
-        $this->inscriptionManagement = $inscriptionManagement;
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     *
-     * @param $front_root_url
-     * @param $apiSerialization
-     *
-     * @return string
-     * @return string
-     */
-    public function getFrontUrl($front_root_url = 'http://sygefor.dev', $apiSerialization = false)
-    {
-        $url = $front_root_url.'/training/'.$this->getTraining()->getId().'/';
-        if (!$apiSerialization) {
-            // URL permitting to register a private session
-            if ($this->getRegistration() === self::REGISTRATION_PRIVATE) {
-                return $url.$this->getId().'/'.md5($this->getId() + $this->getTraining()->getId());
-            }
-        }
-
-        // return public URL
-        return $url.$this->getId();
     }
 
     public function __toString()

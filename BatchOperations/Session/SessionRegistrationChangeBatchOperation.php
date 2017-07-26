@@ -11,7 +11,7 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations\Session;
 
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

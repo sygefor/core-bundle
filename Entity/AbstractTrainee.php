@@ -6,15 +6,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
-use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\AccountTrait;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\ProfessionalSituationTrait;
 use Sygefor\Bundle\CoreBundle\Form\BaseTraineeType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\AdvancedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
 
 /**
  * Trainee.
@@ -26,15 +22,13 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
  * @ORM\HasLifecycleCallbacks()
  * @UniqueEntity(fields={"email"}, message="Cette adresse email est déjà utilisée.")
  */
-abstract class AbstractTrainee implements UserInterface, \Serializable, SerializedAccessRights, AdvancedUserInterface
+abstract class AbstractTrainee implements SerializedAccessRights
 {
     use ORMBehaviors\Timestampable\Timestampable;
-    use AccountTrait;
-    use ProfessionalSituationTrait;
+    use PersonTrait;
 
     /**
      * @var int id
-     *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -42,15 +36,16 @@ abstract class AbstractTrainee implements UserInterface, \Serializable, Serializ
     protected $id;
 
     /**
-     * @var Organization Organization
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Organization")
+     * @var AbstractOrganization
+     * @ORM\ManyToOne(targetEntity="AbstractOrganization")
      * @Assert\NotNull(message="Vous devez renseigner un centre de rattachement.")
      * @Serializer\Groups({"trainee", "session", "api.profile", "api.token"})})
      */
     protected $organization;
 
     /**
-     * @ORM\OneToMany(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractInscription", mappedBy="trainee", cascade={"remove"})
+     * @var AbstractInscription
+     * @ORM\OneToMany(targetEntity="AbstractInscription", mappedBy="trainee", cascade={"remove"})
      * @Serializer\Groups({"trainee"})
      */
     protected $inscriptions;
@@ -61,18 +56,14 @@ abstract class AbstractTrainee implements UserInterface, \Serializable, Serializ
     public function __construct()
     {
         $this->inscriptions = new ArrayCollection();
-        $this->isActive = true;
-        $this->salt = md5(uniqid(null, true));
-        $this->password = md5(uniqid(null, true));
-        $this->addressType = 0;
     }
 
     /**
-     * @param int $id
+     * @return string
      */
-    public function setId($id)
+    public function __toString()
     {
-        $this->id = $id;
+        return $this->getFullName();
     }
 
     /**
@@ -84,7 +75,7 @@ abstract class AbstractTrainee implements UserInterface, \Serializable, Serializ
     }
 
     /**
-     * @param mixed $inscriptions
+     * @param ArrayCollection
      */
     public function setInscriptions($inscriptions)
     {
@@ -100,7 +91,7 @@ abstract class AbstractTrainee implements UserInterface, \Serializable, Serializ
     }
 
     /**
-     * @param Organization $organization
+     * @param AbstractOrganization $organization
      */
     public function setOrganization($organization)
     {
@@ -108,7 +99,7 @@ abstract class AbstractTrainee implements UserInterface, \Serializable, Serializ
     }
 
     /**
-     * @return Organization
+     * @return AbstractOrganization
      */
     public function getOrganization()
     {
@@ -116,39 +107,11 @@ abstract class AbstractTrainee implements UserInterface, \Serializable, Serializ
     }
 
     /**
-     * {@inheritdoc}
+     * @return mixed
      */
-    public function getRoles()
+    public static function getFormType()
     {
-        return array('ROLE_TRAINEE');
-    }
-
-    /**
-     * @see \Serializable::serialize()
-     */
-    public function serialize()
-    {
-        return serialize(
-            array(
-                $this->id,
-            )
-        );
-    }
-
-    /**
-     * @see \Serializable::unserialize()
-     */
-    public function unserialize($serialized)
-    {
-        list($this->id) = unserialize($serialized);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getFullName();
+        return BaseTraineeType::class;
     }
 
     /**
@@ -168,47 +131,6 @@ abstract class AbstractTrainee implements UserInterface, \Serializable, Serializ
         $metadata->addPropertyConstraint('firstName', new Assert\NotBlank(array(
             'message' => 'Vous devez renseigner un prénom.',
         )));
-
-        // CoordinateTrait
-        $metadata->addPropertyConstraint('address', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner une adresse.',
-            'groups' => 'api.profile',
-        )));
-        $metadata->addPropertyConstraint('zip', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner un code postal.',
-            'groups' => 'api.profile',
-        )));
-        $metadata->addPropertyConstraint('city', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner une ville.',
-            'groups' => 'api.profile',
-        )));
-        $metadata->addPropertyConstraint('email', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner un email.',
-        )));
-        $metadata->addPropertyConstraint('phoneNumber', new Assert\NotBlank(array(
-            'message' => 'Vous devez renseigner un numéro de téléphone.',
-            'groups' => 'api.profile',
-        )));
-
-        // ProfessionalSituationTrait
-        $metadata->addPropertyConstraint('institution', new Assert\NotNull(array(
-            'message' => 'Vous devez renseigner un établissement ou une entreprise.',
-            'groups' => 'api.profile',
-        )));
-
-        // PublicCategoryTrait
-        $metadata->addPropertyConstraint('publicType', new Assert\NotNull(array(
-            'message' => 'Vous devez renseigner un type de personnel.',
-            'groups' => 'api.profile',
-        )));
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function getFormType()
-    {
-        return BaseTraineeType::class;
     }
 
     /**

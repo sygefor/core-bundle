@@ -5,7 +5,7 @@ namespace Sygefor\Bundle\CoreBundle\Form;
 use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

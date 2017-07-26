@@ -68,12 +68,6 @@ abstract class AbstractTraineeController extends Controller
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
-                //setting a default password and encoding it.
-                $password = uniqid();
-                $factory = $this->get('security.encoder_factory');
-                $encoder = $factory->getEncoder($trainee);
-                $trainee->setPassword($encoder->encodePassword($password, $trainee->getSalt()));
-
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($trainee);
                 $em->flush();
@@ -113,39 +107,6 @@ abstract class AbstractTraineeController extends Controller
     }
 
     /**
-     * @Route("/{id}/toggleActivation", requirements={"id" = "\d+"}, name="trainee.toggleActivation", options={"expose"=true}, defaults={"_format" = "json"})
-     * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
-     * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
-     * @Method("POST")
-     */
-    public function toggleActivationAction(Request $request, AbstractTrainee $trainee)
-    {
-        //access right is checked inside controller, so to be able to send specific error message
-        if (!$this->get('security.context')->isGranted('EDIT', $trainee)) {
-            throw new AccessDeniedException("Vous n'avez pas accès aux informations détaillées de cet utilisateur");
-        }
-
-        $trainee->setIsActive(!$trainee->getIsActive());
-        $this->getDoctrine()->getManager()->flush();
-
-        if ($trainee->getIsActive()) {
-            // send the mail
-            $message = \Swift_Message::newInstance()
-                ->setFrom($this->container->getParameter('mailer_from'), $this->container->getParameter('mailer_from_name'))
-                ->setReplyTo($trainee->getOrganization()->getEmail())
-                ->setSubject('SYGEFOR : activiation de votre compte')
-                ->setTo($trainee->getEmail())
-                ->setBody("Bonjour,\n\n".
-                    "Votre compte Sygefor a été activé par un administrateur.\n\n".
-                    "Vous pouvez accéder à votre compte à l'adresse suivante : ".$this->getParameter('front_url').'/account'."\n\n".
-                    "L'équipe du CNRS ".str_replace('CNRS', '', $trainee->getOrganization()->getName()).'.');
-            $this->get('mailer')->send($message);
-        }
-
-        return array('trainee' => $trainee);
-    }
-
-    /**
      * @Route("/{id}/remove", name="trainee.delete", options={"expose"=true}, defaults={"_format" = "json"})
      * @Method("POST")
      * @SecureParam(name="trainee", permissions="DELETE")
@@ -160,37 +121,6 @@ abstract class AbstractTraineeController extends Controller
         $this->get('fos_elastica.index')->refresh();
 
         return array();
-    }
-
-    /**
-     * @Route("/{id}/changepwd", name="trainee.changepwd", options={"expose"=true}, defaults={"_format" = "json"})
-     * @SecureParam(name="trainee", permissions="EDIT")
-     * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
-     * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
-     */
-    public function changePasswordAction(Request $request, AbstractTrainee $trainee)
-    {
-        $form = $this->createFormBuilder($trainee)
-            ->add('plainPassword', 'repeated', array(
-                'type' => 'password',
-                'constraints' => array(new Length(array('min' => 6)), new NotBlank()),
-                'required' => true,
-                'invalid_message' => 'Les mots de passe doivent correspondre',
-                'first_options' => array('label' => 'Mot de passe'),
-                'second_options' => array('label' => 'Confirmation'),
-            ))
-            ->getForm();
-
-        if ($request->getMethod() === 'POST') {
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-                // password encoding is handle by TraineeListener
-                $trainee->setPassword(null);
-                $this->getDoctrine()->getManager()->flush();
-            }
-        }
-
-        return array('form' => $form->createView(), 'trainee' => $trainee);
     }
 
     /**

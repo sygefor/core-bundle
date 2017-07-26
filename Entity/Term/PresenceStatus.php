@@ -55,17 +55,20 @@ class PresenceStatus extends AbstractTerm implements VocabularyInterface
         return $this->status;
     }
 
-    public static function getVocabularyStatus()
-    {
-        return VocabularyInterface::VOCABULARY_MIXED;
-    }
-
     /**
      * @return string
      */
     public function getVocabularyName()
     {
         return 'Statut de présence';
+    }
+
+    /**
+     * @return int
+     */
+    public static function getVocabularyStatus()
+    {
+        return VocabularyInterface::VOCABULARY_MIXED;
     }
 
     /**

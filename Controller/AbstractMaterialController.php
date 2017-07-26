@@ -13,6 +13,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Entity\Material\FileMaterial;
 use Sygefor\Bundle\CoreBundle\Entity\Material\LinkMaterial;
 use Sygefor\Bundle\CoreBundle\Entity\Material\Material;
@@ -26,13 +27,13 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 /**
  * @Route("/material")
  */
-class MaterialController extends Controller
+abstract class AbstractMaterialController extends Controller
 {
     /**
-     * @Route("/{entity_id}/add/{type_entity}/{material_type}/", name="material.add", options={"expose"=true}, defaults={"_format" = "json", "material_type"="file"})
+     * @Route("/{entity_id}/add/{type_entity}/{material_type}/", name="material.add", options={"expose"=true}, defaults={"_format" = "json"})
      * @Rest\View(serializerEnableMaxDepthChecks=true)
      */
-    public function addAction($entity_id, $type_entity, $material_type, Request $request)
+    public function addAction(Request $request, $entity_id, $type_entity, $material_type)
     {
         $entity = null;
         $trainingTypes = $this->get('sygefor_core.registry.training_type')->getTypes();
@@ -45,7 +46,7 @@ class MaterialController extends Controller
         }
 
         if (!$entity && $type_entity === 'session') {
-            $entity = $this->getDoctrine()->getRepository('SygeforCoreBundle:Session\AbstractSession')->find($entity_id);
+            $entity = $this->getDoctrine()->getRepository(AbstractSession::class)->find($entity_id);
         }
 
         if (!$entity) {
@@ -57,63 +58,25 @@ class MaterialController extends Controller
         }
 
         $setEntityMethod = $type_entity === 'session' ? 'setSession' : 'setTraining';
+        $material = new AbstractMaterial();
+        $material->$setEntityMethod($entity);
+        $form = $this->createForm(AbstractMaterialType::class, $material);
 
         // a file is sent : creating a file material
-        if ($material_type === 'file') {
-            $material = new FileMaterial();
+        if ($material_type === null) {
+            $material = new AbstractMaterial();
             $material->$setEntityMethod($entity);
-            $form = $this->createForm(MaterialType::class, $material);
+            $form = $this->createForm(AbstractMaterialType::class, $material);
 
-            if ($request->getMethod() === 'POST') {
-                $form->handleRequest($request);
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+                $material->$setEntityMethod($entity);
 
-                if ($request->files->count() !== 0) {
-                    foreach ($request->files as $file) {
-                        //we have to test it in another
-                        if ($file[0]->getSize() <= FileMaterial::getMaxFileSize()) {
-                            $material = new FileMaterial();
-                            $material->$setEntityMethod($entity);
-                            $material->setFile($file[0]);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($material);
+                $em->flush();
 
-                            $em = $this->getDoctrine()->getManager();
-
-                            //persisting material calls move method on file, that can throw an exception if file size limit
-                            //is too small in server config
-                            try {
-                                $em->persist($material);
-                            } catch (FileException $e) {
-                                return array('error' => "Le fichier n'a pu être téléchargé");
-                            }
-                            $em->flush();
-                        } else {
-                            return array('error' => 'Le fichier '.$file[0]->getClientOriginalName().' est trop volumineux');
-                        }
-                    }
-
-                    return array('material' => $material);
-                } else {//files could be stripped by web server (eg by php.ini's limitations) : we can't get any infos about it
-                    return array('error' => "Le fichier n'a pu être téléchargé");
-                }
-            }
-        } elseif ($material_type === 'link') { // no file sent : a link material is sent
-            $material = new LinkMaterial();
-            $material->$setEntityMethod($entity);
-            $form = $this->createFormBuilder($material)
-                ->add('name', 'text', array('label' => 'Nom', 'required' => 'true'))
-                ->add('url', 'text', array('label' => 'Lien'))
-                ->getForm();
-
-            if ($request->getMethod() === 'POST') {
-                $form->handleRequest($request);
-                if ($form->isValid()) {
-                    $material->$setEntityMethod($entity);
-
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($material);
-                    $em->flush();
-
-                    return array('material' => $material);
-                }
+                return array('material' => $material);
             }
         }
 
