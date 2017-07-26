@@ -9,7 +9,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sygefor\Bundle\CoreBundle\Entity\Organization;
 use Sygefor\Bundle\CoreBundle\Entity\Term\AbstractTerm;
 use Sygefor\Bundle\CoreBundle\Entity\Term\TreeTrait;
@@ -30,15 +29,16 @@ class TaxonomyController extends Controller
 {
     /**
      * @Route("/", name="taxonomy.index")
-     * @Template()
      */
     public function indexAction()
     {
-        if ($this->get('security.context')->isGranted('VIEW', 'Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface')) {
-            return array('vocabularies' => $this->getVocabulariesList());
-        } else {
+        if (!$this->get('security.context')->isGranted('VIEW', VocabularyInterface::class)) {
             throw new AccessDeniedException();
         }
+
+        return $this->render('taxonomy/index.html.twig', array(
+            'vocabularies' => $this->getVocabulariesList(),
+        ));
     }
 
     /**
@@ -48,7 +48,6 @@ class TaxonomyController extends Controller
      * @Route("/{vocabularyId}/view/{organizationId}", name="taxonomy.view", defaults={"organizationId" = null})
      * @Security("is_granted('VIEW', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
      * @ParamConverter("organization", class="SygeforCoreBundle:Organization", options={"id" = "organizationId"}, isOptional="true")
-     * @Template("SygeforCoreBundle:Taxonomy:view.html.twig")
      *
      * @throws EntityNotFoundException
      *
@@ -104,7 +103,7 @@ class TaxonomyController extends Controller
             }
         }
 
-        return array(
+        return $this->render('taxonomy/view.html.twig', array(
             'organization' => $organization,
             'organizations' => $organizations,
             'userVocabularyAccessRights' => $userVocabularyAccessRights,
@@ -113,13 +112,12 @@ class TaxonomyController extends Controller
             'vocabularies' => $this->getVocabulariesList(),
             'sortable' => $abstractVocabulary::orderBy() === 'position',
             'depth' => method_exists($abstractVocabulary, 'getChildren') ? 2 : 1,
-        );
+        ));
     }
 
     /**
      * @Route("/{vocabularyId}/edit/{id}/{organizationId}", name="taxonomy.edit", defaults={"id" = null, "organizationId" = null})
      * @Security("is_granted('EDIT', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
-     * @Template("SygeforCoreBundle:Taxonomy:edit.html.twig")
      */
     public function editVocabularyTermAction(Request $request, $vocabularyId, $organizationId, $id = null)
     {
@@ -172,20 +170,19 @@ class TaxonomyController extends Controller
             }
         }
 
-        return array(
+        return $this->render('taxonomy/edit.html.twig', array(
             'vocabulary' => $abstractVocabulary,
             'organization' => $organization,
             'term' => $term,
             'id' => $id,
             'form' => $form->createView(),
             'vocabularies' => $this->getVocabulariesList(),
-        );
+        ));
     }
 
     /**
      * @Route("/{vocabularyId}/remove/{id}", name="taxonomy.remove")
      * @Security("is_granted('REMOVE', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
-     * @Template("SygeforCoreBundle:Taxonomy:remove.html.twig")
      */
     public function removeAction(Request $request, $vocabularyId, $id)
     {
@@ -272,7 +269,7 @@ class TaxonomyController extends Controller
             }
         }
 
-        return array(
+        return $this->render('taxonomy/remove.html.twig', array(
             'vocabulary' => $abstractVocabulary,
             'organization' => $term->getOrganization(),
             'organization_id' => $organization_id,
@@ -280,7 +277,7 @@ class TaxonomyController extends Controller
             'vocabularies' => $this->getVocabulariesList(),
             'count' => $count,
             'form' => $form->createView(),
-        );
+        ));
     }
 
     /**

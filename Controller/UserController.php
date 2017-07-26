@@ -16,7 +16,6 @@ use JMS\SecurityExtraBundle\Annotation\SecureParam;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sygefor\Bundle\CoreBundle\Entity\User\User;
 use Sygefor\Bundle\CoreBundle\Form\Type\UserType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -32,7 +31,6 @@ class UserController extends Controller
 {
     /**
      * @Route("/", name="user.index")
-     * @Template()
      * @Security("is_granted('VIEW', 'SygeforCoreBundle:User\\User')")
      */
     public function indexAction()
@@ -53,7 +51,10 @@ class UserController extends Controller
 
         $users = $queryBuilder->orderBy('u.username')->getQuery()->getResult();
 
-        return array('users' => $users, 'isAdmin' => $this->getUser()->isAdmin());
+        return $this->render('user/index.html.twig', array(
+            'users' => $users,
+            'isAdmin' => $this->getUser()->isAdmin(),
+        ));
     }
 
     /**
@@ -75,7 +76,6 @@ class UserController extends Controller
      * @param Request $request
      *
      * @Route("/add", name="user.add")
-     * @Template("SygeforCoreBundle:User:edit.html.twig")
      * @Security("is_granted('ADD', 'SygeforCoreBundle:User\\User')")
      *
      * @return array|RedirectResponse
@@ -121,7 +121,10 @@ class UserController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'user' => $user, 'isAdmin' => $user->isAdmin());
+        return $this->render('user/edit.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $user, 'isAdmin' => $user->isAdmin(),
+        ));
     }
 
     /**
@@ -129,7 +132,6 @@ class UserController extends Controller
      * @param User    $user
      *
      * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="user.edit", options={"expose"=true})
-     * @Template
      * @SecureParam(name="user", permissions="EDIT")
      * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
      *
@@ -158,12 +160,14 @@ class UserController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'user' => $user, 'isAdmin' => $user->isAdmin());
+        return $this->render('user/edit.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $user, 'isAdmin' => $user->isAdmin(),
+        ));
     }
 
     /**
      * @Route("/{id}/access-rights", requirements={"id" = "\d+"}, name="user.access_rights", options={"expose"=true})
-     * @Template
      * @SecureParam(name="user", permissions="EDIT")
      * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
      */
@@ -183,12 +187,14 @@ class UserController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'user' => $user);
+        return $this->render('user/accessRights.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $user,
+        ));
     }
 
     /**
      * @Route("/{id}/remove", requirements={"id" = "\d+"}, name="user.remove")
-     * @Template()
      * @SecureParam(name="user", permissions="REMOVE")
      * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
      */
@@ -208,7 +214,9 @@ class UserController extends Controller
             return $this->redirect($this->generateUrl('user.index'));
         }
 
-        return array('user' => $user);
+        return $this->render('user/remove.html.twig', array(
+            'user' => $user,
+        ));
     }
 
     /**

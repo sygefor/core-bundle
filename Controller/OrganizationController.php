@@ -12,10 +12,10 @@ namespace Sygefor\Bundle\CoreBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sygefor\Bundle\CoreBundle\Entity\Organization;
 use Sygefor\Bundle\CoreBundle\Form\Type\OrganizationType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -28,13 +28,14 @@ class OrganizationController extends Controller
     /**
      * @Route("/", name="organization.index")
      * @Security("is_granted('VIEW', 'SygeforCoreBundle:Organization')")
-     * @Template()
      */
     public function indexAction()
     {
         $organizations = $this->get('doctrine')->getManager()->getRepository('SygeforCoreBundle:Organization')->findAll();
 
-        return array('organizations' => $organizations);
+        return $this->render('organization/index.html.twig', array(
+            'organizations' => $organizations,
+        ));
     }
 
     /**
@@ -42,9 +43,8 @@ class OrganizationController extends Controller
      *
      * @Route("/add", name="organization.add")
      * @Security("is_granted('ADD', 'SygeforCoreBundle:Organization')")
-     * @Template("SygeforCoreBundle:Organization:edit.html.twig")
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|RedirectResponse
      */
     public function addAction(Request $request)
     {
@@ -64,7 +64,10 @@ class OrganizationController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'organization' => $organization);
+        return $this->render('organization/edit.html.twig', array(
+            'form' => $form->createView(),
+            'organization' => $organization,
+        ));
     }
 
     /**
@@ -74,9 +77,8 @@ class OrganizationController extends Controller
      * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="organization.edit", options={"expose"=true})
      * @ParamConverter("organization", class="SygeforCoreBundle:Organization", options={"id" = "id"})
      * @Security("is_granted('EDIT', 'SygeforCoreBundle:Organization')")
-     * @Template
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|RedirectResponse
      */
     public function editAction(Request $request, Organization $organization)
     {
@@ -91,6 +93,9 @@ class OrganizationController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'organization' => $organization);
+        return $this->render('organization/edit.html.twig', array(
+            'form' => $form->createView(),
+            'organization' => $organization,
+        ));
     }
 }
