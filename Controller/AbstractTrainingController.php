@@ -2,12 +2,9 @@
 
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Repository\RepositoryFactory;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use JMS\SecurityExtraBundle\Annotation\SecureParam;
-use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;

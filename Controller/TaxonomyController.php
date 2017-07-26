@@ -42,7 +42,7 @@ class TaxonomyController extends Controller
     }
 
     /**
-     * @param AbstractTerm $term
+     * @param AbstractTerm         $term
      * @param AbstractOrganization $organization
      *
      * @Route("/{vocabularyId}/view/{organizationId}", name="taxonomy.view", defaults={"organizationId" = null})

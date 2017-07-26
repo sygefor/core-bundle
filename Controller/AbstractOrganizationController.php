@@ -72,7 +72,7 @@ abstract class AbstractOrganizationController extends Controller
     }
 
     /**
-     * @param Request      $request
+     * @param Request              $request
      * @param AbstractOrganization $organization
      *
      * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="organization.edit", options={"expose"=true})
