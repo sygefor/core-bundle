@@ -39,7 +39,7 @@ abstract class AbstractTraineeController extends Controller
         $search->handleRequest($request);
 
         // security check
-        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_trainee.rights.trainee.all.view')) {
+        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.trainee.all.view')) {
             $search->addTermFilter('organization.id', $this->getUser()->getOrganization()->getId());
         }
 
@@ -130,7 +130,7 @@ abstract class AbstractTraineeController extends Controller
     public function changeOrganizationAction(Request $request, AbstractTrainee $trainee)
     {
         // security check
-        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_trainee.rights.trainee.all.update')) {
+        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.trainee.all.update')) {
             throw new AccessDeniedException();
         }
 

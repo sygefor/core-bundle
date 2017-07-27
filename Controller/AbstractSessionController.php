@@ -37,7 +37,7 @@ abstract class AbstractSessionController extends Controller
         $search->handleRequest($request);
 
         // security check
-        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_training.rights.training.all.view')) {
+        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.training.all.view')) {
             $search->addTermFilter('training.organization.id', $this->getUser()->getOrganization()->getId());
         }
 

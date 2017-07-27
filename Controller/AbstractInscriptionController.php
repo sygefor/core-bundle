@@ -34,7 +34,7 @@ abstract class AbstractInscriptionController extends Controller
         $search->handleRequest($request);
 
         // security check : training
-        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_inscription.rights.inscription.all.view')) {
+        if (!$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.inscription.all.view')) {
             $search->addTermFilter('session.training.organization.id', $this->getUser()->getOrganization()->getId());
         }
 

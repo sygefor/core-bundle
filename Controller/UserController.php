@@ -40,7 +40,7 @@ class UserController extends Controller
         $repository = $em->getRepository(User::class);
 
         $organization = $this->get('security.context')->getToken()->getUser()->getOrganization();
-        $hasAccessRightForAll = $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.user.all');
+        $hasAccessRightForAll = $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.user.all');
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $repository->createQueryBuilder('u');
 
@@ -106,8 +106,8 @@ class UserController extends Controller
                         }
                     }
 
-                    if ($scope !== 'all' && $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.vocabulary.view.all')) {
-                        $userAccessRights[] = 'sygefor_core.rights.vocabulary.view.all';
+                    if ($scope !== 'all' && $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.vocabulary.view.all')) {
+                        $userAccessRights[] = 'sygefor_core.access_right.vocabulary.view.all';
                     }
 
                     $user->setAccessRights($userAccessRights);

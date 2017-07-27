@@ -5,6 +5,7 @@ namespace Sygefor\Bundle\CoreBundle\Form\Type;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
  * Class AbstractOrganizationType.
@@ -20,33 +21,16 @@ class AbstractOrganizationType extends AbstractType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('email', 'email', array(
-                'label' => 'Email',
+            ->add('name', null, array(
+                'label' => 'Nom',
             ))
-            ->add('phoneNumber', 'text', array(
-                'label' => 'Téléphone',
-                'required' => false,
+            ->add('code', null, array(
+                'label' => 'Code',
             ))
-            ->add('faxNumber', 'text', array(
-                'label' => 'Numéro de fax',
-                'required' => false,
+            ->add('traineeRegistrable', null, array(
+                'label' => 'Les stagiaires peuvent s\'y inscrire',
             ))
-            ->add('address', 'textarea', array(
-                'label' => 'Adresse',
-                'required' => false,
-            ))
-            ->add('zip', 'text', array(
-                'label' => 'Code postal',
-                'required' => false,
-            ))
-            ->add('city', 'text', array(
-                'label' => 'Ville',
-                'required' => false,
-            ))
-            ->add('website', 'url', array(
-                'label' => 'Site internet',
-                'required' => false,
-            ));
+        ;
     }
 
     /**

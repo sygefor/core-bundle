@@ -5,6 +5,7 @@ namespace Sygefor\Bundle\CoreBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractOrganizationType;
 
 /**
  * Organization.
@@ -148,6 +149,11 @@ abstract class AbstractOrganization
     public function setTraineeRegistrable($traineeRegistrable)
     {
         $this->traineeRegistrable = $traineeRegistrable;
+    }
+
+    public static function getFormType()
+    {
+        return AbstractOrganizationType::class;
     }
 
     /**

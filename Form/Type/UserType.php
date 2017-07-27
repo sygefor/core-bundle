@@ -91,7 +91,7 @@ class UserType extends AbstractType
         }
 
         // If the user does not have the rights, remove the organization field and force the value
-        $hasAccessRightForAll = $this->accessRightsRegistry->hasAccessRight('sygefor_core.rights.user.all');
+        $hasAccessRightForAll = $this->accessRightsRegistry->hasAccessRight('sygefor_core.access_right.user.all');
         if (!$hasAccessRightForAll) {
             $securityContext = $this->accessRightsRegistry->getSecurityContext();
             $user = $securityContext->getToken()->getUser();

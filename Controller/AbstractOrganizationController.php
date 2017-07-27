@@ -43,7 +43,7 @@ abstract class AbstractOrganizationController extends Controller
      * @param Request $request
      *
      * @Route("/add", name="organization.add")
-     * @Security("is_granted('ADD', 'SygeforCoreBundle:Organization')")
+     * @Security("is_granted('ADD', 'SygeforCoreBundle:AbstractOrganization')")
      *
      * @return array|RedirectResponse
      */
@@ -76,8 +76,8 @@ abstract class AbstractOrganizationController extends Controller
      * @param AbstractOrganization $organization
      *
      * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="organization.edit", options={"expose"=true})
-     * @ParamConverter("organization", class="SygeforCoreBundle:Organization", options={"id" = "id"})
-     * @Security("is_granted('EDIT', 'SygeforCoreBundle:Organization')")
+     * @ParamConverter("organization", class="SygeforCoreBundle:AbstractOrganization", options={"id" = "id"})
+     * @Security("is_granted('EDIT', 'SygeforCoreBundle:AbstractOrganization')")
      *
      * @return array|RedirectResponse
      */

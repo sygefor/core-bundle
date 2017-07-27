@@ -63,7 +63,7 @@ class AbstractTrainerType extends AbstractType
             ));
 
         // If the user does not have the rights, remove the organization field and force the value
-        $hasAccessRightForAll = $this->accessRightsRegistry->hasAccessRight('sygefor_trainer.rights.trainer.all.create');
+        $hasAccessRightForAll = $this->accessRightsRegistry->hasAccessRight('sygefor_core.access_right.trainer.all.create');
         if (!$hasAccessRightForAll) {
             $securityContext = $this->accessRightsRegistry->getSecurityContext();
             $user = $securityContext->getToken()->getUser();

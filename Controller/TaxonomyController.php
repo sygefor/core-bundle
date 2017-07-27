@@ -60,10 +60,10 @@ class TaxonomyController extends Controller
         $abstractVocabulary->setVocabularyId($vocabularyId);
         $userAccessRights = $this->getUser()->getAccessRights();
         $userVocabularyAccessRights = array(
-            'nationalEdit' => in_array('sygefor_core.rights.vocabulary.national', $userAccessRights),
-            'localEdit' => in_array('sygefor_core.rights.vocabulary.own', $userAccessRights),
-            'allView' => in_array('sygefor_core.rights.vocabulary.view.all', $userAccessRights),
-            'allEdit' => in_array('sygefor_core.rights.vocabulary.all', $userAccessRights),
+            'nationalEdit' => in_array('sygefor_core.access_right.vocabulary.national', $userAccessRights),
+            'localEdit' => in_array('sygefor_core.access_right.vocabulary.own', $userAccessRights),
+            'allView' => in_array('sygefor_core.access_right.vocabulary.view.all', $userAccessRights),
+            'allEdit' => in_array('sygefor_core.access_right.vocabulary.all', $userAccessRights),
         );
 
         if (!$organization) {

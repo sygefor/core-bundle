@@ -1,175 +1,175 @@
 services:
 
     # vocabulary access rights
-    sygefor_core.rights.vocabulary.own:
+    sygefor_core.access_right.vocabulary.own:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\OwnOrganizationVocabularyAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Vocabulaires" }
-    sygefor_core.rights.vocabulary.all:
+    sygefor_core.access_right.vocabulary.all:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\AllOrganizationVocabularyAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Vocabulaires" }
-    sygefor_core.rights.vocabulary.national:
+    sygefor_core.access_right.vocabulary.national:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\NationalVocabularyAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Vocabulaires" }
-    sygefor_core.rights.vocabulary.view.all:
+    sygefor_core.access_right.vocabulary.view.all:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\NationalVocabularyViewAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Vocabulaires" }
 
     # user access rights
-    sygefor_core.rights.user.own:
+    sygefor_core.access_right.user.own:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\User\OwnOrganizationUserAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Utilisateurs" }
-    sygefor_core.rights.user.all:
+    sygefor_core.access_right.user.all:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\User\AllOrganizationUserAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Utilisateurs" }
 
     # inscription access rights
-    sygefor_core.rights.inscription.own.view:
+    sygefor_core.access_right.inscription.own.view:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\OwnInscriptionViewAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
-    sygefor_core.rights.inscription.own.create:
+    sygefor_core.access_right.inscription.own.create:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\OwnInscriptionCreateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
-    sygefor_core.rights.inscription.own.update:
+    sygefor_core.access_right.inscription.own.update:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\OwnInscriptionUpdateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
-    sygefor_core.rights.inscription.own.delete:
+    sygefor_core.access_right.inscription.own.delete:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\OwnInscriptionDeleteAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
 
-    sygefor_core.rights.inscription.all.view:
+    sygefor_core.access_right.inscription.all.view:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\AllInscriptionViewAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
-    sygefor_core.rights.inscription.all.create:
+    sygefor_core.access_right.inscription.all.create:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\AllInscriptionCreateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
-    sygefor_core.rights.inscription.all.update:
+    sygefor_core.access_right.inscription.all.update:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\AllInscriptionUpdateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
-    sygefor_core.rights.inscription.all.delete:
+    sygefor_core.access_right.inscription.all.delete:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Inscription\AllInscriptionDeleteAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Inscriptions" }
 
     # trainee access rights
-    sygefor_core.rights.trainee.own.view:
+    sygefor_core.access_right.trainee.own.view:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\OwnTraineeViewAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
-    sygefor_core.rights.trainee.own.create:
+    sygefor_core.access_right.trainee.own.create:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\OwnTraineeCreateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
-    sygefor_core.rights.trainee.own.update:
+    sygefor_core.access_right.trainee.own.update:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\OwnTraineeUpdateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
-    sygefor_core.rights.trainee.own.delete:
+    sygefor_core.access_right.trainee.own.delete:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\OwnTraineeDeleteAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
 
-    sygefor_core.rights.trainee.all.view:
+    sygefor_core.access_right.trainee.all.view:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\AllTraineeViewAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
-    sygefor_core.rights.trainee.all.create:
+    sygefor_core.access_right.trainee.all.create:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\AllTraineeCreateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
-    sygefor_core.rights.trainee.all.update:
+    sygefor_core.access_right.trainee.all.update:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\AllTraineeUpdateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
-    sygefor_core.rights.trainee.all.delete:
+    sygefor_core.access_right.trainee.all.delete:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainee\AllTraineeDeleteAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Stagiaires" }
 
     # trainer access rights
-    sygefor_core.rights.trainer.own.view:
+    sygefor_core.access_right.trainer.own.view:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\OwnTrainerViewAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
-    sygefor_core.rights.trainer.own.create:
+    sygefor_core.access_right.trainer.own.create:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\OwnTrainerCreateAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
-    sygefor_core.rights.trainer.own.update:
+    sygefor_core.access_right.trainer.own.update:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\OwnTrainerUpdateAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
-    sygefor_core.rights.trainer.own.delete:
+    sygefor_core.access_right.trainer.own.delete:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\OwnTrainerDeleteAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
 
-    sygefor_core.rights.trainer.all.view:
+    sygefor_core.access_right.trainer.all.view:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\AllTrainerViewAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
-    sygefor_core.rights.trainer.all.create:
+    sygefor_core.access_right.trainer.all.create:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\AllTrainerCreateAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
-    sygefor_core.rights.trainer.all.update:
+    sygefor_core.access_right.trainer.all.update:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\AllTrainerUpdateAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
-    sygefor_core.rights.trainer.all.delete:
+    sygefor_core.access_right.trainer.all.delete:
         class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Trainer\AllTrainerDeleteAccessRights
         tags:
             - { name: sygefor_core.right_provider, group: "Intervenants" }
 
     # training access rights
-    sygefor_core.rights.training.own.view:
+    sygefor_core.access_right.training.own.view:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\OwnTrainingViewAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
 
-    sygefor_core.rights.training.own.create:
+    sygefor_core.access_right.training.own.create:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\OwnTrainingCreateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
 
-    sygefor_core.rights.training.own.update:
+    sygefor_core.access_right.training.own.update:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\OwnTrainingUpdateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
 
-    sygefor_core.rights.training.own.delete:
+    sygefor_core.access_right.training.own.delete:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\OwnTrainingDeleteAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
 
-    sygefor_core.rights.training.all.view:
+    sygefor_core.access_right.training.all.view:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\AllTrainingViewAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
 
-    sygefor_core.rights.training.all.create:
+    sygefor_core.access_right.training.all.create:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\AllTrainingCreateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
 
-    sygefor_core.rights.training.all.update:
+    sygefor_core.access_right.training.all.update:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\AllTrainingUpdateAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
 
-    sygefor_core.rights.training.all.delete:
+    sygefor_core.access_right.training.all.delete:
         class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Training\AllTrainingDeleteAccessRight
         tags:
             - { name: sygefor_core.right_provider, group: "Formations" }
