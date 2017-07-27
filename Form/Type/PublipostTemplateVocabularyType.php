@@ -10,11 +10,12 @@
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
-use Sygefor\Bundle\CoreBundle\HumanReadablePropertyAccessor\HumanReadablePropertyAccessorFactory;
+use Sygefor\Bundle\CoreBundle\Utils\HumanReadable\HumanReadablePropertyAccessorFactory;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class PublipostTemplateVocabularyType extends VocabularyType
 {

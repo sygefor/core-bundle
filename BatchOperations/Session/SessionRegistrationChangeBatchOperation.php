@@ -26,7 +26,7 @@ class SessionRegistrationChangeBatchOperation extends AbstractBatchOperation
     /**
      * @var string
      */
-    protected $targetClass = 'SygeforCoreBundle:Session\AbstractSession';
+    protected $targetClass = 'SygeforCoreBundle:AbstractSession';
 
     /**
      * @param ContainerInterface $container

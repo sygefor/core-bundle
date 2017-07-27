@@ -6,9 +6,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractSessionType;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
-use Sygefor\Bundle\CoreBundle\Form\BaseSessionType;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -133,7 +133,7 @@ abstract class AbstractSession implements SerializedAccessRights
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Material", mappedBy="session", cascade={"remove", "persist"})
+     * @ORM\OneToMany(targetEntity="AbstractMaterial", mappedBy="session", cascade={"remove", "persist"})
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Groups({"training", "session", "api.attendance"})
      */
@@ -771,7 +771,7 @@ abstract class AbstractSession implements SerializedAccessRights
      */
     public static function getFormType()
     {
-        return BaseSessionType::class;
+        return AbstractSessionType::class;
     }
 
     /**

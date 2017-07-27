@@ -6,7 +6,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,11 +16,10 @@ abstract class AbstractCoreController extends Controller
 {
     /**
      * @Route("/", name="core.index")
-     * @Template()
      */
     public function indexAction()
     {
-        return array();
+        return $this->render('SygeforCoreBundle:Core:index.html.twig', array());
     }
 
     /**

@@ -1,14 +1,16 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
  * Class AbstractTrainingType.
@@ -38,17 +40,17 @@ class AbstractTrainingType extends AbstractType
         $training = isset($options['data']) ? $options['data'] : null;
 
         $builder
+            ->add('name', null, array(
+                'label' => 'Titre',
+            ))
             // this field will be removed by a listener after a failed rights check
             ->add('organization', EntityType::class, array(
                 'required' => true,
-                'class' => Organization::class,
+                'class' => AbstractOrganization::class,
                 'label' => 'Centre',
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('o')->orderBy('o.name', 'ASC');
                 },
-            ))
-            ->add('name', null, array(
-                'label' => 'Titre',
             ))
             ->add('firstSessionPeriodSemester', ChoiceType::class, array(
                 'label' => '1ère session',

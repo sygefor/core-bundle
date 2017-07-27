@@ -4,6 +4,7 @@ namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractParticipationType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -90,7 +91,7 @@ abstract class AbstractParticipation
      */
     public static function getFormType()
     {
-        return BaseParticipationType::class;
+        return AbstractParticipationType::class;
     }
 
     /**

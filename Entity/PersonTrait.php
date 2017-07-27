@@ -1,6 +1,6 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Entity\PersonTrait;
+namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use JMS\Serializer\Annotation as Serializer;
 
@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
 trait PersonTrait
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Term\Title")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\Title")
      * @Serializer\Groups({"Default", "api"})
      */
     protected $title;

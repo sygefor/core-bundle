@@ -3,7 +3,7 @@
 namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 
 use Doctrine\ORM\Mapping as ORM;
-use Sygefor\Bundle\CoreBundle\Form\EmailTemplateVocabularyType;
+use Sygefor\Bundle\CoreBundle\Form\Type\EmailTemplateVocabularyType;
 
 /**
  * Class EmailTemplates.

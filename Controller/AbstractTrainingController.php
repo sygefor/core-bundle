@@ -80,7 +80,7 @@ abstract class AbstractTrainingController extends Controller
      *
      * @Route("/{id}/view", requirements={"id" = "\d+"}, name="training.view", options={"expose"=true}, defaults={"_format" = "json"})
      * @SecureParam(name="training", permissions="VIEW")
-     * @ParamConverter("training", class="SygeforCoreBundle:Training\AbstractTraining", options={"id" = "id"})
+     * @ParamConverter("training", class="SygeforCoreBundle:AbstractTraining", options={"id" = "id"})
      * @Rest\View(serializerGroups={"Default", "training"}, serializerEnableMaxDepthChecks=true)
      */
     public function viewAction(Request $request, AbstractTraining $training)
@@ -107,7 +107,7 @@ abstract class AbstractTrainingController extends Controller
     /**
      * @Route("/{id}/remove", requirements={"id" = "\d+"}, name="training.remove", options={"expose"=true}, defaults={"_format" = "json"})
      * @Method("POST")
-     * @ParamConverter("training", class="SygeforCoreBundle:Training\AbstractTraining", options={"id" = "id"})
+     * @ParamConverter("training", class="SygeforCoreBundle:AbstractTraining", options={"id" = "id"})
      * @SecureParam(name="training", permissions="DELETE")
      * @Rest\View(serializerGroups={"Default", "training"}, serializerEnableMaxDepthChecks=true)
      */
@@ -153,7 +153,7 @@ abstract class AbstractTrainingController extends Controller
 
     /**
      * @Route("/duplicate/{id}/{type}", name="training.duplicate", options={"expose"=true}, defaults={"_format" = "json"})
-     * @ParamConverter("training", class="SygeforCoreBundle:Training\AbstractTraining")
+     * @ParamConverter("training", class="SygeforCoreBundle:AbstractTraining")
      * @Rest\View(serializerGroups={"Default", "training"}, serializerEnableMaxDepthChecks=true)
      */
     public function duplicateAction(Request $request, AbstractTraining $training, $type)

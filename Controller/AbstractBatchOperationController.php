@@ -4,7 +4,6 @@ namespace Sygefor\Bundle\CoreBundle\Controller;
 
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,7 +15,6 @@ abstract class AbstractBatchOperationController extends Controller
 {
     /**
      * @Route("/batchoperation/dump", name="sygefor_core.batch.dump")
-     * @Template()
      */
     public function dumpAction()
     {
@@ -27,7 +25,9 @@ abstract class AbstractBatchOperationController extends Controller
             $operations_infos[] = array('label' => $operation->getLabel(), 'id' => $operation->getId(), 'ids' => 1);
         }
 
-        return array('operations' => $operations_infos);
+        return $this->render('SygeforCoreBundle:BatchOperation:dump.html.twig', array(
+            'operations' => $operations_infos
+        ));
     }
 
     /**

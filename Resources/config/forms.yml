@@ -1,37 +1,46 @@
 services:
+    # Vocabularies
     sygefor_core.form_type.vocabulary:
         class: Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType
         arguments:
             - "@security.context"
-            - "@sygefor_core.access_right_registry"
-            - "@doctrine.orm.entity_manager"
         tags:
             - { name: form.type, alias: vocabulary }
-
-    sygefor_core.form_type.entity_tags:
-        class: Sygefor\Bundle\CoreBundle\Form\Type\EntityTagsType
-        arguments: ["@doctrine"]
-        tags:
-            - { name: form.type, alias: entity_tags }
 
     sygefor_core.form_type.entity_hidden:
         class:      Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType
         arguments:
-            - @Doctrine.orm.entity_manager
+            - "@doctrine.orm.entity_manager"
         tags:
             - { name: form.type, alias: entity_hidden }
 
     sygefor_core.form_type.publipost_template_vocabulary:
         class: Sygefor\Bundle\CoreBundle\Form\Type\PublipostTemplateVocabularyType
-        arguments:
-            - "@security.context"
-            - "@sygefor_core.access_right_registry"
-            - "@doctrine.orm.entity_manager"
+        parent: sygefor_core.form_type.vocabulary
         calls:
             - [ setHRPAFactory, [ "@sygefor_core.human_readable_property_accessor_factory" ] ]
         tags:
             - { name: form.type, alias: publiposttemplatevocabulary }
 
+    sygefor_core.form_type.instription_status:
+        class: Sygefor\Bundle\CoreBundle\Form\InscriptionStatusVocabularyType
+        parent: sygefor_core.form_type.vocabulary
+        tags:
+            - { name: form.type, alias: inscriptionstatusvocabulary }
+
+    sygefor_core.form_type.presence_status:
+        class: Sygefor\Bundle\CoreBundle\Form\PresenceStatusVocabularyType
+        parent: sygefor_core.form_type.vocabulary
+        tags:
+            - { name: form.type, alias: presencestatusvocabulary }
+
+    sygefor_core.form_type.traineemailingtemplate:
+        class: Sygefor\Bundle\CoreBundle\Form\EmailTemplateVocabularyType
+        parent: sygefor_core.form_type.vocabulary
+        tags:
+            - { name: form.type, alias: emailtemplatevocabulary }
+
+    # User
     sygefor_core.form_type.access_rights:
         class:      Sygefor\Bundle\CoreBundle\Form\Type\AccessRightType
         arguments:
@@ -46,80 +55,21 @@ services:
         tags:
             - { name: form.type, alias: user }
 
-    sygefor_core.form_type.instription_status:
-        class: Sygefor\Bundle\CoreBundle\Form\InscriptionStatusVocabularyType
-        arguments:
-            - "@security.context"
-        tags:
-            - { name: form.type, alias: inscriptionstatusvocabulary }
-
-    sygefor_core.form_type.presence_status:
-            class: Sygefor\Bundle\CoreBundle\Form\PresenceStatusVocabularyType
-            arguments:
-                - "@security.context"
-            tags:
-                - { name: form.type, alias: presencestatusvocabulary }
-
-    sygefor_core.form_type.institution:
-        class: Sygefor\Bundle\CoreBundle\Form\BaseInstitutionType
-        arguments:
-            - "@sygefor_core.access_right_registry"
-        tags:
-            - { name: form.type, alias: baseinstitutiontype}
-
+    # Others
     sygefor_core.trainee_type:
-        class: Sygefor\Bundle\CoreBundle\Form\BaseTraineeType
+        class: Sygefor\Bundle\CoreBundle\Form\Type\AbstractTraineeType
         abstract: true
         arguments:
             - "@Sygefor_core.access_right_registry"
 
-    sygefor_core.form_type.traineemailingtemplate:
-        class: Sygefor\Bundle\CoreBundle\Form\EmailTemplateVocabularyType
-        arguments:
-            - "@security.context"
-            - "@Sygefor_core.access_right_registry"
-        tags:
-            - { name: form.type, alias: emailtemplatevocabulary }
-
-    sygefor_core.form_type.trainer:
-        class: Sygefor\Bundle\CoreBundle\Form\BaseTrainerType
+    sygefor_core.trainer_type:
+        class: Sygefor\Bundle\CoreBundle\Form\Type\AbstractTrainerType
+        abstract: true
         arguments:
             - "@Sygefor_core.access_right_registry"
-        tags:
-            - { name: form.type, alias: trainer_type }
 
-    sygefor_core.form_type.training:
-        class:      Sygefor\Bundle\CoreBundle\Form\TrainingType
+    sygefor_core.training_type:
+        class:      Sygefor\Bundle\CoreBundle\Form\Type\AbstractTrainingType
+        abstract: true
         arguments:
             - "@sygefor_core.access_right_registry"
-        tags:
-            - { name: form.type, alias: trainingtype }
-
-    sygefor_core.form_type.placetype:
-        class: Sygefor\Bundle\CoreBundle\Form\PlaceType
-        arguments:
-            - "@security.context"
-        tags:
-            - { name: form.type, alias: placetype }
-
-    sygefor_core.form_type.publictype:
-        class: Sygefor\Bundle\CoreBundle\Form\PublicTypeType
-        arguments:
-            - "@security.context"
-        tags:
-            - { name: form.type, alias: publictype }
-
-    sygefor_core.form_type.training_category:
-            class: Sygefor\Bundle\CoreBundle\Form\TrainingCategoryType
-            arguments:
-                - "@security.context"
-                - "@sygefor_core.registry.training_type"
-            tags:
-                - { name: form.type, alias: trainingcategoryvocabulary }
-
-    sygefor_core.form_type.supervisor:
-            class: Sygefor\Bundle\CoreBundle\Form\SupervisorType
-            arguments:
-                - "@security.context"
-            tags:
-                - { name: form.type, alias: supervisorvocabulary }

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
-use Sygefor\Bundle\CoreBundle\Form\BaseTrainerType;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractTrainerType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
@@ -147,7 +147,7 @@ abstract class AbstractTrainer implements SerializedAccessRights
      */
     public static function getFormType()
     {
-        return BaseTrainerType::class;
+        return AbstractTrainerType::class;
     }
 
     /**

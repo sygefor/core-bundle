@@ -1,8 +1,7 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
-use Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

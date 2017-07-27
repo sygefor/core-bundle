@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractTrainingType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
 
@@ -123,7 +124,7 @@ abstract class AbstractTraining implements SerializedAccessRights
      */
     public static function getFormType()
     {
-        return BaseTrainingType::class;
+        return AbstractTrainingType::class;
     }
 
     /**
@@ -284,7 +285,7 @@ abstract class AbstractTraining implements SerializedAccessRights
     }
 
     /**
-     * @param Material $material
+     * @param AbstractMaterial $material
      */
     public function addMaterial($material)
     {

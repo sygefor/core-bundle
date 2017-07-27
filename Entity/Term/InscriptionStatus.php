@@ -11,7 +11,7 @@ namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\CoreBundle\Form\InscriptionStatusVocabularyType;
+use Sygefor\Bundle\CoreBundle\Form\Type\InscriptionStatusVocabularyType;
 
 /**
  * Statut de l'inscription.

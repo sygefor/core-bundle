@@ -10,7 +10,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
-use Sygefor\Bundle\CoreBundle\Form\BaseInscriptionType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,7 +44,7 @@ abstract class AbstractInscriptionController extends Controller
     /**
      * @Route("/create/{session}", name="inscription.create", options={"expose"=true}, defaults={"_format" = "json"})
      * @SecureParam(name="session", permissions="EDIT")
-     * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", options={"id" = "session"})
+     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", options={"id" = "session"})
      * @Rest\View(serializerGroups={"Default", "inscription"}, serializerEnableMaxDepthChecks=true)
      */
     public function createAction(Request $request, AbstractSession $session)

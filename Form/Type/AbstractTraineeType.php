@@ -1,12 +1,14 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
+use Sygefor\Bundle\CoreBundle\Entity\Term\Title;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;

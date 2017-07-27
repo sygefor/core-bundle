@@ -7,12 +7,10 @@
  * Time: 14:30.
  */
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
-use Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -36,6 +34,18 @@ class AbstractSessionType extends AbstractType
                 'class' => AbstractTraining::class,
                 'required' => true,
             ))
+            ->add('dateBegin', DateType::class, array(
+                'label' => 'Date de début',
+                'widget' => 'single_text',
+                'format' => 'dd/MM/yyyy',
+                'required' => true,
+            ))
+            ->add('dateEnd', DateType::class, array(
+                'label' => 'Date de fin',
+                'widget' => 'single_text',
+                'format' => 'dd/MM/yyyy',
+                'required' => false,
+            ))
             ->add('registration', ChoiceType::class, array(
                 'label' => 'Inscriptions',
                 'choices' => array(
@@ -54,18 +64,6 @@ class AbstractSessionType extends AbstractType
                 ),
                 'required' => false,
             ))
-            ->add('dateBegin', DateType::class, array(
-                'label' => 'Date de début',
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'required' => true,
-            ))
-            ->add('dateEnd', DateType::class, array(
-                'label' => 'Date de fin',
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'required' => false,
-            ))
             ->add('status', ChoiceType::class, array(
                 'label' => 'Statut',
                 'choices' => array(
@@ -73,11 +71,6 @@ class AbstractSessionType extends AbstractType
                     AbstractSession::STATUS_REPORTED => 'Reportée',
                     AbstractSession::STATUS_CANCELED => 'Annulée',
                 ),
-                'required' => false,
-            ))
-            ->add('sessionType', EntityType::class, array(
-                'label' => 'Type',
-                'class' => Type::class,
                 'required' => false,
             ))
             ->add('numberOfRegistrations', null, array(

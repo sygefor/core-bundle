@@ -1,13 +1,12 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
-use Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class EmailTemplateVocabularyType extends VocabularyType

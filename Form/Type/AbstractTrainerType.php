@@ -1,11 +1,11 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
-use Sygefor\Bundle\CoreBundle\Entity\PersonTrait\Term\Title;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
+use Sygefor\Bundle\CoreBundle\Entity\Term\Title;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -52,7 +52,7 @@ class AbstractTrainerType extends AbstractType
             ))
             ->add('organization', EntityType::class, array(
                 'required' => true,
-                'class' => Organization::class,
+                'class' => AbstractOrganization::class,
                 'label' => 'Centre',
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('o')->orderBy('o.name', 'ASC');

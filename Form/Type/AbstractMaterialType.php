@@ -7,7 +7,7 @@
  * Time: 14:35.
  */
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Sygefor\Bundle\CoreBundle\Entity\AbstractMaterial;
 use Symfony\Component\Form\AbstractType;

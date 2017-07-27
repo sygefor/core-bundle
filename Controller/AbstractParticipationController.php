@@ -52,7 +52,7 @@ abstract class AbstractParticipationController extends Controller
     /**
      * @Route("/{session}/add", name="participation.add", options={"expose"=true}, defaults={"_format" = "json"})
      * @SecureParam(name="session", permissions="EDIT")
-     * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", options={"id" = "session"})
+     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", options={"id" = "session"})
      * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
      */
     public function addParticipationAction(Request $request, AbstractSession $session)
@@ -115,7 +115,7 @@ abstract class AbstractParticipationController extends Controller
      * @Route("/{session}/remove/{participation}", name="participation.remove", options={"expose"=true}, defaults={"_format" = "json"})
      * @Method("POST")
      * @SecureParam(name="session", permissions="EDIT")
-     * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", options={"id" = "session"})
+     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", options={"id" = "session"})
      * @ParamConverter("participation", class="SygeforCoreBundle:Session\AbstractParticipation", options={"id" = "participation"})
      * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
      */

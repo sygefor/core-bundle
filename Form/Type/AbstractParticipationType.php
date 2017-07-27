@@ -7,18 +7,17 @@
  * Time: 2:39 PM.
  */
 
-namespace Sygefor\Bundle\CoreBundle\Form;
+namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
-use Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType;
 use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractParticipation;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class ParticipationType extends AbstractType
+class AbstractParticipationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
-use Sygefor\Bundle\CoreBundle\Form\BaseTraineeType;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractTraineeType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
@@ -16,7 +16,7 @@ use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAcces
  * Trainee.
  *
  * @ORM\Table(name="trainee", uniqueConstraints={@ORM\UniqueConstraint(name="emailUnique", columns={"email"})}))
- * @ORM\Entity(repositoryClass="Sygefor\Bundle\CoreBundle\Repository\TraineeRepository")
+ * @ORM\Entity(repositoryClass="Sygefor\Bundle\ApiBundle\Repository\TraineeRepository")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\HasLifecycleCallbacks()
@@ -111,7 +111,7 @@ abstract class AbstractTrainee implements SerializedAccessRights
      */
     public static function getFormType()
     {
-        return BaseTraineeType::class;
+        return AbstractTraineeType::class;
     }
 
     /**

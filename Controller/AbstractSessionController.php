@@ -47,7 +47,7 @@ abstract class AbstractSessionController extends Controller
     /**
      * @Route("/create/{training}", requirements={"id" = "\d+"}, name="session.create", options={"expose"=true}, defaults={"_format" = "json"})
      * @SecureParam(name="training", permissions="EDIT")
-     * @ParamConverter("training", class="SygeforCoreBundle:Training\AbstractTraining", options={"id" = "training"})
+     * @ParamConverter("training", class="SygeforCoreBundle:AbstractTraining", options={"id" = "training"})
      * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
      */
     public function createAction(Request $request, AbstractTraining $training)
@@ -75,7 +75,7 @@ abstract class AbstractSessionController extends Controller
      *
      * @Route("/{id}/view", requirements={"id" = "\d+"}, name="session.view", options={"expose"=true}, defaults={"_format" = "json"})
      * @SecureParam(name="session", permissions="VIEW")
-     * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", options={"id" = "id"})
+     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", options={"id" = "id"})
      * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
      */
     public function viewAction(Request $request, AbstractSession $session)
@@ -111,7 +111,7 @@ abstract class AbstractSessionController extends Controller
      * @param mixed                $inscriptionIds
      *
      * @Route("/duplicate/{id}/{inscriptionIds}", requirements={"id" = "\d+"}, name="session.duplicate", options={"expose"=true}, defaults={"_format" = "json"})
-     * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", isOptional="true")
+     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", isOptional="true")
      * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
      *
      * @return array
@@ -189,7 +189,7 @@ abstract class AbstractSessionController extends Controller
     /**
      * @Route("/{id}/remove", requirements={"id" = "\d+"}, name="session.remove", options={"expose"=true}, defaults={"_format" = "json"})
      * @Method("POST")
-     * @ParamConverter("session", class="SygeforCoreBundle:Session\AbstractSession", options={"id" = "id"})
+     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", options={"id" = "id"})
      * @SecureParam(name="session", permissions="DELETE")
      * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
      */

@@ -7,10 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractInscriptionType;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
-use Sygefor\Bundle\CoreBundle\Form\BaseInscriptionType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -55,14 +55,14 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $session;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Term\InscriptionStatus")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus")
      * @Assert\NotNull(message="Vous devez spécifier un status d'inscription.")
      * @Serializer\Groups({"Default", "api"})
      */
     protected $inscriptionStatus;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Term\PresenceStatus")
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus")
      * @Serializer\Groups({"Default", "api"})
      */
     protected $presenceStatus;
@@ -196,7 +196,7 @@ abstract class AbstractInscription implements SerializedAccessRights
      */
     public static function getFormType()
     {
-        return BaseInscriptionType::class;
+        return AbstractInscriptionType::class;
     }
 
     /**

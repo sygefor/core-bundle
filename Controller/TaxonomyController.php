@@ -47,7 +47,7 @@ class TaxonomyController extends Controller
      *
      * @Route("/{vocabularyId}/view/{organizationId}", name="taxonomy.view", defaults={"organizationId" = null})
      * @Security("is_granted('VIEW', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
-     * @ParamConverter("organization", class="SygeforCoreBundle:Organization", options={"id" = "organizationId"}, isOptional="true")
+     * @ParamConverter("organization", class="SygeforCoreBundle:AbstractOrganization", options={"id" = "organizationId"}, isOptional="true")
      *
      * @throws EntityNotFoundException
      *
