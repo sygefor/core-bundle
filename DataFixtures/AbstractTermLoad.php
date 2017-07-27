@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\DataFixtures;
 
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -31,7 +32,7 @@ abstract class AbstractTermLoad extends AbstractDataFixture
     public function doLoad(ObjectManager $manager)
     {
         $this->manager = $manager;
-        $this->organizations = $manager->getRepository('SygeforCoreBundle:Organization')->findAll();
+        $this->organizations = $manager->getRepository(AbstractOrganization::class)->findAll();
 
         $this->autoId = 0;
         $metadata = $manager->getClassMetaData($this::$class);

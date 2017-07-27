@@ -20,7 +20,7 @@ class AbstractTrainingType extends AbstractType
     /**
      * @var AccessRightRegistry
      */
-    private $accessRightsRegistry;
+    protected $accessRightsRegistry;
 
     /**
      * @param AccessRightRegistry $registry

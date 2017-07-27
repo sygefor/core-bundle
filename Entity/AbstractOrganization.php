@@ -17,6 +17,8 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @ORM\Table(name="organization")
  * @ORM\Entity
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
  */
 abstract class AbstractOrganization
 {
@@ -61,6 +63,11 @@ abstract class AbstractOrganization
     public function __construct()
     {
         $this->users = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->name;
     }
 
     /**
@@ -143,8 +150,11 @@ abstract class AbstractOrganization
         $this->traineeRegistrable = $traineeRegistrable;
     }
 
-    public function __toString()
+    /**
+     * @return string
+     */
+    public static function getType()
     {
-        return $this->name;
+        return 'trainer';
     }
 }

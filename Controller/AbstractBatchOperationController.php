@@ -26,7 +26,7 @@ abstract class AbstractBatchOperationController extends Controller
         }
 
         return $this->render('SygeforCoreBundle:BatchOperation:dump.html.twig', array(
-            'operations' => $operations_infos
+            'operations' => $operations_infos,
         ));
     }
 

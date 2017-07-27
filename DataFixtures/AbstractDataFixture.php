@@ -7,7 +7,7 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Events;
 use FOS\ElasticaBundle\Doctrine\Listener;
-use Sygefor\Bundle\CoreBundle\Listener\ElasticaCascadeUpdateListener;
+use Sygefor\Bundle\CoreBundle\EventListener\ElasticaCascadeUpdateListener;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;

@@ -175,7 +175,7 @@ abstract class AbstractSessionController extends Controller
             $form->handleRequest($request);
             if ($form->isValid()) {
                 $em = $this->getDoctrine()->getManager();
-                $this->cloneSessionArrayCollections($session, $cloned, $inscriptions);
+                $this->cloneSessionArrayCollections($session, $cloned, $inscriptions, $form->get('inscriptionManagement')->getData());
                 $em->persist($cloned);
                 $em->flush();
 
@@ -246,8 +246,9 @@ abstract class AbstractSessionController extends Controller
      * @param AbstractSession $session
      * @param AbstractSession $cloned
      * @param $inscriptions
+     * @param $inscriptionManagement
      */
-    protected function cloneSessionArrayCollections($session, $cloned, $inscriptions)
+    protected function cloneSessionArrayCollections($session, $cloned, $inscriptions, $inscriptionManagement)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -263,7 +264,7 @@ abstract class AbstractSessionController extends Controller
         }
 
         // clone inscriptions
-        switch ($cloned->getInscriptionManagement()) {
+        switch ($inscriptionManagement) {
             case 'copy':
                 /** @var AbstractInscription $inscription */
                 foreach ($inscriptions as $inscription) {

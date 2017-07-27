@@ -32,7 +32,7 @@ abstract class AbstractTraining implements SerializedAccessRights
 
     /**
      * @var AbstractOrganization
-     * @ORM\ManyToOne(targetEntity="AbstractOrganization", inversedBy="trainings")
+     * @ORM\ManyToOne(targetEntity="AbstractOrganization")
      * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank()
      * @Serializer\Groups({"Default", "training", "api"})
