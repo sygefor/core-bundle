@@ -16,7 +16,7 @@ use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAcces
  * Trainee.
  *
  * @ORM\Table(name="trainee", uniqueConstraints={@ORM\UniqueConstraint(name="emailUnique", columns={"email"})}))
- * @ORM\Entity(repositoryClass="Sygefor\Bundle\ApiBundle\Repository\TraineeRepository")
+ * @ORM\Entity(repositoryClass="Sygefor\Bundle\ApiBundle\Repository\AccountRepository")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\HasLifecycleCallbacks()
