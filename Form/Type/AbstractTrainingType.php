@@ -3,7 +3,6 @@
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
-use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -18,27 +17,11 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 class AbstractTrainingType extends AbstractType
 {
     /**
-     * @var AccessRightRegistry
-     */
-    protected $accessRightsRegistry;
-
-    /**
-     * @param AccessRightRegistry $registry
-     */
-    public function __construct(AccessRightRegistry $registry)
-    {
-        $this->accessRightsRegistry = $registry;
-    }
-
-    /**
      * @param FormBuilderInterface $builder
      * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var AbstractTraining $training */
-        $training = isset($options['data']) ? $options['data'] : null;
-
         $builder
             ->add('name', null, array(
                 'label' => 'Titre',

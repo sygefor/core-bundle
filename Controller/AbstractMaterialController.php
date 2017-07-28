@@ -83,7 +83,7 @@ abstract class AbstractMaterialController extends Controller
     /**
      * @Route("/{id}/remove/", name="material.remove", options={"expose"=true}, defaults={"_format" = "json"})
      * @Rest\View
-     * @ParamConverter("material", class="SygeforCoreBundle:Material\Material", options={"id" = "id"})
+     * @ParamConverter("material", class="SygeforCoreBundle:AbstractMaterial", options={"id" = "id"})
      */
     public function deleteAction(Material $material)
     {
@@ -107,7 +107,7 @@ abstract class AbstractMaterialController extends Controller
     /**
      * @Route("/{id}/get/", name="material.get", options={"expose"=true}, defaults={"_format" = "json"})
      * @Rest\View
-     * @ParamConverter("material", class="SygeforCoreBundle:Material\Material", options={"id" = "id"})
+     * @ParamConverter("material", class="SygeforCoreBundle:AbstractMaterial", options={"id" = "id"})
      */
     public function getAction($material)
     {

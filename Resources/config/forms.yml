@@ -67,9 +67,3 @@ services:
         abstract: true
         arguments:
             - "@Sygefor_core.access_right_registry"
-
-    sygefor_core.training_type:
-        class:      Sygefor\Bundle\CoreBundle\Form\Type\AbstractTrainingType
-        abstract: true
-        arguments:
-            - "@sygefor_core.access_right_registry"
