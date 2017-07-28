@@ -4,7 +4,6 @@ namespace Sygefor\Bundle\CoreBundle\EventListener\ORM;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
@@ -36,7 +35,6 @@ class InscriptionListener implements EventSubscriber
         return array(
           Events::postPersist,
           Events::postUpdate,
-          Events::loadClassMetadata,
         );
     }
 
@@ -70,19 +68,6 @@ class InscriptionListener implements EventSubscriber
     public function postUpdate(LifecycleEventArgs $eventArgs)
     {
         $this->postProcess($eventArgs, false);
-    }
-
-    /**
-     * loadClassMetadata
-     * email field is not nullable.
-     */
-    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
-    {
-        $classMetadata = $eventArgs->getClassMetadata();
-        $class = $classMetadata->getName();
-        if ($class === AbstractInscription::class || get_parent_class($class) === AbstractInscription::class) {
-            $classMetadata->fieldMappings['email']['nullable'] = false;
-        }
     }
 
     /**

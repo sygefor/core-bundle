@@ -5,7 +5,7 @@ services:
             - { name: jms_serializer.event_subscriber }
 
     sygefor_core.inscription.orm.listener:
-        class: Sygefor\Bundle\CoreBundle\EventListener\InscriptionListener
+        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\InscriptionListener
         arguments:
             - "@service_container"
         tags:
@@ -26,14 +26,9 @@ services:
             - { name: doctrine.event_subscriber, connection: default  }
             - { name: fos_elastica.listener }
 
-    sygefor_core.serializer.training.event_subscriber:
-        class: Sygefor\Bundle\CoreBundle\EventListener\TrainingEventSubscriber
-        tags:
-            - { name: jms_serializer.event_subscriber }
-
     sygefor_core.training.listener:
         class: Sygefor\Bundle\CoreBundle\EventListener\ORM\TrainingListener
         arguments:
             - "@sygefor_core.registry.training_type"
         tags:
-            - { name: doctrine.event_subscriber }
+            - { name: doctrine.event_subscriber, connection: default }

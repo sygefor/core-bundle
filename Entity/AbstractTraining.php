@@ -12,7 +12,7 @@ use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAcces
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="training")
+ * @ORM\Table(name="training", uniqueConstraints={@ORM\UniqueConstraint(name="organization_number", columns={"number", "organization_id"})})
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\DiscriminatorMap({})
@@ -45,6 +45,12 @@ abstract class AbstractTraining implements SerializedAccessRights
      * @Serializer\Groups({"training", "api.training"})
      */
     protected $sessions;
+
+    /**
+     * @ORM\Column(name="number", type="integer")
+     * @Serializer\Groups({"Default", "api"})
+     */
+    private $number;
 
     /**
      * @ORM\Column(name="name", type="string", length=255)
@@ -148,7 +154,7 @@ abstract class AbstractTraining implements SerializedAccessRights
     public function copyProperties($originalTraining)
     {
         foreach (array_keys(get_object_vars($this)) as $key) {
-            if ($key !== 'id' && $key !== 'sessions' && $key !== 'session') {
+            if ($key !== 'id' && $key !== 'number' && $key !== 'sessions' && $key !== 'session') {
                 if (isset($originalTraining->$key)) {
                     $this->$key = $originalTraining->$key;
                 }
@@ -226,6 +232,22 @@ abstract class AbstractTraining implements SerializedAccessRights
     public function getSessions()
     {
         return $this->sessions;
+    }
+
+    /**
+     * @param mixed $number
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumber()
+    {
+        return $this->number;
     }
 
     /**

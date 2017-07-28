@@ -1,6 +1,6 @@
 <?php
 
-namespace Sygefor\Bundle\CoreBundle\EventListener\ORM;
+namespace Sygefor\Bundle\CoreBundle\EventListener;
 
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;

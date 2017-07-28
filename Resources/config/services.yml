@@ -51,6 +51,11 @@ services:
         tags:
             - { name: jms_serializer.event_subscriber }
 
+    sygefor_core.serializer.training.event_subscriber:
+        class: Sygefor\Bundle\CoreBundle\EventListener\TrainingEventSubscriber
+        tags:
+            - { name: jms_serializer.event_subscriber }
+
     # Listener
     sygefor_core.tree_trait_listener:
         class: Sygefor\Bundle\CoreBundle\EventListener\TreeTraitListener

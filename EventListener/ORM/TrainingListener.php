@@ -5,6 +5,7 @@ namespace Sygefor\Bundle\CoreBundle\EventListener\ORM;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
 use Sygefor\Bundle\CoreBundle\Utils\TrainingTypeRegistry;
 
@@ -32,6 +33,7 @@ class TrainingListener implements EventSubscriber
     public function getSubscribedEvents()
     {
         return array(
+            Events::prePersist,
             Events::loadClassMetadata,
         );
     }
@@ -55,6 +57,24 @@ class TrainingListener implements EventSubscriber
                 $map[$key] = $type['class'];
             }
             $classMetadata->setDiscriminatorMap($map);
+        }
+    }
+
+    /**
+     * When a inscription is created, copy all the professional situation
+     * from the Trainee entity.
+     *
+     * @param LifecycleEventArgs $eventArgs
+     */
+    public function prePersist(LifecycleEventArgs $eventArgs)
+    {
+        $entity = $eventArgs->getEntity();
+        if ($entity instanceof AbstractTraining && !$entity->getNumber()) {
+            $em = $eventArgs->getEntityManager();
+            $query = $em->createQuery('SELECT MAX(t.number) FROM SygeforCoreBundle:AbstractTraining t WHERE t.organization = :organization')
+                ->setParameter('organization', $entity->getOrganization());
+            $max = (int) $query->getSingleScalarResult();
+            $entity->setNumber($max + 1);
         }
     }
 }

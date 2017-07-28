@@ -28,6 +28,7 @@ class SygeforCoreExtension extends Extension
         $loader->load('batch.yml');
         $loader->load('elastica.yml');
         $loader->load('forms.yml');
+        $loader->load('orm_listener.yml');
         $loader->load('services.yml');
         $loader->load('taxonomy.yml');
         $loader->load('voters.yml');
