@@ -11,9 +11,15 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
 use Sygefor\Bundle\CoreBundle\Entity\Email;
+use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Sygefor\Bundle\CoreBundle\Entity\User;
-use Sygefor\Bundle\CoreBundle\HumanReadablePropertyAccessor\HumanReadablePropertyAccessor;
+use Sygefor\Bundle\CoreBundle\Utils\HumanReadable\HumanReadablePropertyAccessor;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -25,7 +31,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
     /** @var ContainerBuilder $container */
     protected $container;
 
-    protected $targetClass = 'SygeforCoreBundle:AbstractTrainee';
+    protected $targetClass = AbstractTrainee::class;
 
     /**
      * @param ContainerInterface $container
@@ -92,17 +98,17 @@ class EmailingBatchOperation extends AbstractBatchOperation
      */
     public function getModalConfig($options = array())
     {
-        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_trainee.vocabulary_email_template');
+        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_email_template');
         /** @var EntityManager $em */
         $em = $this->em;
         $repo = $em->getRepository(get_class($templateTerm));
 
         if (!empty($options['inscriptionStatus'])) {
-            $repoInscriptionStatus = $em->getRepository('Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus');
+            $repoInscriptionStatus = $em->getRepository(InscriptionStatus::class);
             $inscriptionStatus = $repoInscriptionStatus->findById($options['inscriptionStatus']);
             $templates = $repo->findBy(array('inscriptionStatus' => $inscriptionStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
         } elseif (!empty($options['presenceStatus'])) {
-            $repoPresenceStatus = $em->getRepository('Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus');
+            $repoPresenceStatus = $em->getRepository(PresenceStatus::class);
             $presenceStatus = $repoPresenceStatus->findById($options['presenceStatus']);
             $templates = $repo->findBy(array('presenceStatus' => $presenceStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
         } else {
@@ -151,7 +157,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
             $message = \Swift_Message::newInstance();
 
             if (is_int($organization)) {
-                $organization = $this->container->get('doctrine')->getRepository('SygeforCoreBundle:Organization')->find($organization);
+                $organization = $this->container->get('doctrine')->getRepository(AbstractOrganization::class)->find($organization);
             } else {
                 $organization = $this->container->get('security.context')->getToken()->getUser()->getOrganization();
             }
@@ -191,7 +197,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                                 $publipostTemplates[] = $templateAttachment['id'];
                             }
                         }
-                        $publipostTemplates = $em->getRepository('SygeforCoreBundle:Term\PublipostTemplate')->findBy(array('id' => $publipostTemplates));
+                        $publipostTemplates = $em->getRepository(PublipostTemplate::class)->findBy(array('id' => $publipostTemplates));
                         foreach ($publipostTemplates as $publipostTemplate) {
                             // find specific publipost service suffix
                             $entityType = $publipostTemplate->getEntity();
@@ -237,11 +243,11 @@ class EmailingBatchOperation extends AbstractBatchOperation
                     foreach ($copies[0] as $key => $copy) {
                         $email->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);
                     }
-                    if (get_parent_class($entity) === 'Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee') {
+                    if (get_parent_class($entity) === AbstractTrainee::class) {
                         $email->setTrainee($entity);
-                    } elseif (get_parent_class($entity) === 'Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer') {
+                    } elseif (get_parent_class($entity) === AbstractTrainer::class) {
                         $email->setTrainer($entity);
-                    } elseif (get_parent_class($entity) === 'Sygefor\Bundle\CoreBundle\Entity\AbstractInscription') {
+                    } elseif (get_parent_class($entity) === AbstractInscription::class) {
                         $email->setTrainee($entity->getTrainee());
                         $email->setSession($entity->getSession());
                     }
@@ -300,9 +306,9 @@ class EmailingBatchOperation extends AbstractBatchOperation
     {
         // first retrieve trainee
         $trainee = null;
-        if (get_parent_class($entity) === 'Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee') {
+        if (get_parent_class($entity) === AbstractTrainee::class) {
             $trainee = $entity;
-        } elseif (get_parent_class($entity) === 'Sygefor\Bundle\CoreBundle\Entity\AbstractInscription') {
+        } elseif (get_parent_class($entity) === AbstractInscription::class) {
             $trainee = $entity->getTrainee();
         }
 

@@ -20,7 +20,7 @@ class VocabularyType extends AbstractType
     /**
      * @param SecurityContext
      */
-    public function __construct($securityContext = null)
+    public function __construct($securityContext)
     {
         $this->securityContext = $securityContext;
     }
@@ -38,8 +38,6 @@ class VocabularyType extends AbstractType
 
     protected function setUp()
     {
-        parent::setUp();
-
         $this->factory = Forms::createFormFactoryBuilder()
             ->addExtensions($this->getExtensions())
             ->getFormFactory();

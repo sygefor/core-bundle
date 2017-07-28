@@ -12,6 +12,7 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations\Inscription;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -51,14 +52,15 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
         //sending email
 
         $em = $this->container->get('doctrine.orm.entity_manager');
-        $repoInscriptionStatus = $em->getRepository('Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus');
-        $repoPresenceStatus = $em->getRepository('Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus');
+        $repoInscriptionStatus = $em->getRepository(InscriptionStatus::class);
+        $repoPresenceStatus = $em->getRepository(PresenceStatus::class);
 
         $inscriptionStatus = (empty($options['inscriptionStatus'])) ? null : $repoInscriptionStatus->find($options['inscriptionStatus']);
         $presenceStatus = (empty($options['presenceStatus'])) ? null : $repoPresenceStatus->find($options['presenceStatus']);
 
         //changing status
         $arrayInscriptionsGranted = array();
+        /** @var AbstractInscription $inscription */
         foreach ($inscriptions as $inscription) {
             if ($this->container->get('security.context')->isGranted('EDIT', $inscription)) {
                 //setting new inscription status
@@ -101,7 +103,7 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
     public function getModalConfig($options = array())
     {
         $userOrg = $this->container->get('security.context')->getToken()->getUser()->getOrganization();
-        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_trainee.vocabulary_email_template');
+        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_email_template');
         $attachmentTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_publipost_template');
 
         /** @var EntityManager $em */

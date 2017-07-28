@@ -150,13 +150,13 @@ class ConvertTypeBatchOperation extends AbstractBatchOperation
     protected function createAndCopyEntity(AbstractTraining $training, $type, EntityManager $em, $key)
     {
         // get database max number for organization
-        $query = $em->createQuery('SELECT MAX(t.number) FROM SygeforCoreBundle:AbstractTraining\Training t WHERE t.organization = :organization')
+        $query = $em->createQuery('SELECT MAX(t.number) FROM SygeforCoreBundle:AbstractTraining t WHERE t.organization = :organization')
             ->setParameter('organization', $training->getOrganization());
         $max = (int) $query->getSingleScalarResult();
 
         // create and copy
         $typeClass = $this->trainingTypeRegistry->getType($type);
-        /** @var Training $cloned */
+        /** @var AbstractTraining $cloned */
         $cloned = new $typeClass['class']();
         $cloned->copyProperties($training);
 
@@ -178,11 +178,6 @@ class ConvertTypeBatchOperation extends AbstractBatchOperation
      */
     protected function mergeArrayCollectionsAndFlush($dest, $source)
     {
-        // clone common arrayCollections
-        if (method_exists($source, 'getAreas')) {
-            $dest->duplicateArrayCollection('addArea', $source->getAreas());
-        }
-
         // clone duplicate materials
         $tmpMaterials = $source->getMaterials();
         if (!empty($tmpMaterials)) {

@@ -6,6 +6,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Sygefor\Bundle\ApiBundle\Form\Type\ProfileType;
+use Sygefor\Bundle\ApiBundle\Form\Type\RegistrationType;
 use Sygefor\Bundle\CoreBundle\Form\Type\AbstractTraineeType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -112,6 +114,22 @@ abstract class AbstractTrainee implements SerializedAccessRights
     public static function getFormType()
     {
         return AbstractTraineeType::class;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getProfileFormType()
+    {
+        return ProfileType::class;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getRegistrationFormType()
+    {
+        return RegistrationType::class;
     }
 
     /**

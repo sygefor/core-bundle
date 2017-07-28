@@ -11,7 +11,7 @@ namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
-use Sygefor\Bundle\CoreBundle\Entity\Session\AbstractParticipation;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractParticipation;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;

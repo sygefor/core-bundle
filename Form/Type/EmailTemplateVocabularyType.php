@@ -8,6 +8,7 @@ use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class EmailTemplateVocabularyType extends VocabularyType
 {
@@ -71,14 +72,6 @@ class EmailTemplateVocabularyType extends VocabularyType
                     ->orWhere('p.organization is null');
             },
         ));
-    }
-
-    /**
-     * @return string
-     */
-    public function getParent()
-    {
-        return VocabularyType::class;
     }
 
     /**
