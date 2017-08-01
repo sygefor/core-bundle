@@ -21,6 +21,7 @@ use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAcces
 abstract class AbstractTraining implements SerializedAccessRights
 {
     use ORMBehaviors\Timestampable\Timestampable;
+    use MaterialTrait;
 
     /**
      * @ORM\Column(name="id", type="integer")
@@ -60,14 +61,6 @@ abstract class AbstractTraining implements SerializedAccessRights
      * @Serializer\Groups({"Default", "api"})
      */
     protected $name;
-
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="AbstractMaterial", mappedBy="training", cascade={"remove", "persist"})
-     * @ORM\JoinColumn(nullable=true)
-     * @Serializer\Groups({"training", "session", "api.attendance"})
-     */
-    protected $materials;
 
     /**
      * @ORM\Column(name="firstSessionPeriodSemester", type="integer")
@@ -296,31 +289,6 @@ abstract class AbstractTraining implements SerializedAccessRights
     public function setFirstSessionPeriodYear($firstSessionPeriodYear)
     {
         $this->firstSessionPeriodYear = $firstSessionPeriodYear;
-    }
-
-    /**
-     * @param ArrayCollection $materials
-     */
-    public function setMaterials($materials)
-    {
-        $this->materials = $materials;
-    }
-
-    /**
-     * @param AbstractMaterial $material
-     */
-    public function addMaterial($material)
-    {
-        $material->setTraining($this);
-        $this->materials->add($material);
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getMaterials()
-    {
-        return $this->materials;
     }
 
     /**

@@ -29,13 +29,13 @@ abstract class AbstractMaterial
     /**
      * @var string
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
-     * @Serializer\Groups({"Default", "api.attendance"})
+     * @Serializer\Groups({"Default", "api.training", "api.attendance"})
      */
     protected $name;
 
     /**
      * @var AbstractTraining
-     * @ORM\ManyToOne(targetEntity="AbstractTraining", inversedBy="materials")
+     * @ORM\ManyToOne(targetEntity="AbstractTraining")
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Exclude
      */
@@ -43,11 +43,22 @@ abstract class AbstractMaterial
 
     /**
      * @var AbstractSession
-     * @ORM\ManyToOne(targetEntity="AbstractSession", inversedBy="materials")
+     * @ORM\ManyToOne(targetEntity="AbstractSession")
      * @ORM\JoinColumn(nullable=true)
      * @Serializer\Exclude
      */
     protected $session;
+
+    /**
+     * @ORM\Column(name="is_public", type="boolean")
+     * @Serializer\Groups({"Default", "api.training", "api.attendance"})
+     */
+    protected $isPublic;
+
+    public function __construct($isPublic = false)
+    {
+        $this->isPublic = $isPublic;
+    }
 
     /**
      * Get id.
@@ -113,5 +124,21 @@ abstract class AbstractMaterial
     public function setSession($session = null)
     {
         $this->session = $session;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsPublic()
+    {
+        return $this->isPublic;
+    }
+
+    /**
+     * @param mixed $isPublic
+     */
+    public function setIsPublic($isPublic)
+    {
+        $this->isPublic = $isPublic;
     }
 }

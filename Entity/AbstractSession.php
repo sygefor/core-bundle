@@ -25,6 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 abstract class AbstractSession implements SerializedAccessRights
 {
     use ORMBehaviors\Timestampable\Timestampable;
+    use MaterialTrait;
 
     // registration states
     const REGISTRATION_DEACTIVATED = 0;
@@ -133,17 +134,15 @@ abstract class AbstractSession implements SerializedAccessRights
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="AbstractMaterial", mappedBy="session", cascade={"remove", "persist"})
-     * @ORM\JoinColumn(nullable=true)
-     * @Serializer\Groups({"training", "session", "api.attendance"})
+     * @Serializer\Groups({"api.training", "api.attendance"})
      */
-    protected $materials;
+    protected $allPublicMaterials;
 
     /**
      * @var ArrayCollection
      * @Serializer\Groups({"api.attendance"})
      */
-    protected $allMaterials;
+    protected $allPrivateMaterials;
 
     public function __construct()
     {
@@ -366,16 +365,6 @@ abstract class AbstractSession implements SerializedAccessRights
     }
 
     /**
-     * @return mixed
-     */
-    public function letterDateBegin()
-    {
-        setlocale(LC_TIME, 'fr_FR.UTF-8');
-
-        return strftime('%A %e %B %Y', $this->dateBegin->getTimestamp());
-    }
-
-    /**
      * @return int
      * @Serializer\VirtualProperty
      */
@@ -420,91 +409,11 @@ abstract class AbstractSession implements SerializedAccessRights
     }
 
     /**
-     * @return mixed
-     */
-    public function letterDateEnd()
-    {
-        setlocale(LC_TIME, 'fr_FR.UTF-8');
-
-        return strftime('%A %e %B %Y', $this->dateEnd->getTimestamp());
-    }
-
-    /**
      * @param mixed $dateEnd
      */
     public function setDateEnd($dateEnd)
     {
         $this->dateEnd = $dateEnd;
-    }
-
-    /**
-     * Get date range for OpenTBS.
-     *
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"Default", "session", "api"})
-     *
-     * @return string
-     */
-    public function getDateRange()
-    {
-        if (!$this->dateBegin) {
-            return '';
-        }
-        if (!$this->dateEnd || $this->dateBegin->format('d/m/y') === $this->dateEnd->format('d/m/y')) {
-            return 'le '.$this->dateBegin->format('d/m/Y');
-        }
-
-        return 'du '.$this->dateBegin->format('d/m/Y').' au '.$this->dateEnd->format('d/m/Y');
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getDatesArray()
-    {
-        $dates = new ArrayCollection();
-        setlocale(LC_TIME, 'fr_FR.UTF-8', 'fra');
-
-        if ($this->dateBegin == $this->dateEnd) {
-            $date = new \stdClass();
-            $date->date = ucfirst($this->letterDateBegin());
-            $dates->add($date);
-        } elseif ($this->dateBegin < $this->dateEnd) {
-            $dateIncr = clone $this->dateBegin;
-            while ($dateIncr <= $this->dateEnd) {
-                if (!in_array(strftime('%A', $dateIncr->getTimestamp()), array('samedi', 'dimanche'))) {
-                    $date = new \stdClass();
-                    $date->date = ucfirst(strftime('%A %e %B %Y', $dateIncr->getTimestamp()));
-                    $dates->add($date);
-                }
-                $dateIncr->modify('+1 day');
-            }
-        } else {
-            $date = new \stdClass();
-            $date->date = 'La date de début fini avant la date de fin. Merci de vérifier les informations de la session.';
-            $dates->add($date);
-        }
-
-        return $dates;
-    }
-
-    /**
-     * Get date range in letter for OpenTBS.
-     *
-     * @return string
-     */
-    public function letterDateRange()
-    {
-        setlocale(LC_TIME, 'fr_FR.UTF-8');
-
-        if (!$this->dateBegin) {
-            return '';
-        }
-        if (!$this->dateEnd || $this->letterDateBegin() === $this->letterDateEnd()) {
-            return 'le '.$this->letterDateBegin();
-        }
-
-        return 'du '.$this->letterDateBegin().' au '.$this->letterDateEnd();
     }
 
     /**
@@ -715,50 +624,31 @@ abstract class AbstractSession implements SerializedAccessRights
     /**
      * @return ArrayCollection
      */
-    public function getMaterials()
+    public function getAllPublicMaterials()
     {
-        return $this->materials;
-    }
+        $trainingPublicMaterials = $this->getTraining()->getPublicMaterials();
+        $sessionPublicMaterials = $this->getPublicMaterials();
 
-    /**
-     * @param ArrayCollection $materials
-     */
-    public function setMaterials($materials)
-    {
-        $this->materials = $materials;
-    }
-
-    /**
-     * @param Material $material
-     *
-     * @return bool
-     */
-    public function addMaterial($material)
-    {
-        if (!$this->materials->contains($material)) {
-            $material->setSession($this);
-            $this->materials->add($material);
-
-            return true;
+        foreach ($sessionPublicMaterials as $material) {
+            $trainingPublicMaterials->add($material);
         }
 
-        return false;
+        return $trainingPublicMaterials;
     }
 
     /**
      * @return ArrayCollection
      */
-    public function getAllMaterials()
+    public function getAllPrivateMaterials()
     {
-        return $this->allMaterials;
-    }
+        $trainingPrivateMaterials = $this->getTraining()->getPrivateMaterials();
+        $sessionPrivateMaterials = $this->getPrivateMaterials();
 
-    /**
-     * @param ArrayCollection $allMaterials
-     */
-    public function setAllMaterials($allMaterials)
-    {
-        $this->allMaterials = $allMaterials;
+        foreach ($sessionPrivateMaterials as $material) {
+            $trainingPrivateMaterials->add($material);
+        }
+
+        return $trainingPrivateMaterials;
     }
 
     public function __toString()

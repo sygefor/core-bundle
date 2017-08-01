@@ -32,3 +32,9 @@ services:
             - "@sygefor_core.registry.training_type"
         tags:
             - { name: doctrine.event_subscriber, connection: default }
+
+
+    sygefor_core.session.listener:
+        class: Sygefor\Bundle\CoreBundle\EventListener\ORM\SessionListener
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }

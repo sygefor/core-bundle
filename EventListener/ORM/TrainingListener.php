@@ -57,6 +57,9 @@ class TrainingListener implements EventSubscriber
                 $map[$key] = $type['class'];
             }
             $classMetadata->setDiscriminatorMap($map);
+
+            // update material trait to map trainings
+            $classMetadata->associationMappings['materials']['mappedBy'] = 'training';
         }
     }
 
