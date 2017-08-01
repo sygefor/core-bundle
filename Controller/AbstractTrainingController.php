@@ -62,7 +62,8 @@ abstract class AbstractTrainingController extends Controller
             throw new AccessDeniedException('Action non autorisée');
         }
 
-        $form = $this->createForm($training::getFormType(), $training);
+        $formClass = $training::getFormType();
+        $form = $this->createForm(new $formClass($this->get('sygefor_core.access_right_registry')), $training);
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
@@ -92,7 +93,8 @@ abstract class AbstractTrainingController extends Controller
             throw new AccessDeniedException('Action non autorisée');
         }
 
-        $form = $this->createForm($training::getFormType(), $training);
+        $formClass = $training::getFormType();
+        $form = $this->createForm(new $formClass($this->get('sygefor_core.access_right_registry')), $training);
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {

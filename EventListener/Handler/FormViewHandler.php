@@ -90,6 +90,15 @@ class FormViewHandler implements SubscribingHandlerInterface
             }
         }
 
+        if (!$element['value'] && isset($variables['empty_value'])) {
+            foreach ($element['choices'] as $choice) {
+                if ($choice['v'] === $variables['empty_value']) {
+                    $element['value'] = $variables['empty_value'];
+                    break;
+                }
+            }
+        }
+
         return $visitor->getNavigator()->accept($element, array('name' => 'array'), $context);
     }
 

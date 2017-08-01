@@ -71,7 +71,7 @@ class TrainingListener implements EventSubscriber
         $entity = $eventArgs->getEntity();
         if ($entity instanceof AbstractTraining && !$entity->getNumber()) {
             $em = $eventArgs->getEntityManager();
-            $query = $em->createQuery('SELECT MAX(t.number) FROM SygeforCoreBundle:AbstractTraining t WHERE t.organization = :organization')
+            $query = $em->createQuery('SELECT MAX(t.number) FROM '.AbstractTraining::class.' t WHERE t.organization = :organization')
                 ->setParameter('organization', $entity->getOrganization());
             $max = (int) $query->getSingleScalarResult();
             $entity->setNumber($max + 1);

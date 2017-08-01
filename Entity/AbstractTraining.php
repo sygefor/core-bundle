@@ -50,7 +50,7 @@ abstract class AbstractTraining implements SerializedAccessRights
      * @ORM\Column(name="number", type="integer")
      * @Serializer\Groups({"Default", "api"})
      */
-    private $number;
+    protected $number;
 
     /**
      * @ORM\Column(name="name", type="string", length=255)
