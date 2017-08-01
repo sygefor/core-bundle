@@ -61,3 +61,8 @@ services:
         class: Sygefor\Bundle\CoreBundle\EventListener\TreeTraitListener
         tags:
             - { name: doctrine.event_subscriber, connection: default }
+
+    # email cc registry
+    sygefor_core.registry.email_cc:
+        class: Sygefor\Bundle\CoreBundle\Utils\Email\CCRegistry
+        arguments: [null]
