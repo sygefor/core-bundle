@@ -37,11 +37,6 @@ class User extends BaseUser
     protected $accessRights;
 
     /**
-     * @var string
-     */
-    protected $accessRightScope;
-
-    /**
      * Constructor.
      */
     public function __construct()
@@ -92,22 +87,6 @@ class User extends BaseUser
     public function setAccessRights($accessRights)
     {
         $this->accessRights = $accessRights ? $accessRights : array();
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccessRightScope()
-    {
-        return $this->accessRightScope;
-    }
-
-    /**
-     * @param string $accessRightScope
-     */
-    public function setAccessRightScope($accessRightScope)
-    {
-        $this->accessRightScope = $accessRightScope;
     }
 
     /**

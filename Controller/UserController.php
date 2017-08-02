@@ -96,19 +96,30 @@ class UserController extends Controller
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($user);
 
-                $scope = $user->getAccessRightScope();
+                $scope = $form->get('accessRightScope')->getData();
                 if ($scope) {
-                    $userAccessRights = array();
-                    $accessRights = array_keys($this->get('sygefor_core.access_right_registry')->getAccessRights());
-                    foreach ($accessRights as $accessRight) {
-                        if ((strstr($accessRight, $scope) || $scope === 'all') && $this->get('sygefor_core.access_right_registry')->hasAccessRight($accessRight)) {
-                            $userAccessRights[] = $accessRight;
-                        }
-                    }
+                    $getUserAccessRights = function($scope, array $accessRights) {
+                        if (!is_string($scope))
+                            throw new \UnexpectedValueException("String expected, ".gettype($scope)." given.");
+                        $availableExts = call_user_func(function() use (&$scope) {
+                            switch ($scope) {
+                                case 'own.view':   return ['.own.view'];
+                                case 'own.manage': return ['.own'];
+                                case 'all.view':   return ['.all.view', '.own.view'];
+                                case 'all.manage': return ['.all', '.own', '.national'];
+                                default:           return [];
+                            }
+                        });
+                        $userAccessRights = [];
+                        foreach ($accessRights as $accessRight)
+                            for ($i = 0, $count = count($availableExts); $i < $count; ++$i)
+                                if (strpos($accessRight, $availableExts[$i]) !== false)
+                                    $userAccessRights[] = $accessRight;
+                        return $userAccessRights;
+                    };
 
-                    if ($scope !== 'all' && $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.vocabulary.view.all')) {
-                        $userAccessRights[] = 'sygefor_core.access_right.vocabulary.view.all';
-                    }
+                    $accessRights = array_keys($this->get('sygefor_core.access_right_registry')->getAccessRights());
+                    $userAccessRights = $getUserAccessRights($scope, $accessRights);
 
                     $user->setAccessRights($userAccessRights);
                 }
