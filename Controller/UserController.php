@@ -98,10 +98,11 @@ class UserController extends Controller
 
                 $scope = $form->get('accessRightScope')->getData();
                 if ($scope) {
-                    $getUserAccessRights = function($scope, array $accessRights) {
-                        if (!is_string($scope))
-                            throw new \UnexpectedValueException("String expected, ".gettype($scope)." given.");
-                        $availableExts = call_user_func(function() use (&$scope) {
+                    $getUserAccessRights = function ($scope, array $accessRights) {
+                        if (!is_string($scope)) {
+                            throw new \UnexpectedValueException('String expected, '.gettype($scope).' given.');
+                        }
+                        $availableExts = call_user_func(function () use (&$scope) {
                             switch ($scope) {
                                 case 'own.view':   return ['.own.view'];
                                 case 'own.manage': return ['.own'];
@@ -111,10 +112,14 @@ class UserController extends Controller
                             }
                         });
                         $userAccessRights = [];
-                        foreach ($accessRights as $accessRight)
-                            for ($i = 0, $count = count($availableExts); $i < $count; ++$i)
-                                if (strpos($accessRight, $availableExts[$i]) !== false)
+                        foreach ($accessRights as $accessRight) {
+                            for ($i = 0, $count = count($availableExts); $i < $count; ++$i) {
+                                if (strpos($accessRight, $availableExts[$i]) !== false) {
                                     $userAccessRights[] = $accessRight;
+                                }
+                            }
+                        }
+
                         return $userAccessRights;
                     };
 

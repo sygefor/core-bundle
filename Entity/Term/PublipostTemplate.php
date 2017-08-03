@@ -12,7 +12,6 @@ namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 use Doctrine\ORM\Mapping as ORM;
 use Sygefor\Bundle\CoreBundle\Entity\UploadableTrait;
 use Symfony\Component\Validator\Constraints as Assert;
-use Sygefor\Bundle\CoreBundle\Form\Type\PublipostTemplateVocabularyType;
 
 /**
  * Class PublipostTemplates.
@@ -93,7 +92,7 @@ class PublipostTemplate extends AbstractTerm implements VocabularyInterface
      */
     public static function getFormType()
     {
-        return PublipostTemplateVocabularyType::class;
+        return 'sygefor_core.form_type.publipost_template_vocabulary';
     }
 
     public static function getVocabularyStatus()

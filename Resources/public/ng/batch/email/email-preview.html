@@ -16,9 +16,7 @@
             <label class="col-sm-3 control-label">CC</label>
             <div class="col-md-9">
                 <div class="form-control" style="height: auto">
-                    {{ email.cc.employer ? 'Employeur; ' : '' }}
-                    {{ email.cc.manager ? 'Directeur; ' : '' }}
-                    {{ email.cc.trainingCorrespondent ? 'Correspondants formation; ' : '' }}
+                    <span ng-repeat="(name, checked) in email.cc">{{ checked ? name + '; ' : '' }}</span>
                 </div>
             </div>
         </div>

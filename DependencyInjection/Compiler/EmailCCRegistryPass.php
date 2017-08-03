@@ -12,12 +12,12 @@ class EmailCCRegistryPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('sygefor_core.registry.email_cc')) {
+        if (!$container->hasDefinition('sygefor_core.registry.email_cc_resolver')) {
             return;
         }
 
         $resolvers = array();
-        $definition = $container->getDefinition('sygefor_core.registry.email_cc');
+        $definition = $container->getDefinition('sygefor_core.registry.email_cc_resolver');
         foreach ($container->findTaggedServiceIds('sygefor_core.email_resolver') as $serviceId => $tag) {
             $def = $container->getDefinition($serviceId);
             $class = $def->getClass();

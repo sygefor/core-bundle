@@ -34,7 +34,7 @@ abstract class AbstractBatchOperationController extends Controller
      * @Route("/batchoperation/{id}/execute", name="sygefor_core.batch_operation.execute", options={"expose"=true}, defaults={"_format" = "json"})
      * @Rest\View
      */
-    public function executeAction($id, Request $request)
+    public function executeAction(Request $request, $id)
     {
         $ids = $request->get('ids');
         $options = $request->get('options');
@@ -80,20 +80,19 @@ abstract class AbstractBatchOperationController extends Controller
      * @Route("/batchoperation/modalconfig/{service}", name="sygefor_core.batch_operation.modal_config", options={"expose"=true}, defaults={"_format" = "json"})
      * @Rest\View
      */
-    public function modalConfigAction($service, Request $request)
+    public function modalConfigAction(Request $request, $service)
     {
         $options = $request->get('options');
 
         //we try to read option list as a JSON string (case of multipart form type)
         if (is_string($options)) {
             $decodeOptions = json_decode($options, $assoc = true);
-            if (is_array($decodeOptions)) { //if translation succeeded, the result is stored as options array
+            if (is_array($decodeOptions)) {
                 $options = $decodeOptions;
             }
         }
 
         $batchOperation = $this->get('sygefor_core.batch_registry')->get($service);
-
         if (method_exists($batchOperation, 'getModalConfig')) {
             return $batchOperation->getModalConfig($options);
         }
@@ -107,7 +106,7 @@ abstract class AbstractBatchOperationController extends Controller
      * @Route("/batchoperation/{service}/get/{file}/as/{filename}", name="sygefor_core.batch_operation.get_file", options={"expose"=true}, defaults={"_format" = "json", "filename"=null})
      * @Rest\View
      */
-    public function fileDownloadAction($service, $file, $filename = null, Request $request)
+    public function fileDownloadAction(Request $request, $service, $file, $filename = null)
     {
         $pdf = ($request->get('pdf') === 'true') ? true : false;
         $batchOperation = $this->get('sygefor_core.batch_registry')->get($service);

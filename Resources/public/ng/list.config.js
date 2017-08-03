@@ -49,17 +49,26 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
         templateUrl: 'batch/email/email.html',
         size: 'lg',
         resolve: {
-            config: function($http) {
-                var url = Routing.generate('sygefor_core.batch_operation.modal_config', {service: 'sygefor_core.batch.email'});
-                return $http.get(url).then(function(response){ return response.data;} );
+            config: function($http, $dialogParams) {
+                var route = 'sygefor_core.batch_operation.modal_config';
+                var options = {
+                    service: 'sygefor_core.batch.email',
+                    options: {
+                        targetClass: $dialogParams.targetClass
+                    }
+                };
+
+                var url = Routing.generate(route, options);
+                return $http.get(url).then(function(response) {
+                    return response.data;
+                });
             }
         }
     });
 
     //email preview
     $dialogProvider.dialog("batch.emailPreview", /* @ngInject */ {
-        controller: function($scope, $modalInstance, $dialogParams, email){
-            console.log(email);
+        controller: function($scope, $modalInstance, $dialogParams, email) {
             $scope.email = {
                 subject: email.subject,
                 cc: email.cc,

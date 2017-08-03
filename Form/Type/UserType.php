@@ -84,10 +84,10 @@ class UserType extends AbstractType
                 'label' => 'Droits d\'accès',
                 'mapped' => false,
                 'choices' => array(
-                    'own.view'   => 'Droits locaux de lecture',
+                    'own.view' => 'Droits locaux de lecture',
                     'own.manage' => 'Droits locaux de gestion',
-                    'all.view'   => 'Tous les droits de lecture',
-                    'all.manage' => 'Tous les droits de gestion'
+                    'all.view' => 'Tous les droits de lecture',
+                    'all.manage' => 'Tous les droits de gestion',
                 ),
                 'required' => false,
             ));

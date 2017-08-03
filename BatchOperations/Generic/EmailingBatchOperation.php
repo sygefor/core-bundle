@@ -24,7 +24,6 @@ use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class EmailingBatchOperation extends AbstractBatchOperation
 {
@@ -61,6 +60,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                 $targetEntities[0],
                 isset($options['subject']) ? $options['subject'] : '',
                 isset($options['cc']) ? $options['cc'] : array(),
+                isset($options['additionalCC']) ? $options['additionalCC'] : array(),
                 isset($options['message']) ? $options['message'] : '',
                 isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
                 null,
@@ -83,6 +83,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
             $targetEntities,
             isset($options['subject']) ? $options['subject'] : '',
             isset($options['cc']) ? $options['cc'] : array(),
+            isset($options['additionalCC']) ? $options['additionalCC'] : array(),
             isset($options['message']) ? $options['message'] : '',
             isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
             isset($options['attachment']) ? $options['attachment'] : null,
@@ -116,7 +117,10 @@ class EmailingBatchOperation extends AbstractBatchOperation
             $templates = $repo->findBy(array('organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization(), 'presenceStatus' => null, 'inscriptionStatus' => null));
         }
 
-        return array('templates' => $templates);
+        return array(
+            'ccResolvers' => $this->container->get('sygefor_core.registry.email_cc_resolver')->getSupportedResolvers($options['targetClass']),
+            'templates' => $templates,
+        );
     }
 
     /**
@@ -126,13 +130,14 @@ class EmailingBatchOperation extends AbstractBatchOperation
      * @param $entities
      * @param $subject
      * @param $cc
+     * @param $additionalCC
      * @param $body
      * @param array $attachments
      * @param bool  $preview
      *
      * @return array
      */
-    public function parseAndSendMail($entities, $subject, $cc = array(), $body, $templateAttachments, $attachments = array(), $preview = false, $organization = null)
+    public function parseAndSendMail($entities, $subject, $cc = array(), $additionalCC = null, $body, $templateAttachments, $attachments = array(), $preview = false, $organization = null)
     {
         $doClear = true;
         if (!is_array($entities)) {
@@ -147,12 +152,13 @@ class EmailingBatchOperation extends AbstractBatchOperation
         if ($preview) {
             return array('email' => array(
                 'subject' => $this->replaceTokens($subject, $entities[0]),
-                'cc' => $cc,
+                'cc' => array_merge($cc, $this->additionalCCToArray($additionalCC)),
                 'message' => $this->replaceTokens($body, $entities[0]),
                 'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) { return $attachment['name']; }, $templateAttachments) : null,
                 'attachments' => $attachments,
             ));
         } else {
+            $last = 0;
             $em = $this->em;
             $message = \Swift_Message::newInstance();
 
@@ -232,6 +238,11 @@ class EmailingBatchOperation extends AbstractBatchOperation
                     foreach ($copies[0] as $key => $copy) {
                         $_message->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);
                     }
+                    foreach ($this->additionalCCToArray($additionalCC) as $email => $send) {
+                        if ($send && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                            $_message->addCc($email);
+                        }
+                    }
                     $_message->setSubject($this->replaceTokens($subject, $entity));
                     $_message->setBody($this->replaceTokens($body, $entity));
                     $last = $this->container->get('mailer')->send($_message);
@@ -298,76 +309,34 @@ class EmailingBatchOperation extends AbstractBatchOperation
      * Get recipients email and name.
      *
      * @param $entity
-     * @param $cc
+     * @param $ccResolvers
      *
      * @return array
      */
-    private function findCCRecipients($entity, $cc)
+    private function findCCRecipients($entity, $ccResolvers)
     {
-        // first retrieve trainee
-        $trainee = null;
-        if (get_parent_class($entity) === AbstractTrainee::class) {
-            $trainee = $entity;
-        } elseif (get_parent_class($entity) === AbstractInscription::class) {
-            $trainee = $entity->getTrainee();
-        }
-
-        // if trainee not found do nothing
-        if (!$trainee) {
-            return array(array(), array());
-        }
-
-        // use property accessor to get desired values
-        $accessor = PropertyAccess::createPropertyAccessor();
-        $propertyEmailPathes = array(
-            'employer' => 'employer.email',
-            'manager' => 'institution.manager.email',
-            'trainingCorrespondent' => array('institution.trainingCorrespondents' => 'email'),
-        );
-        $propertyNamesPathes = array(
-            'employer' => 'employer.name',
-            'manager' => 'institution.manager.fullName',
-            'trainingCorrespondent' => array('institution.trainingCorrespondents' => 'fullName'),
-        );
-
-        if (!$trainee->getEmployer()) {
-            unset($propertyEmailPathes['employer']);
-            unset($propertyNamesPathes['employer']);
-        }
-        if (!$trainee->getInstitution() || !$trainee->getInstitution()->getManager()) {
-            unset($propertyEmailPathes['manager']);
-            unset($propertyNamesPathes['manager']);
-        }
-        if (!$trainee->getInstitution() || $trainee->getInstitution()->getTrainingCorrespondents()->count() === 0) {
-            unset($propertyEmailPathes['trainingCorrespondent']);
-            unset($propertyNamesPathes['trainingCorrespondent']);
-        }
-
-        // get emails and names
         $emails = array();
         $names = array();
-        foreach ($cc as $copy => $send) {
-            if ($send && isset($propertyEmailPathes[$copy])) {
-                if (is_string($propertyEmailPathes[$copy])) {
-                    $email = $accessor->getValue($trainee, $propertyEmailPathes[$copy]);
-                    $name = $accessor->getValue($trainee, $propertyNamesPathes[$copy]);
-
-                    if ($email) {
+        $ccResolverRegistry = $this->container->get('sygefor_core.registry.email_cc_resolver');
+        // guess cc emails and names
+        foreach ($ccResolvers as $resolver => $send) {
+            if ($send) {
+                $name = $ccResolverRegistry->resolveName($resolver, $entity);
+                $email = $ccResolverRegistry->resolveEmail($resolver, $entity);
+                if ($email) {
+                    if (is_string($email)) {
                         $emails[] = $email;
-                        if ($name) {
-                            $names[] = $name;
+                    } elseif (is_array($email)) {
+                        foreach ($email as $cc) {
+                            $emails[] = $cc;
                         }
                     }
-                } elseif (is_array($propertyEmailPathes[$copy])) {
-                    $ccEntitiesPath = current(array_keys($propertyEmailPathes[$copy]));
-                    $ccEntities = $accessor->getValue($trainee, $ccEntitiesPath);
-                    foreach ($ccEntities as $ccEntity) {
-                        $email = $accessor->getValue($ccEntity, $propertyEmailPathes[$copy][$ccEntitiesPath]);
-                        $name = $accessor->getValue($ccEntity, $propertyNamesPathes[$copy][$ccEntitiesPath]);
-                        if ($email) {
-                            $emails[] = $email;
-                            if ($name) {
-                                $names[] = $name;
+                    if ($name) {
+                        if (is_string($name)) {
+                            $names[] = $name;
+                        } elseif (is_array($name)) {
+                            foreach ($name as $cc) {
+                                $names[] = $cc;
                             }
                         }
                     }
@@ -381,5 +350,27 @@ class EmailingBatchOperation extends AbstractBatchOperation
         }
 
         return array($emails, $names);
+    }
+
+    /**
+     * @param $additionalCC
+     *
+     * @return array
+     */
+    protected function additionalCCToArray($additionalCC)
+    {
+        $additionalCC = str_replace(array(' ', ','), ';', $additionalCC);
+        $ccParts = explode(';', $additionalCC);
+        $ccParts = array_unique($ccParts);
+        $ccParts = array_filter($ccParts, function ($cc) {
+            return !empty($cc);
+        });
+
+        $cc = array();
+        foreach ($ccParts as $email) {
+            $cc[$email] = true;
+        }
+
+        return $cc;
     }
 }

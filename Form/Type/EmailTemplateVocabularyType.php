@@ -7,11 +7,27 @@ use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
 use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
+use Sygefor\Bundle\CoreBundle\Utils\Email\CCRegistry;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class EmailTemplateVocabularyType extends VocabularyType
 {
+    /** @var CCRegistry */
+    protected $ccRegistry;
+
+    /**
+     * @param CCRegistry
+     */
+    public function setCCRegistry($ccRegistry)
+    {
+        $this->ccRegistry = $ccRegistry;
+    }
+
     /**
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -20,58 +36,57 @@ class EmailTemplateVocabularyType extends VocabularyType
     {
         parent::buildForm($builder, $options);
 
-        $builder->add('subject', 'text', array('label' => 'Sujet'));
-        $builder->add('cc', 'choice', array(
-            'label' => 'CC',
-            'multiple' => true,
-            'expanded' => true,
-            'choices' => array(
-                'employer' => 'Employeur',
-                'manager' => 'Directeur',
-                'trainingCorrespondent' => 'Correspondants formation',
-            ),
-            'required' => false,
-        ));
-        $builder->add('body', 'textarea', array('label' => 'Corps', 'attr' => array('rows' => 10)));
-        $builder->add('inscriptionStatus', 'entity', array(
-            'required' => false,
-            'label' => "Status d'inscription",
-            'class' => InscriptionStatus::class,
-            'empty_value' => '',
-            'empty_data' => null,
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('i')
-                    ->where('i.organization = :orgId')->setParameters(array('orgId' => $this->securityContext->getToken()->getUser()->getOrganization()->getId()))
-                    ->orWhere('i.organization is null')
-                    ->orderBy('i.name');
-            },
-        ));
-        $builder->add('attachmentTemplates', 'entity', array(
-            'required' => false,
-            'label' => 'Modèles de pièces jointes',
-            'class' => PublipostTemplate::class,
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('d')
-                    ->where('d.organization = :orgId')->setParameters(array('orgId' => $this->securityContext->getToken()->getUser()->getOrganization()->getId()))
-                    ->orWhere('d.organization is null')
-                    ->orderBy('d.name');
-            },
-            'multiple' => 'true',
-            'empty_value' => '',
-            'empty_data' => null,
-        ));
-        $builder->add('presenceStatus', 'entity', array(
-            'required' => false,
-            'label' => 'Statut de présence',
-            'class' => PresenceStatus::class,
-            'empty_value' => '',
-            'empty_data' => null,
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('p')
-                    ->where('p.organization = :orgId')->setParameters(array('orgId' => $this->securityContext->getToken()->getUser()->getOrganization()->getId()))
-                    ->orWhere('p.organization is null');
-            },
-        ));
+        $builder
+            ->add('subject', TextType::class, array(
+                'label' => 'Sujet',
+            ))
+            ->add('cc', ChoiceType::class, array(
+                'label' => 'CC',
+                'multiple' => true,
+                'expanded' => true,
+                'choices' => $this->ccRegistry->getSupportedResolvers(),
+                'required' => false,
+            ))
+            ->add('body', TextareaType::class, array(
+                'label' => 'Corps',
+                'attr' => array(
+                    'rows' => 10,
+                ), ))
+            ->add('inscriptionStatus', EntityType::class, array(
+                'label' => "Status d'inscription",
+                'class' => InscriptionStatus::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('i')
+                        ->where('i.organization = :orgId')
+                        ->orWhere('i.organization is null')
+                        ->orderBy('i.name')
+                        ->setParameter('orgId', $this->securityContext->getToken()->getUser()->getOrganization()->getId());
+                },
+                'required' => false,
+            ))
+            ->add('attachmentTemplates', EntityType::class, array(
+                'label' => 'Modèles de pièces jointes',
+                'class' => PublipostTemplate::class,
+                'multiple' => 'true',
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('d')
+                        ->orWhere('d.organization is null')
+                        ->orderBy('d.name');
+                },
+                'required' => false,
+            ))
+            ->add('presenceStatus', EntityType::class, array(
+                'label' => 'Statut de présence',
+                'class' => PresenceStatus::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('p')
+                        ->where('p.organization = :orgId')
+                        ->orWhere('p.organization is null')
+                        ->setParameter('orgId', $this->securityContext->getToken()->getUser()->getOrganization()->getId());
+                },
+                'required' => false,
+            ))
+        ;
     }
 
     /**

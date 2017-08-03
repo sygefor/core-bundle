@@ -1,66 +1,49 @@
 /**
- * Created by maxime on 12/06/14.
- */
-/**
  * BatchMailingController
  */
 sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$modalInstance', '$dialogParams', '$dialog', 'config', 'growl', function ($scope, $http, $window, $modalInstance, $dialogParams, $dialog, config, growl) {
     $scope.dialog = $modalInstance;
     $scope.items = $dialogParams.items;
     $scope.targetClass = $dialogParams.targetClass;
+    $scope.config = config;
 
-    //building templates contents
+    // building templates contents
     $scope.templates = [];
     for (var i in config.templates) {
         $scope.templates[i] = {
             'key': i,
             'label': config.templates[i]['name'],
             'subject': config.templates[i]['subject'],
-            'cc': replaceCCFormat(config.templates[i]['cc']),
+            'cc': config.templates[i]['cc'],
+            'additionalCC': '',
             'body': config.templates[i]['body'],
             'templateAttachments': config.templates[i]['attachmentTemplates'],
             'templateAttachmentChecklist': []
         };
     }
 
+    // add null template option
     $scope.templates.unshift({
         'key': -1,
         'label': '',
         'subject': '',
-        'cc': {
-            employer: false,
-            manager: false,
-            trainingCorrespondent: false
-        },
+        'cc': [],
+        'additionalCC': '',
         'body': '',
         'templateAttachments': null,
         'templateAttachmentChecklist': []
     });
 
-    if ($scope.templates.length) {
-        $scope.message = {
-            template: $scope.templates[0],
-            subject: $scope.templates[0]['subject'],
-            cc: $scope.templates[0]['cc'],
-            body: $scope.templates[0]['body'],
-            templateAttachments: $scope.templates[0]['templateAttachments'],
-            templateAttachmentChecklist: []
-        };
-    }
-    else {
-        $scope.message = {
-            template: null,
-            subject: '',
-            cc: {
-                employer: false,
-                manager: false,
-                trainingCorrespondent: false
-            },
-            body: '',
-            templateAttachments: null,
-            templateAttachmentChecklist: [],
-        };
-    }
+    // set default email
+    $scope.message = {
+        template: $scope.templates[0],
+        subject: $scope.templates[0]['subject'],
+        cc: $scope.templates[0]['cc'],
+        additionalCC: '',
+        body: $scope.templates[0]['body'],
+        templateAttachments: $scope.templates[0]['templateAttachments'],
+        templateAttachmentChecklist: []
+    };
 
     $scope.message.attachments = [];
     $scope.formError = '';
@@ -82,6 +65,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
                 cc: $scope.message.cc,
+                additionalCC: $scope.message.additionalCC,
                 message: $scope.message.body,
                 templateAttachments: null
             },
@@ -130,6 +114,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 targetClass: $scope.targetClass,
                 subject: $scope.message.subject,
                 cc: $scope.message.cc,
+                additionalCC: $scope.message.additionalCC,
                 message: $scope.message.body,
                 templateAttachments: removeUncheckedPublipostTemplate(attachments, $scope.message.templateAttachmentChecklist)
             },
@@ -141,19 +126,11 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
      * Watches selected template. When changed, current field contents are stored,
      * then replaced byselected template values
      */
-    $scope.$watch('message.template', function (newValue, oldValue) {
+    $scope.$watch('message.template', function (newValue) {
         if (newValue) {
-            //storing changes
-            if (oldValue && (oldValue.key != newValue.key)) {
-                oldValue.subject = $scope.message.subject;
-                oldValue.cc = $scope.message.cc;
-                oldValue.body = $scope.message.body;
-                oldValue.templateAttachments = $scope.message.templateAttachments;
-                oldValue.templateAttachmentChecklist = $scope.message.templateAttachmentChecklist;
-            }
-            //replacing values
             $scope.message.subject = newValue.subject;
-            $scope.message.cc = newValue.cc;
+            $scope.message.cc = $scope.replaceCCFormat(newValue.cc);
+            $scope.message.additionalCC = '';
             $scope.message.body = newValue.body;
             $scope.message.templateAttachments = newValue.templateAttachments;
             $scope.message.templateAttachmentChecklist = [];
@@ -164,7 +141,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
     });
 
     $scope.fileChanged = function (element, $scope) {
-        $scope.$apply(function (scope) {
+        $scope.$apply(function () {
             for (var key in element.files) {
                 if (typeof element.files[key] === "object") {
                     $scope.message.attachments.push(element.files[key]);
@@ -183,40 +160,40 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         angular.element($('#inputAttachment')).val(null);
     };
 
+    /**
+     * Reformat symfony cc array to angular object
+     * @param cc
+     * @returns {{alternativeEmail: boolean, manager: boolean, trainingCorrespondent: boolean, financialCorrespondent: boolean}}
+     */
+    $scope.replaceCCFormat = function(cc) {
+        var ccOptions = {};
+        for (var i in $scope.config.ccResolvers) {
+            ccOptions[$scope.config.ccResolvers[i]] = false;
+        }
+
+        if (cc !== undefined) {
+            var i = 0;
+            for (var key in cc) {
+                var resolver = cc[key];
+                var name = function (ccResolvers, resolver) {
+                    for (var j in ccResolvers) {
+                        if (j == resolver) {
+                            return ccResolvers[j];
+                        }
+                    }
+                }($scope.config.ccResolvers, resolver);
+                ccOptions[name] = true;
+                i++;
+            }
+        }
+
+        return ccOptions;
+    };
+
     $scope.isAObject = function(mixed) {
         return typeof mixed === "object";
     };
 }]);
-
-
-/**
- * Reformat symfony cc array to angular object
- * @param cc
- * @returns {{alternativeEmail: boolean, manager: boolean, trainingCorrespondent: boolean, financialCorrespondent: boolean}}
- */
-function replaceCCFormat(cc) {
-    var reformatCC = {
-        employer: false,
-        manager: false,
-        trainingCorrespondent: false
-    };
-
-    if (cc === undefined) {
-        return reformatCC;
-    }
-
-    // force convert cc to array
-    var ccArray = [];
-    for (var key in cc) {
-        ccArray[key] = cc[key];
-    }
-
-    reformatCC.employer = ccArray.indexOf('employer') >= 0 ? true : false;
-    reformatCC.manager = ccArray.indexOf('manager') >= 0 ? true : false;
-    reformatCC.trainingCorrespondent = ccArray.indexOf('trainingCorrespondent') >= 0 ? true : false;
-
-    return reformatCC;
-}
 
 /**
  * Remove checkbox template values and templateAttachments unchecked

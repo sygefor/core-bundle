@@ -5,14 +5,14 @@ services:
         arguments:
             - "@security.context"
         tags:
-            - { name: form.type, alias: vocabulary }
+            - { name: form.type }
 
     sygefor_core.form_type.entity_hidden:
         class:      Sygefor\Bundle\CoreBundle\Form\Type\EntityHiddenType
         arguments:
             - "@doctrine.orm.entity_manager"
         tags:
-            - { name: form.type, alias: entity_hidden }
+            - { name: form.type }
 
     sygefor_core.form_type.publipost_template_vocabulary:
         class: Sygefor\Bundle\CoreBundle\Form\Type\PublipostTemplateVocabularyType
@@ -20,50 +20,52 @@ services:
         calls:
             - [ setHRPAFactory, [ "@sygefor_core.human_readable_property_accessor_factory" ] ]
         tags:
-            - { name: form.type, alias: publiposttemplatevocabulary }
+            - { name: form.type }
 
     sygefor_core.form_type.instription_status:
-        class: Sygefor\Bundle\CoreBundle\Form\InscriptionStatusVocabularyType
+        class: Sygefor\Bundle\CoreBundle\Form\Type\InscriptionStatusVocabularyType
         parent: sygefor_core.form_type.vocabulary
         tags:
-            - { name: form.type, alias: inscriptionstatusvocabulary }
+            - { name: form.type }
 
     sygefor_core.form_type.presence_status:
-        class: Sygefor\Bundle\CoreBundle\Form\PresenceStatusVocabularyType
+        class: Sygefor\Bundle\CoreBundle\Form\Type\PresenceStatusVocabularyType
         parent: sygefor_core.form_type.vocabulary
         tags:
-            - { name: form.type, alias: presencestatusvocabulary }
+            - { name: form.type }
 
-    sygefor_core.form_type.traineemailingtemplate:
-        class: Sygefor\Bundle\CoreBundle\Form\EmailTemplateVocabularyType
+    sygefor_core.form_type.emailing_template:
+        class: Sygefor\Bundle\CoreBundle\Form\Type\EmailTemplateVocabularyType
         parent: sygefor_core.form_type.vocabulary
+        calls:
+            - [ setCCRegistry, [ "@sygefor_core.registry.email_cc_resolver" ] ]
         tags:
-            - { name: form.type, alias: emailtemplatevocabulary }
+            - { name: form.type }
 
     # User
     sygefor_core.form_type.access_rights:
-        class:      Sygefor\Bundle\CoreBundle\Form\Type\AccessRightType
+        class: Sygefor\Bundle\CoreBundle\Form\Type\AccessRightType
         arguments:
             - "@sygefor_core.access_right_registry"
         tags:
-            - { name: form.type, alias: access_rights }
+            - { name: form.types }
 
     sygefor_core.form_type.user:
-        class:      Sygefor\Bundle\CoreBundle\Form\Type\UserType
+        class: Sygefor\Bundle\CoreBundle\Form\Type\UserType
         arguments:
             - "@sygefor_core.access_right_registry"
         tags:
-            - { name: form.type, alias: user }
+            - { name: form.type }
 
     # Others
     sygefor_core.trainee_type:
         class: Sygefor\Bundle\CoreBundle\Form\Type\AbstractTraineeType
         abstract: true
         arguments:
-            - "@Sygefor_core.access_right_registry"
+            - "@sygefor_core.access_right_registry"
 
     sygefor_core.trainer_type:
         class: Sygefor\Bundle\CoreBundle\Form\Type\AbstractTrainerType
         abstract: true
         arguments:
-            - "@Sygefor_core.access_right_registry"
+            - "@sygefor_core.access_right_registry"

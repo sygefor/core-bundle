@@ -14,21 +14,28 @@ namespace Sygefor\Bundle\CoreBundle\Utils\Email;
 interface EmailResolverInterface
 {
     /**
-     * @return mixed
+     * @return string
      */
     public static function getName();
 
     /**
-     * @param $entity
+     * @param $class
      *
-     * @return mixed
+     * @return bool
      */
-    public static function supports($entity);
+    public static function supports($class);
 
     /**
      * @param $entity
      *
-     * @return mixed
+     * @return string
      */
-    public static function resolve($entity);
+    public static function resolveName($entity);
+
+    /**
+     * @param $entity
+     *
+     * @return string
+     */
+    public static function resolveEmail($entity);
 }

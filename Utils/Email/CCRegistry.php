@@ -24,30 +24,35 @@ class CCRegistry
     }
 
     /**
+     * @param $entity
+     *
      * @return array
      */
-    public function getCC()
+    public function getSupportedResolvers($entity = null)
     {
-        $cc = array();
+        $resolvers = array();
         /** @var EmailResolverInterface $resolver */
         foreach ($this->resolvers as $resolver) {
-            $cc[] = $resolver::getName();
+            if (!$entity || $resolver::supports($entity)) {
+                $resolvers[$resolver] = $resolver::getName();
+            }
         }
 
-        return $cc;
+        return $resolvers;
     }
 
     /**
-     * @param $cc
+     * @param string $resolverName
+     * @param $entity
      *
      * @return mixed
      */
-    public function getName($cc)
+    public function resolveName($resolverName, $entity)
     {
         /** @var EmailResolverInterface $resolver */
         foreach ($this->resolvers as $resolver) {
-            if ($cc === $resolver) {
-                return $resolver::getName();
+            if ($resolver::getName() === $resolverName) {
+                return $resolver::resolveName($entity);
             }
         }
 
@@ -55,16 +60,17 @@ class CCRegistry
     }
 
     /**
+     * @param string $resolverName
      * @param $entity
      *
      * @return mixed
      */
-    public function resolve($entity)
+    public function resolveEmail($resolverName, $entity)
     {
         /** @var EmailResolverInterface $resolver */
         foreach ($this->resolvers as $resolver) {
-            if ($resolver::supports($entity)) {
-                return $resolver::resolve($entity);
+            if ($resolver::getName() === $resolverName) {
+                return $resolver::resolveEmail($entity);
             }
         }
 

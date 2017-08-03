@@ -47,7 +47,6 @@ class PublipostTemplateVocabularyType extends VocabularyType
         $builder->add('file', FileType::class, array(
             'label' => 'Fichier du modèle',
             'block_name' => 'updatable_file',
-            'required' => true,
         ));
     }
 

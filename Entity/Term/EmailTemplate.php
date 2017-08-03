@@ -3,7 +3,6 @@
 namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 
 use Doctrine\ORM\Mapping as ORM;
-use Sygefor\Bundle\CoreBundle\Form\Type\EmailTemplateVocabularyType;
 
 /**
  * Class EmailTemplates.
@@ -168,7 +167,7 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
      */
     public static function getFormType()
     {
-        return EmailTemplateVocabularyType::class;
+        return 'sygefor_core.form_type.emailing_template';
     }
 
     public static function getVocabularyStatus()

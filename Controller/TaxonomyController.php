@@ -152,7 +152,11 @@ class TaxonomyController extends Controller
             $formType = $abstractVocabulary::getFormType();
         }
 
-        $form = $this->createForm(new $formType($this->container->get('security.context')), $term);
+        if ($this->container->has($formType)) {
+            $form = $this->createForm($this->container->get($formType), $term);
+        } else {
+            $form = $this->createForm(new $formType($this->container->get('security.context')), $term);
+        }
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
