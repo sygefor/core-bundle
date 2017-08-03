@@ -68,12 +68,12 @@ abstract class AbstractMaterialController extends Controller
      * @Rest\View
      * @ParamConverter("material", class="SygeforCoreBundle:AbstractMaterial", options={"id" = "id"})
      */
-    public function deleteAction(AbstractMaterial $material, $entity_id, $type_entity)
+    public function deleteAction(AbstractMaterial $material)
     {
         /** @var $em */
         $em = $this->getDoctrine()->getManager();
         try {
-            $entity = $this->getEntity($entity_id, $type_entity);
+            $entity = $material->getTraining() ? $material->getTraining() : $material->getSession();
             $entity->removeMaterial($material);
             $em->remove($material);
             $em->flush();

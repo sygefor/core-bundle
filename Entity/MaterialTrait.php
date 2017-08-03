@@ -50,26 +50,36 @@ trait MaterialTrait
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"Default", "training", "session", "api.training", "api.attendance"})
      *
-     * @return ArrayCollection
+     * @return array
      */
     public function getPublicMaterials()
     {
-        return $this->materials->filter(function ($element) {
-            return $element->getIsPublic() === true;
-        });
+        $materials = array();
+        foreach ($this->materials as $material) {
+            if ($material->getIsPublic()) {
+                $materials[] = $material;
+            }
+        }
+
+        return $materials;
     }
 
     /**
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"Default", "training", "session", "api.attendance"})
      *
-     * @return ArrayCollection
+     * @return array
      */
     public function getPrivateMaterials()
     {
-        return $this->materials->filter(function ($element) {
-            return $element->getIsPublic() === false;
-        });
+        $materials = array();
+        foreach ($this->materials as $material) {
+            if (!$material->getIsPublic()) {
+                $materials[] = $material;
+            }
+        }
+
+        return $materials;
     }
 
     /**
