@@ -85,6 +85,7 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
                     $inscription,
                     $options['subject'],
                     $options['cc'],
+                    $options['additionalCC'],
                     $options['message'],
                     isset($options['attachmentTemplates']) ? $options['attachmentTemplates'] : array(),
                     isset($options['attachment']) ? $options['attachment'] : array(),
@@ -139,6 +140,10 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
 
         $attTemplates = $attRepo->findBy(array('organization' => $userOrg ? $userOrg : ''));
 
-        return array('templates' => $templates, 'attachmentTemplates' => $attTemplates);
+        return array(
+            'ccResolvers' => $this->container->get('sygefor_core.registry.email_cc_resolver')->getSupportedResolvers($options['targetClass']),
+            'templates' => $templates,
+            'attachmentTemplates' => $attTemplates
+        );
     }
 }

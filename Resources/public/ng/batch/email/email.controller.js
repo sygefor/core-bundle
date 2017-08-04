@@ -15,7 +15,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             'label': config.templates[i]['name'],
             'subject': config.templates[i]['subject'],
             'cc': config.templates[i]['cc'],
-            'additionalCC': '',
             'body': config.templates[i]['body'],
             'templateAttachments': config.templates[i]['attachmentTemplates'],
             'templateAttachmentChecklist': []
@@ -28,7 +27,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         'label': '',
         'subject': '',
         'cc': [],
-        'additionalCC': '',
         'body': '',
         'templateAttachments': null,
         'templateAttachmentChecklist': []
@@ -130,7 +128,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         if (newValue) {
             $scope.message.subject = newValue.subject;
             $scope.message.cc = $scope.replaceCCFormat(newValue.cc);
-            $scope.message.additionalCC = '';
             $scope.message.body = newValue.body;
             $scope.message.templateAttachments = newValue.templateAttachments;
             $scope.message.templateAttachmentChecklist = [];

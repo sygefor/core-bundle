@@ -47,8 +47,6 @@ services:
 
     sygefor_core.batch.email:
           class: Sygefor\Bundle\CoreBundle\BatchOperations\Generic\EmailingBatchOperation
-          arguments:
-              - "@security.context"
           calls:
               - [ setContainer, [ "@service_container" ] ]
           tags:
@@ -56,8 +54,6 @@ services:
 
     sygefor_core.batch.session_registration_change:
           class: Sygefor\Bundle\CoreBundle\BatchOperations\Session\SessionRegistrationChangeBatchOperation
-          arguments:
-              - "@doctrine.orm.entity_manager"
           calls:
               - [ setContainer, [ "@service_container" ] ]
           tags:
@@ -65,8 +61,6 @@ services:
 
     sygefor_core.batch.inscription_status_change:
         class: Sygefor\Bundle\CoreBundle\BatchOperations\Inscription\InscriptionStatusChangeBatchOperation
-        arguments:
-            - "@doctrine.orm.entity_manager"
         calls:
             - [ setContainer, [ "@service_container" ] ]
         tags:

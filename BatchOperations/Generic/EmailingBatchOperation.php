@@ -137,7 +137,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
      *
      * @return array
      */
-    public function parseAndSendMail($entities, $subject, $cc = array(), $additionalCC = null, $body, $templateAttachments, $attachments = array(), $preview = false, $organization = null)
+    public function parseAndSendMail($entities, $subject, $cc = array(), $additionalCC = null, $body, $templateAttachments = array(), $attachments = array(), $preview = false, $organization = null)
     {
         $doClear = true;
         if (!is_array($entities)) {

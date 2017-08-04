@@ -93,6 +93,7 @@ class InscriptionListener implements EventSubscriber
                 $inscription,
                 $template->getSubject(),
                 $template->getCc(),
+                null,
                 $template->getBody(),
                 array(),
                 array(),
