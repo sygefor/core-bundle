@@ -143,7 +143,7 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
         return array(
             'ccResolvers' => $this->container->get('sygefor_core.registry.email_cc_resolver')->getSupportedResolvers($options['targetClass']),
             'templates' => $templates,
-            'attachmentTemplates' => $attTemplates
+            'attachmentTemplates' => $attTemplates,
         );
     }
 }

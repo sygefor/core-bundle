@@ -25,8 +25,11 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
         templateUrl: 'batch/publipost/publipost.html',
         resolve: {
             config: function($http, $dialogParams) {
-                var url = Routing.generate('sygefor_core.batch_operation.modal_config', {service: 'sygefor_core.batch.publipost.'+$dialogParams.service});
-                return $http.get(url).then(function(response){ return response.data;} );
+                var url = Routing.generate('sygefor_core.batch_operation.modal_config', {service: 'sygefor_core.batch.publipost.' + $dialogParams.service});
+
+                return $http.get(url).then(function(response) {
+                    return response.data;
+                });
             }
         }
     });
