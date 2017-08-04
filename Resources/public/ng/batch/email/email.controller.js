@@ -193,6 +193,15 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
     $scope.isAObject = function(mixed) {
         return typeof mixed === "object";
     };
+
+    $scope.objectLength = function(object) {
+        var i = 0;
+        for (var key in object) {
+            i++;
+        }
+
+        return i;
+    };
 }]);
 
 /**
