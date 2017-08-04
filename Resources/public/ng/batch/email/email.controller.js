@@ -172,7 +172,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         }
 
         if (cc !== undefined) {
-            var i = 0;
             for (var key in cc) {
                 var resolver = cc[key];
                 var name = function (ccResolvers, resolver) {
@@ -182,8 +181,9 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                         }
                     }
                 }($scope.config.ccResolvers, resolver);
-                ccOptions[name] = true;
-                i++;
+                if (typeof name !== "undefined") {
+                    ccOptions[name] = true;
+                }
             }
         }
 
