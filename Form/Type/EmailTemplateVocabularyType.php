@@ -68,9 +68,17 @@ class EmailTemplateVocabularyType extends VocabularyType
                 'label' => 'Modèles de pièces jointes',
                 'class' => PublipostTemplate::class,
                 'multiple' => 'true',
-                'query_builder' => function (EntityRepository $er) {
+                'query_builder' => function (EntityRepository $er) use ($options) {
+                    $data = $options['data'];
+                    $organization = null;
+                    if ($data && $data->getOrganization()) {
+                        $organization = $data->getOrganization();
+                    }
+
                     return $er->createQueryBuilder('d')
+                        ->orWhere('d.organization = :organization')
                         ->orWhere('d.organization is null')
+                        ->setParameter('organization', $organization->getId())
                         ->orderBy('d.name');
                 },
                 'required' => false,

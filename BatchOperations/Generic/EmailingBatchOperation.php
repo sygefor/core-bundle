@@ -11,6 +11,7 @@ namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
+use Sygefor\Bundle\CoreBundle\BatchOperations\AttachEmailPublipostAttachment;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainer;
@@ -27,6 +28,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmailingBatchOperation extends AbstractBatchOperation
 {
+    use AttachEmailPublipostAttachment;
+
     /** @var ContainerBuilder $container */
     protected $container;
 
@@ -201,30 +204,12 @@ class EmailingBatchOperation extends AbstractBatchOperation
                                 $publipostTemplates[] = $templateAttachment;
                             } elseif (is_array($templateAttachment) && isset($templateAttachment['id'])) {
                                 $publipostTemplates[] = $templateAttachment['id'];
+                            } elseif ($templateAttachment && $templateAttachment instanceof PublipostTemplate) {
+                                $publipostTemplates[] = $templateAttachment->getId();
                             }
                         }
                         $publipostTemplates = $em->getRepository(PublipostTemplate::class)->findBy(array('id' => $publipostTemplates));
-                        foreach ($publipostTemplates as $publipostTemplate) {
-                            // find specific publipost service suffix
-                            $entityType = $publipostTemplate->getEntity();
-                            $entityType = explode('\\', $entityType);
-                            $entityType = $entityType[count($entityType) - 1];
-                            $serviceSuffix = strtolower($entityType);
-
-                            // call publipost action and generate pdf
-                            $publipostService = $this->container->get('sygefor_core.batch.publipost.'.$serviceSuffix);
-                            $publipostIdList = array($entity->getId());
-                            $publipostOptions = array('template' => $publipostTemplate->getId());
-                            $file = $publipostService->execute($publipostIdList, $publipostOptions);
-                            $fileName = $file['fileUrl'];
-                            $fileName = $publipostService->getTempDir().$publipostService->toPdf($fileName);
-
-                            // attach pdf to mail
-                            if (file_exists($fileName)) {
-                                $publipostSwiftAttachment = new \Swift_Attachment(file_get_contents($fileName), $publipostTemplate->getName().'.pdf');
-                                $_message->attach($publipostSwiftAttachment);
-                            }
-                        }
+                        $this->attachPublipostAttachment($_message, $publipostTemplates, array($entity->getId()));
                     }
 
                     // reload entity because of em clear
@@ -359,6 +344,10 @@ class EmailingBatchOperation extends AbstractBatchOperation
      */
     protected function additionalCCToArray($additionalCC)
     {
+        if (is_array($additionalCC)) {
+            $additionalCC = implode(';', $additionalCC);
+        }
+
         $additionalCC = str_replace(array(' ', ','), ';', $additionalCC);
         $ccParts = explode(';', $additionalCC);
         $ccParts = array_unique($ccParts);

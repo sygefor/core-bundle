@@ -85,7 +85,7 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
                     $inscription,
                     $options['subject'],
                     $options['cc'],
-                    $options['additionalCC'],
+                    isset($options['additionalCC']) ? $options['additionalCC'] : null,
                     $options['message'],
                     isset($options['attachmentTemplates']) ? $options['attachmentTemplates'] : array(),
                     isset($options['attachment']) ? $options['attachment'] : array(),

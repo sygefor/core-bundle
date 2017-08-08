@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -46,18 +47,17 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
     protected $presenceStatus;
 
     /**
+     * @var ArrayCollection
      * @ORM\ManyToMany(targetEntity="PublipostTemplate")
      * @ORM\JoinTable(name="email_templates__publipost_templates",
      *      joinColumns={@ORM\JoinColumn(name="email_template_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="publipost_template_id", referencedColumnName="id")}
      * )
-     *
-     * @var PublipostTemplate
      */
     protected $attachmentTemplates;
 
     /**
-     * @param PublipostTemplate $attachmentTemplates
+     * @param ArrayCollection $attachmentTemplates
      */
     public function setAttachmentTemplates($attachmentTemplates)
     {
@@ -65,7 +65,7 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
     }
 
     /**
-     * @return PublipostTemplate
+     * @return ArrayCollection
      */
     public function getAttachmentTemplates()
     {
