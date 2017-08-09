@@ -630,7 +630,7 @@ abstract class AbstractSession implements SerializedAccessRights
         $sessionPublicMaterials = $this->getPublicMaterials();
 
         foreach ($sessionPublicMaterials as $material) {
-            $trainingPublicMaterials->add($material);
+            $trainingPublicMaterials[] = $material;
         }
 
         return $trainingPublicMaterials;
@@ -645,7 +645,7 @@ abstract class AbstractSession implements SerializedAccessRights
         $sessionPrivateMaterials = $this->getPrivateMaterials();
 
         foreach ($sessionPrivateMaterials as $material) {
-            $trainingPrivateMaterials->add($material);
+            $trainingPrivateMaterials[] = $material;
         }
 
         return $trainingPrivateMaterials;
