@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityRepository;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\User;
+use Sygefor\Bundle\CoreBundle\Validator\Constraints\StrongPassword;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -57,7 +58,11 @@ class UserType extends AbstractType
 
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
-            'constraints' => new Length(array('min' => 4)),
+            'constraints' => new StrongPassword(array(
+                'shortMessage' => 'Le mot de passe doit contenir %minLength% caractères minimum',
+                'longMessage' => 'Le mot de passe doit contenir %maxLength% caractères maximum',
+                'hackedMessage' => 'Ce mot de passe s\'est déjà fait piraté sur un autre site. Merci de le modifier',
+            )),
             'required' => !$builder->getForm()->getData()->getId(),
             'invalid_message' => 'Les mots de passe doivent correspondre',
             'first_options' => array('label' => 'Mot de passe'),
