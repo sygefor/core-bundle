@@ -33,11 +33,6 @@ class SearchService implements SearchServiceInterface
     /**
      * @var array
      */
-    protected $facets = array();
-
-    /**
-     * @var array
-     */
     protected $aggregations = array();
 
     /**
@@ -188,7 +183,7 @@ class SearchService implements SearchServiceInterface
     }
 
     /**
-     * @param sting $name
+     * @param string $name
      */
     public function removeFilter($name)
     {
@@ -210,7 +205,7 @@ class SearchService implements SearchServiceInterface
                 $filter->addMust($_filter);
             }
         }
-        $this->getQuery()->setFilter($filter);
+        $this->getQuery()->setPostFilter($filter);
     }
 
     /**
@@ -357,7 +352,7 @@ class SearchService implements SearchServiceInterface
                 $raw['filter'] = array('and' => array($raw['filter'], $queryStringFilter->toArray()));
                 $this->getQuery()->setRawQuery($raw);
             } else {
-                $this->getQuery()->setFilter($queryStringFilter);
+                $this->getQuery()->setPostFilter($queryStringFilter);
             }
         }
 
@@ -542,6 +537,8 @@ class SearchService implements SearchServiceInterface
      *
      * @param $name
      * @param $options
+     *
+     * @throws \Exception
      */
     protected function addAggregationFromRequest($name, $options)
     {
