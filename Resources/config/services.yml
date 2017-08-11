@@ -70,6 +70,6 @@ services:
     # strong password validator
     sygefor_core.strong_password_validator:
         class: Sygefor\Bundle\CoreBundle\Validator\Constraints\StrongPasswordValidator
-        arguments: ["@security.token_storage", "@security.encoder_factory", "@sygefor_password.search"]
+        arguments: ["@security.token_storage", "@security.encoder_factory", "%hacked_password_url%"]
         tags:
             - { name: validator.constraint_validator }

@@ -25,7 +25,7 @@ class StrongPassword extends Constraint
     public $maxLength = BasePasswordEncoder::MAX_PASSWORD_LENGTH;
     public $longMessage = 'The password must contains at maximum %maxLength% characters';
 
-    public $hackedMessage = 'This password has already been hacked on another website. Please change it';
+    public $hackedMessage = 'This password has already been hacked on another website. Please change it.';
 
     public function validatedBy()
     {

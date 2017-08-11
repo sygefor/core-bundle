@@ -2,8 +2,6 @@
 
 namespace Sygefor\Bundle\CoreBundle\Validator\Constraints;
 
-use Elastica\Filter\Term;
-use Sygefor\Bundle\CoreBundle\Utils\Search\SearchService;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\Tests\Encoder\PasswordEncoder;
@@ -17,13 +15,13 @@ class StrongPasswordValidator extends ConstraintValidator
 {
     private $tokenStorage;
     private $encoderFactory;
-    private $passwordSearch;
+    private $hackedPasswordUrl;
 
-    public function __construct(TokenStorageInterface $tokenStorage, EncoderFactoryInterface $encoderFactory, SearchService $passwordSearch)
+    public function __construct(TokenStorageInterface $tokenStorage, EncoderFactoryInterface $encoderFactory, $hackedPasswordUrl)
     {
         $this->tokenStorage = $tokenStorage;
         $this->encoderFactory = $encoderFactory;
-        $this->passwordSearch = $passwordSearch;
+        $this->hackedPasswordUrl = $hackedPasswordUrl;
     }
 
     /**
@@ -62,15 +60,16 @@ class StrongPasswordValidator extends ConstraintValidator
             return;
         }
 
-        $filter = new Term(array('password' => sha1($password)));
-        $this->passwordSearch->addFilter('password', $filter);
-        $result = $this->passwordSearch->search();
-        if ($result['total'] > 0) {
-            $this->context->buildViolation($constraint->hackedMessage)
-                ->setCode(StrongPassword::HACKED)
-                ->addViolation();
+        $results = @file_get_contents($this->hackedPasswordUrl.sha1($password));
+        if ($results !== false) {
+            $hacked = json_decode($results);
+            if ($hacked) {
+                $this->context->buildViolation($constraint->hackedMessage)
+                    ->setCode(StrongPassword::HACKED)
+                    ->addViolation();
 
-            return;
+                return;
+            }
         }
     }
 }
