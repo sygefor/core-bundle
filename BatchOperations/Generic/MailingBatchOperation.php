@@ -340,7 +340,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements ContainerA
         $files = array();
         foreach ($templates as $template) {
             //file is added if its associated entity is an ancestor for current target class
-            if ($template->getEntity() instanceof $this->targetClass) {
+            if ($template->getEntity() == $this->targetClass) {
                 $files[] = array('id' => $template->getId(), 'name' => $template->getName(), 'fileName' => $template->getFileName());
             }
         }
