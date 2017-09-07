@@ -71,11 +71,11 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
 
     //email preview
     $dialogProvider.dialog("batch.emailPreview", /* @ngInject */ {
-        controller: function($scope, $modalInstance, $dialogParams, email) {
+        controller: function($scope, $modalInstance, $dialogParams, email, $sce) {
             $scope.email = {
                 subject: email.subject,
                 cc: email.cc,
-                message: email.message,
+                message: $sce.trustAsHtml(email.message),
                 templateAttachments: email.templateAttachments,
                 attachments: $dialogParams.attachments
             };

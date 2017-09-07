@@ -1,6 +1,6 @@
 //require('angular/angular');
 
-var sygeforApp = angular.module('conjecto.sygefor.app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'angular-growl', 'zeroclipboard', 'chieffancypants.loadingBar', 'angularjssearchbox', 'blueimp.fileupload', 'cfp.hotkeys', 'ngStorage', 'checklist-model']);
+var sygeforApp = angular.module('conjecto.sygefor.app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'angular-growl', 'zeroclipboard', 'chieffancypants.loadingBar', 'angularjssearchbox', 'blueimp.fileupload', 'cfp.hotkeys', 'ngStorage', 'checklist-model', 'ngCkeditor']);
 
 /**
  * config block

@@ -44,21 +44,21 @@ class Email
     protected $emailFrom;
 
     /**
-     * @var
+     * @var AbstractTrainee
      * @ORM\ManyToOne(targetEntity="AbstractTrainee")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainee;
 
     /**
-     * @var
+     * @var AbstractTrainer
      * @ORM\ManyToOne(targetEntity="AbstractTrainer")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainer;
 
     /**
-     * @var
+     * @var AbstractSession
      * @ORM\ManyToOne(targetEntity="AbstractSession")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
@@ -135,7 +135,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return AbstractTrainee
      */
     public function getTrainee()
     {
@@ -143,7 +143,7 @@ class Email
     }
 
     /**
-     * @param mixed $trainee
+     * @param AbstractTrainee $trainee
      */
     public function setTrainee($trainee)
     {
@@ -151,7 +151,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return AbstractTrainer
      */
     public function getTrainer()
     {
@@ -159,7 +159,7 @@ class Email
     }
 
     /**
-     * @param mixed $trainer
+     * @param AbstractTrainee $trainer
      */
     public function setTrainer($trainer)
     {
@@ -167,7 +167,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return AbstractSession
      */
     public function getSession()
     {
@@ -175,7 +175,7 @@ class Email
     }
 
     /**
-     * @param mixed $session
+     * @param AbstractSession $session
      */
     public function setSession($session)
     {
@@ -248,7 +248,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getBody()
     {
@@ -256,7 +256,7 @@ class Email
     }
 
     /**
-     * @param mixed $body
+     * @param string $body
      */
     public function setBody($body)
     {

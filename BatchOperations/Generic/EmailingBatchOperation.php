@@ -9,6 +9,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
+use Html2Text\Html2Text;
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
 use Sygefor\Bundle\CoreBundle\BatchOperations\AttachEmailPublipostAttachment;
@@ -228,8 +229,10 @@ class EmailingBatchOperation extends AbstractBatchOperation
                             $_message->addCc($email);
                         }
                     }
-                    $_message->setSubject($this->replaceTokens($subject, $entity));
+                    $subject = $this->replaceTokens($subject, $entity);
+                    $_message->setSubject('=?UTF-8?B?'.base64_encode($subject).'?=');
                     $_message->setBody($this->replaceTokens($body, $entity));
+                    $_message->addPart(Html2Text::convert($_message->getBody()), 'text/plain');
                     $last = $this->container->get('mailer')->send($_message);
 
                     // save email in db
@@ -247,7 +250,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                         $email->setTrainee($entity->getTrainee());
                         $email->setSession($entity->getSession());
                     }
-                    $email->setSubject($_message->getSubject());
+                    $email->setSubject($subject);
                     $email->setBody($_message->getBody());
                     $email->setSendAt(new \DateTime('now', new \DateTimeZone('Europe/Paris')));
                     $em->persist($email);

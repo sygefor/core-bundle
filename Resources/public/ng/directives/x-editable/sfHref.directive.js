@@ -7,7 +7,7 @@ sygeforApp.directive('sfXeditableForm', ['$http', '$timeout', function ($http, $
     /**
      * Extract data from a FormView
      * This function is recursive
-     * @param params
+     * @param formView
      */
     var extractData = function (formView) {
         var name = formView.name;
@@ -145,7 +145,7 @@ sygeforApp.directive('sfXeditableForm', ['$http', '$timeout', function ($http, $
              */
             this.onElementHidden = function (formElt) {
                 $element.removeClass('editable-shown');
-            }
+            };
         }
     }
 }]);
@@ -209,6 +209,7 @@ sygeforApp.directive('sfXeditable', ['$timeout', function ($timeout) {
                         // call onchange event
                         scope.onChange({params: params});
                         formElt.value = params['value'];
+
                         return formElt;
                     },
                     display: false // let angular update value
@@ -290,14 +291,67 @@ sygeforApp.directive('sfXeditable', ['$timeout', function ($timeout) {
                     }
                 }
 
+                if (typeof attrs.autocomplete !== "undefined") {
+                    options.type = "select2";
+                }
+
                 // type from the xeditable attributes
                 switch (options.type) {
+                    case "ckeditor":
+                        // do not cancel ckeditor field when opening a popup
+                        options.onblur = 'ignore';
+
+                        // Update CKEDITOR.config
+                        options.config = {
+                            language: 'fr',
+                            toolbar: [
+                                { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'] },
+                                { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike', '-', 'RemoveFormat' ] },
+                                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
+                                { name: 'styles', items: [ 'Format' ] }
+                            ],
+                            format_tags: 'p;h1'
+                        };
+                        break;
                     case "text":
                         options.tpl = '<input type="text" name="' + formElt.name + '">';
                         break;
                     case "select2":
                         options.select2 = {};
-                        if (formElt.choices) {
+                        if (typeof attrs.autocomplete !== "undefined") {
+                            formElt.choices = [];
+                            options.select2 = {
+                                ajax: {
+                                    url: Routing.generate('session.searchProperty', {propertyAutocomplete: attrs.autocomplete, propertyAgg: attrs.agg}),
+                                    // send query parameter to URL
+                                    data: function (term, page) {
+                                        return {query: term};
+                                    },
+                                    allowClear: true,
+                                    dataType: 'json',
+                                    results: function (esSearchResults) {
+                                        var data = {
+                                            results: []
+                                        };
+
+                                        if (!esSearchResults) {
+                                            return data;
+                                        }
+                                        for (var i in esSearchResults) {
+                                            data.results.push({
+                                                id: esSearchResults[i],
+                                                text: esSearchResults[i]
+                                            });
+                                        }
+
+                                        return data;
+                                    }
+                                },
+                                multiple: false
+                            };
+                        }
+                        else if (formElt.choices) {
                             if (type == "text") {
                                 // select2 tags style
                                 // we only need the array version of choices
@@ -306,7 +360,7 @@ sygeforApp.directive('sfXeditable', ['$timeout', function ($timeout) {
                                 });
                             } else {
                                 options.select2.multiple = !!formElt.multiple;
-                                options.source = options.select2.data = $.map(formElt.choices, function (value) {
+                                options.source = $.map(formElt.choices, function (value) {
                                     return {id: value.v, text: value.l};
                                 });
                             }

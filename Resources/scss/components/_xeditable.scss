@@ -70,6 +70,10 @@ a.editable-click:hover {
     }
   }
 
+  &.editable-ckeditor {
+    @extend .editable-container.editable-inline.editable-textarea;
+  }
+
   /**
    * text
    * The xeditable inline container must take all the available width

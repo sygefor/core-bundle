@@ -51,6 +51,7 @@ class EmailTemplateVocabularyType extends VocabularyType
                 'label' => 'Corps',
                 'attr' => array(
                     'rows' => 10,
+                    'ckeditor' => 'ckeditor',
                 ), ))
             ->add('inscriptionStatus', EntityType::class, array(
                 'label' => "Status d'inscription",

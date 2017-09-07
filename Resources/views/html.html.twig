@@ -15,6 +15,7 @@
         <!-- page styles -->
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <script type="application/javascript">window.CKEDITOR_BASEPATH = '/ckeditor/';</script>
     </head>
     <body class="{{ body_classes is defined ? body_classes|join(" ") : '' }}">
         <!-- body -->
