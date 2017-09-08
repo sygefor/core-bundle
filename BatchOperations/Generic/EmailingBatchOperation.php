@@ -164,7 +164,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
         } else {
             $last = 0;
             $em = $this->em;
-            $message = \Swift_Message::newInstance();
+            $message = \Swift_Message::newInstance(null, null, "text/html", null);
 
             if (is_int($organization)) {
                 $organization = $this->container->get('doctrine')->getRepository(AbstractOrganization::class)->find($organization);
