@@ -32,7 +32,9 @@ abstract class AbstractOrganizationController extends Controller
      */
     public function indexAction()
     {
-        $organizations = $this->get('doctrine')->getManager()->getRepository($this->organizationClass)->findAll();
+        $organizations = $this->get('doctrine')->getManager()
+            ->getRepository($this->organizationClass)->findBy(array(), array('name' => 'ASC'))
+        ;
 
         return $this->render('organization/index.html.twig', array(
             'organizations' => $organizations,
