@@ -175,7 +175,7 @@ abstract class AbstractSessionController extends Controller
             $form->handleRequest($request);
             if ($form->isValid()) {
                 $em = $this->getDoctrine()->getManager();
-                $this->cloneSessionArrayCollections($session, $cloned, $inscriptions, $form->get('inscriptionManagement')->getData());
+                $this->cloneSessionArrayCollections($session, $cloned, $inscriptions, $form->has('inscriptionManagement') ? $form->get('inscriptionManagement')->getData() : null);
                 $em->persist($cloned);
                 $em->flush();
 
@@ -246,7 +246,7 @@ abstract class AbstractSessionController extends Controller
      * @param AbstractSession $session
      * @param AbstractSession $cloned
      * @param $inscriptions
-     * @param $inscriptionManagement
+     * @param mixed $inscriptionManagement
      */
     protected function cloneSessionArrayCollections($session, $cloned, $inscriptions, $inscriptionManagement)
     {
