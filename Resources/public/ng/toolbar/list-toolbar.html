@@ -55,7 +55,13 @@
         <div class="right-group-container btn-group">
             <span ng-show="!!search.result.total" class="btn btn-default btn-deactivated">
                 <strong>
-                    {{ (search.query.page - 1) * search.query.size + 1 }} - {{ search.result.total }}
+                    {{ (search.query.page - 1) * search.query.size + 1 }} -
+                    <span ng-if="search.query.page * search.query.size < search.result.total">
+                        {{ search.query.page * search.query.size }}
+                    </span>
+                    <span ng-if="search.query.page * search.query.size >= search.result.total">
+                        {{ search.result.total }}
+                    </span>
                 </strong> sur <strong>{{ search.result.total }}</strong>
             </span>
             <button ng-repeat="state in $state.$current.self.root.states|orderObjectBy : 'weight'" type="button" ng-attr-title="Visualiser en mode : {{ state.label }}" class="btn btn-default" ng-class="{active: $state.includes(state.name)}" ng-click="$state.go(state.name)">
