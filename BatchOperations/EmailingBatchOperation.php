@@ -183,6 +183,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
             foreach ($entities as $entity) {
                 try {
                     $_message = clone $message;
+                    $_message->generateId();
                     // load publipost templates
                     $publipostTemplates = array();
                     if ($templateAttachments) {
