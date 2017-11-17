@@ -84,6 +84,8 @@ class PDFBatchOperation extends AbstractBatchOperation
         $this->templating = $templating;
         $this->securityContext = $securityContext;
         $this->kernel = $kernel;
+        $this->pdf->getInternalGenerator()
+            ->setTemporaryFolder(sys_get_temp_dir().DIRECTORY_SEPARATOR.'sygefor'.DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -134,7 +136,6 @@ class PDFBatchOperation extends AbstractBatchOperation
      */
     public function execute(array $idList = array(), array $options = array())
     {
-        $repository = $this->em->getRepository($this->targetClass);
         $accessor = PropertyAccess::createPropertyAccessor();
 
         $entities = $this->getObjectList($idList);
