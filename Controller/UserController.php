@@ -190,7 +190,6 @@ class UserController extends Controller
      * @param Request $request
      *
      * @Route("/account", name="user.account", options={"expose"=true})
-     * @SecureParam(name="user", permissions="EDIT")
      *
      * @return array|RedirectResponse
      */
