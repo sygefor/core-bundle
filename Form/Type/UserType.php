@@ -46,7 +46,7 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('username', 'text', array(
-            'constraints' => new Length(array('min' => 4)),
+            'constraints' => new Length(array('min' => 5)),
             'invalid_message' => 'Le nom d\'utilisateur est trop court',
             'label' => 'Nom d\'utilisateur',
         ))
@@ -57,7 +57,7 @@ class UserType extends AbstractType
 
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
-            'constraints' => new Length(array('min' => 4)),
+            'constraints' => new Length(array('min' => 8)),
             'required' => !$builder->getForm()->getData()->getId(),
             'invalid_message' => 'Les mots de passe doivent correspondre',
             'first_options' => array('label' => 'Mot de passe'),

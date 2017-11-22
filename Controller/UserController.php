@@ -17,12 +17,15 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\CoreBundle\Entity\User;
+use Sygefor\Bundle\CoreBundle\Form\Type\AccountType;
 use Sygefor\Bundle\CoreBundle\Form\Type\UserType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Tests\Encoder\PasswordEncoder;
 
 /**
  * @Route("/admin/users")
@@ -178,7 +181,56 @@ class UserController extends Controller
 
         return $this->render('user/edit.html.twig', array(
             'form' => $form->createView(),
-            'user' => $user, 'isAdmin' => $user->isAdmin(),
+            'user' => $user,
+            'isAdmin' => $user->isAdmin(),
+        ));
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/account", name="user.account", options={"expose"=true})
+     * @SecureParam(name="user", permissions="EDIT")
+     *
+     * @return array|RedirectResponse
+     */
+    public function accountAction(Request $request)
+    {
+        $factory = $this->get('security.encoder_factory');
+        $encoder = $factory->getEncoder($this->getUser());
+        $oldUsername = $this->getUser()->getUsername();
+        $oldPwd = $this->getUser()->getPassword();
+
+        $form = $this->createForm(AccountType::class, $this->getUser());
+
+        if ($request->getMethod() === 'POST') {
+            $form->handleRequest($request);
+
+            // verify password is set if username has changed
+            $newPwd = $form->get('plainPassword')->getData();
+            if ($form->get('username')->getData() !== $oldUsername && $encoder->encodePassword($newPwd, $this->getUser()->getSalt()) !== $oldPwd) {
+                $form->get('plainPassword')->get('first')->addError(new FormError('Le mot de passe est invalide'));
+            }
+
+            if ($form->isValid()) {
+                if (isset($newPwd)) {
+                    $factory = $this->get('security.encoder_factory');
+                    $encoder = $factory->getEncoder($this->getUser());
+                    $this->getUser()->setPassword($encoder->encodePassword($newPwd, $this->getUser()->getSalt()));
+                } else {
+                    $this->getUser()->setPassword($oldPwd);
+                }
+
+                $this->getDoctrine()->getManager()->flush();
+                $this->get('session')->getFlashBag()->add('success', 'Votre profil a bien été mis à jour.');
+
+                return $this->redirect($this->generateUrl('user.account'));
+            }
+        }
+
+        return $this->render('user/profil.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $this->getUser(),
         ));
     }
 
