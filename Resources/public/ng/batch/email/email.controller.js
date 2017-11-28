@@ -165,7 +165,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
     $scope.replaceCCFormat = function(cc) {
         var ccOptions = {};
         for (var i in $scope.config.ccResolvers) {
-            ccOptions[$scope.config.ccResolvers[i]] = false;
+            ccOptions[$scope.config.ccResolvers[i]['name']] = $scope.config.ccResolvers[i]['checked'];
         }
 
         if (cc !== undefined) {
@@ -174,7 +174,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 var name = function (ccResolvers, resolver) {
                     for (var j in ccResolvers) {
                         if (j == resolver) {
-                            return ccResolvers[j];
+                            return ccResolvers[j]['name'];
                         }
                     }
                 }($scope.config.ccResolvers, resolver);

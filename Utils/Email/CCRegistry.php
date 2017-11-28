@@ -34,7 +34,10 @@ class CCRegistry
         /** @var EmailResolverInterface $resolver */
         foreach ($this->resolvers as $resolver) {
             if (!$entity || $resolver::supports($entity)) {
-                $resolvers[$resolver] = $resolver::getName();
+                $resolvers[$resolver] = [
+                    'name'    => $resolver::getName(),
+                    'checked' => $resolver::checkedByDefault(),
+                ];
             }
         }
 

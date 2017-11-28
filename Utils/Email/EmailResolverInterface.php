@@ -26,6 +26,11 @@ interface EmailResolverInterface
     public static function supports($class);
 
     /**
+     * @return bool
+     */
+    public static function checkedByDefault();
+
+    /**
      * @param $entity
      *
      * @return string
