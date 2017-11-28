@@ -35,6 +35,11 @@ class EmailTemplateVocabularyType extends VocabularyType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
+        $ccResolvers = $this->ccRegistry->getSupportedResolvers();
+        $choices = array();
+        foreach ($ccResolvers as $ccResolver) {
+            $choices[] = $ccResolver['name'];
+        }
 
         $builder
             ->add('subject', TextType::class, array(
@@ -44,7 +49,7 @@ class EmailTemplateVocabularyType extends VocabularyType
                 'label' => 'CC',
                 'multiple' => true,
                 'expanded' => true,
-                'choices' => $this->ccRegistry->getSupportedResolvers(),
+                'choices' => $choices,
                 'required' => false,
             ))
             ->add('body', TextareaType::class, array(
