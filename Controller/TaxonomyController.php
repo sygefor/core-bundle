@@ -46,7 +46,7 @@ class TaxonomyController extends Controller
      * @param AbstractOrganization $organization
      *
      * @Route("/{vocabularyId}/view/{organizationId}", name="taxonomy.view", defaults={"organizationId" = null})
-     * @Security("is_granted('VIEW', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
+     * @Security("is_granted('VIEW', 'Sygefor\\Bundle\\CoreBundle\\Entity\\Term\\VocabularyInterface')")
      * @ParamConverter("organization", class="SygeforCoreBundle:AbstractOrganization", options={"id" = "organizationId"}, isOptional="true")
      *
      * @throws EntityNotFoundException
@@ -117,7 +117,7 @@ class TaxonomyController extends Controller
 
     /**
      * @Route("/{vocabularyId}/edit/{id}/{organizationId}", name="taxonomy.edit", defaults={"id" = null, "organizationId" = null})
-     * @Security("is_granted('EDIT', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
+     * @Security("is_granted('EDIT', 'Sygefor\\Bundle\\CoreBundle\\Entity\\Term\\VocabularyInterface')")
      */
     public function editVocabularyTermAction(Request $request, $vocabularyId, $organizationId, $id = null)
     {
@@ -186,7 +186,7 @@ class TaxonomyController extends Controller
 
     /**
      * @Route("/{vocabularyId}/remove/{id}", name="taxonomy.remove")
-     * @Security("is_granted('REMOVE', 'Sygefor\\Bundle\\CoreBundle\\Vocabulary\\VocabularyInterface')")
+     * @Security("is_granted('REMOVE', 'Sygefor\\Bundle\\CoreBundle\\Entity\\Term\\VocabularyInterface')")
      */
     public function removeAction(Request $request, $vocabularyId, $id)
     {
