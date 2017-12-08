@@ -117,7 +117,7 @@ class UserController extends Controller
                         $userAccessRights = [];
                         foreach ($accessRights as $accessRight) {
                             for ($i = 0, $count = count($availableExts); $i < $count; ++$i) {
-                                if (strpos($accessRight, $availableExts[$i]) !== false) {
+                                if (strpos($accessRight, $availableExts[$i]) !== false || $scope === 'all.manage') {
                                     $userAccessRights[] = $accessRight;
                                 }
                             }
