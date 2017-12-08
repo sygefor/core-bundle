@@ -165,7 +165,8 @@ trait UploadableTrait
     public function preUpdateUpload(PreUpdateEventArgs $args)
     {
         //a new file is set : we delete the old one
-        if ($args->hasChangedField('uploaded')) {//new uploaded file : old one is deleted
+        if ($args->hasChangedField('uploaded')) {
+            //new uploaded file : old one is deleted
             try {
                 unlink($this->getTemplatesRootDir().'/'.$args->getOldValue('filePath'));
             } catch (\Exception $e) {

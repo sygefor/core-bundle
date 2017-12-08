@@ -158,13 +158,15 @@ class EmailingBatchOperation extends AbstractBatchOperation
                 'subject' => $this->replaceTokens($subject, $entities[0]),
                 'cc' => array_merge($cc, $this->additionalCCToArray($additionalCC)),
                 'message' => $this->replaceTokens($body, $entities[0]),
-                'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) { return $attachment['name']; }, $templateAttachments) : null,
+                'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) {
+                    return $attachment['name'];
+                }, $templateAttachments) : null,
                 'attachments' => $attachments,
             ));
         } else {
             $last = 0;
             $em = $this->em;
-            $message = \Swift_Message::newInstance(null, null, "text/html", null);
+            $message = \Swift_Message::newInstance(null, null, 'text/html', null);
 
             if (is_int($organization)) {
                 $organization = $this->container->get('doctrine')->getRepository(AbstractOrganization::class)->find($organization);

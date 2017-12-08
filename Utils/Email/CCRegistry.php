@@ -35,7 +35,7 @@ class CCRegistry
         foreach ($this->resolvers as $resolver) {
             if (!$entity || $resolver::supports($entity)) {
                 $resolvers[$resolver] = [
-                    'name'    => $resolver::getName(),
+                    'name' => $resolver::getName(),
                     'checked' => $resolver::checkedByDefault(),
                 ];
             }

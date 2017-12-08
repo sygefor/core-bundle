@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: erwan
  * Date: 11/22/17
- * Time: 4:15 PM
+ * Time: 4:15 PM.
  */
 
 namespace Sygefor\Bundle\CoreBundle\Form\Type;

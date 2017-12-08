@@ -123,7 +123,8 @@ class MailingBatchOperation extends AbstractBatchOperation implements ContainerA
 
             $this->currentTemplate = $template->getAbsolutePath();
             $this->currentTemplateFileName = $template->getFileName();
-        } else {// 3/ Error...
+        } else {
+            // 3/ Error...
             return '';
         }
 
