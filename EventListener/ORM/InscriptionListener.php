@@ -2,12 +2,13 @@
 
 namespace Sygefor\Bundle\CoreBundle\EventListener\ORM;
 
+use Doctrine\ORM\Events;
+use Html2Text\Html2Text;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Events;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
 use Symfony\Component\DependencyInjection\Container;
+use Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 
 /**
  * Inscription listener to perfom some operation on persist/update
@@ -118,16 +119,17 @@ class InscriptionListener implements EventSubscriber
             $status = $inscription->getInscriptionStatus();
 
             if ($status->getNotify()) {
-                $body = "Bonjour,\n".
-                    "Le statut de l'inscription de ".$inscription->getTrainee()->getFullName().' à la session du '.$inscription->getSession()->getDateBegin()->format('d/m/Y')."\nde la formation intitulée '".$inscription->getSession()->getTraining()->getName()."'\n"
-                    ."est passé à '".$status->getName()."'";
-
-                $message = \Swift_Message::newInstance();
+                $body = $this->container->get('templating')->render('inscription/status_changed.html.twig', array(
+                    'inscription' => $inscription,
+                    'status' => $status
+                ));
+                $message = \Swift_Message::newInstance(null, null, 'text/html', null);
                 $message->setFrom($this->container->getParameter('mailer_from'), $inscription->getSession()->getTraining()->getOrganization()->getName());
                 $message->setReplyTo($inscription->getSession()->getTraining()->getOrganization()->getEmail());
                 $message->setTo($inscription->getSession()->getTraining()->getOrganization()->getEmail());
                 $message->setSubject($status->getName());
                 $message->setBody($body);
+                $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
 
                 $this->container->get('mailer')->send($message);
             }
