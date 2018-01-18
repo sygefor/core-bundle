@@ -2,16 +2,16 @@
 
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Doctrine\Common\Collections\ArrayCollection;
 use Sygefor\Bundle\ApiBundle\Form\Type\ProfileType;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Constraints as Assert;
 use Sygefor\Bundle\ApiBundle\Form\Type\RegistrationType;
 use Sygefor\Bundle\CoreBundle\Form\Type\AbstractTraineeType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
 
 /**
@@ -41,7 +41,7 @@ abstract class AbstractTrainee implements SerializedAccessRights
      * @var AbstractOrganization
      * @ORM\ManyToOne(targetEntity="AbstractOrganization")
      * @Assert\NotNull(message="Vous devez renseigner un centre de rattachement.")
-     * @Serializer\Groups({"trainee", "session", "api.profile", "api.token"})})
+     * @Serializer\Groups({"trainee", "inscription", "session", "api.profile", "api.token"})})
      */
     protected $organization;
 
