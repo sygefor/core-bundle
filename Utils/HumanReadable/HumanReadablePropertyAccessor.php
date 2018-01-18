@@ -9,10 +9,11 @@
 
 namespace Sygefor\Bundle\CoreBundle\Utils\HumanReadable;
 
+use Html2Text\Html2Text;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * Accesses an object property using human readable objects and property names given in config
@@ -216,6 +217,7 @@ class HumanReadablePropertyAccessor
     private function format($prefix, $value)
     {
         $format = $this->accessorFactory->getFormatForAlias(get_class($this->object), $prefix);
+        $type = $this->accessorFactory->getTypeForAlias(get_class($this->object), $prefix);
         if ($value instanceof \DateTime) {
             if ($format) {
                 /* @var \DateTime $value */
@@ -225,6 +227,8 @@ class HumanReadablePropertyAccessor
             }
         } elseif (is_bool($value)) {
             return $value ? 'oui' : 'non';
+        } elseif (is_string($value) && $type === 'ckeditor') {
+            return Html2Text::convert($value);
         }
 
         return $value;

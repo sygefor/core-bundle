@@ -206,6 +206,27 @@ class HumanReadablePropertyAccessorFactory
     }
 
     /**
+     * returns the corresponding type for given class/alias (typically date formats), null if not found in catalog.
+     *
+     * @param $class
+     * @param $alias
+     *
+     * @return string|null
+     */
+    public function getTypeForAlias($class, $alias)
+    {
+        $class = $this->getClassName($class);
+        if (isset($this->termCatalog[$class]) &&
+            isset($this->termCatalog[$class]['fields'][$alias]) &&
+            isset($this->termCatalog[$class]['fields'][$alias]['type'])
+        ) {
+            return $this->termCatalog[$class]['fields'][$alias]['type'];
+        }
+
+        return null;
+    }
+
+    /**
      * Provides the class real name (useful for proxy classes).
      *
      * @param $className
