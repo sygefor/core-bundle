@@ -39,6 +39,13 @@ abstract class AbstractBatchOperationController extends Controller
         $ids = $request->get('ids');
         $options = $request->get('options');
 
+        try {
+            $this->get('monolog.logger.batch_operation')->addDebug("BatchOperation $id; ids: " . (string)$ids . "; options: " . (string)$options);
+        }
+        catch (\Exception $e) {
+            $this->get('monolog.logger.batch_operation')->addDebug("BatchOperation $id; Exception: " . $e->getMessage());
+        }
+
         //we try to read option list as a JSON string (case of multipart form type)
         if (is_string($options)) {
             $decodeOptions = json_decode($options, $assoc = true);
