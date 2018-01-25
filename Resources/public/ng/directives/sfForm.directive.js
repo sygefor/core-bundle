@@ -128,6 +128,10 @@ sygeforApp.directive('sfFormWidget', ['$compile', function($compile) {
                     tpl = widgets[elt.type];
                 }
 
+                if (type === "choice" && elt.multiple === true) {
+                    tpl = tpl.replace('></select>', 'multiple="multiple"></select>');
+                }
+
                 var elem = angular.element(tpl);
 
                 // ng model
