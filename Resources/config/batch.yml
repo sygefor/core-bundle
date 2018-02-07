@@ -3,6 +3,11 @@ services:
     sygefor_core.batch_registry:
         class:  Sygefor\Bundle\CoreBundle\BatchOperations\BatchOperationRegistry
 
+    # Override opentbs to fix meth_Merge_SectionNormal function
+    opentbs:
+        class:        Sygefor\Bundle\CoreBundle\Utils\HumanReadable\CustomOpenTBS
+        arguments:    []
+
     # property accessor factory
     sygefor_core.human_readable_property_accessor_factory:
         class: Sygefor\Bundle\CoreBundle\Utils\HumanReadable\HumanReadablePropertyAccessorFactory

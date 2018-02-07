@@ -121,7 +121,7 @@ class InscriptionListener implements EventSubscriber
             if ($status->getNotify()) {
                 $body = $this->container->get('templating')->render('inscription/status_changed.html.twig', array(
                     'inscription' => $inscription,
-                    'status' => $status
+                    'status' => $status,
                 ));
                 $message = \Swift_Message::newInstance(null, null, 'text/html', null);
                 $message->setFrom($this->container->getParameter('mailer_from'), $inscription->getSession()->getTraining()->getOrganization()->getName());

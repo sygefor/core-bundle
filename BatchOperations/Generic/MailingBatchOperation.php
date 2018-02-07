@@ -9,24 +9,25 @@
 
 namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
-use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
-use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Process\Exception\RuntimeException;
 use Symfony\Component\Process\Process;
-use Symfony\Component\PropertyAccess\PropertyAccessor;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\File;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Security\Core\SecurityContext;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
+use Symfony\Component\Process\Exception\RuntimeException;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Sygefor\Bundle\CoreBundle\BatchOperations\AbstractBatchOperation;
+use Sygefor\Bundle\CoreBundle\BatchOperations\BatchOperationModalConfigInterface;
 
 /**
  * Class MailingBatchOperation.
  */
-class MailingBatchOperation extends AbstractBatchOperation implements ContainerAwareInterface
+class MailingBatchOperation extends AbstractBatchOperation implements BatchOperationModalConfigInterface, ContainerAwareInterface
 {
     /** @var string Current template as a filename */
     private $currentTemplateFileName;
@@ -44,9 +45,9 @@ class MailingBatchOperation extends AbstractBatchOperation implements ContainerA
     protected $idList = array();
 
     /**
-     * MailingBatchOperation constructor.
-     *
      * @param SecurityContext $securityContext
+     *
+     * @internal param $path
      */
     public function __construct(SecurityContext $securityContext)
     {
@@ -152,6 +153,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements ContainerA
     public function sendFile($fileName, $outputFileName = null, $options = array('pdf' => false, 'return' => false))
     {
         if (file_exists($this->options['tempDir'].$fileName)) {
+
             //security check first : if requested file path doesn't correspond to temp dir,
             //triggering error
             $path_parts = pathinfo($this->options['tempDir'].$fileName);
@@ -202,30 +204,172 @@ class MailingBatchOperation extends AbstractBatchOperation implements ContainerA
     }
 
     /**
-     * @param $template
-     * @param $entities
-     * @param bool   $getFile
-     * @param string $outputFileName
-     * @param bool   $getPdf
-     *
-     * @internal param $lines
-     * @internal param bool $deleteTemplate
+     * @param string|PublipostTemplate $template $template
+     * @param array                    $entities
      *
      * @return array
      */
-    public function parseFile($template, $entities, $getFile = false, $outputFileName = '', $getPdf = false)
+    public function parseFile($template, $entities)
     {
-        //getting the file generator
+        list($TBS, $classCatalog) = $this->initializeOpenTbs($template, $entities);
+        $lines = $this->getTemplateLines($entities);
+        $errors = $this->mergeLinesWithPublipostTemplate($TBS, $lines);
+        if (count($errors) > 0) {
+            return $errors;
+        }
+        $this->computeShorcutsAndMerge($TBS, $entities, $classCatalog);
+        $fileName = $this->generateFinalFile($TBS, $template);
+
+        return array('fileUrl' => $fileName);
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return array
+     */
+    public function getModalConfig($options = array())
+    {
+        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_publipost_template');
+
+        /** @var EntityManager $em */
+        $em = $this->em;
+        $repo = $em->getRepository(get_class($templateTerm));
+        /** @var PublipostTemplate[] $templates */
+        $templates = $repo->findBy(array('organization' => $this->securityContext->getToken()->getUser()->getOrganization()));
+
+        $files = array();
+        foreach ($templates as $template) {
+            $templateEntity = $template->getEntity();
+            $ancestor = class_parents($this->targetClass);
+            //file is added if its associated entity is an ancestor for current target class
+            if ($templateEntity === $this->targetClass || in_array($templateEntity, $ancestor, true)) {
+                $files[] = array('id' => $template->getId(), 'name' => $template->getName(), 'fileName' => $template->getFileName());
+            }
+        }
+
+        return array('templateList' => $files);
+    }
+
+    /**
+     * @param $fileName
+     * @param null $outputFileName
+     *
+     * @return string pdf file name, or null if error
+     */
+    public function toPdf($fileName, $outputFileName = null)
+    {
+        if (empty($outputFileName)) {
+            $outputFileName = $fileName;
+        }
+
+        //renaming output filename (for end user)
+        $info = pathinfo($outputFileName);
+        $outputFileName = $info['filename'].'.pdf';
+
+        // prepare the process
+        $unoconvBin = $this->container->getParameter('unoconv_bin');
+        $args = array(
+            $unoconvBin,
+            '--output='.$this->options['tempDir'].$outputFileName,
+            $this->options['tempDir'].$fileName,
+        );
+        $process = new Process(implode(' ', $args));
+
+        // run
+        try {
+            $process->run();
+        } catch (RuntimeException $exception) {
+            // unoconv somtimes returns 8 (SIGFPE) error code but still produces a correct output,
+            // so we can ignore it.
+//            if ($exception->getCode() !== 8) {
+//                throw $exception;
+//            }
+        }
+
+        if (!empty($process->getErrorOutput())) {
+            throw new RuntimeException('The PDF file has not been generated : '.$process->getErrorOutput());
+        }
+
+        return $outputFileName;
+    }
+
+    /**
+     * @param $template
+     * @param $entities
+     *
+     * @return \clsTinyButStrong
+     *
+     * @throws \Throwable
+     */
+    protected function initializeOpenTbs($template, $entities)
+    {
         $TBS = $this->container->get('opentbs');
         $TBS->setOption('noerr', true);
-
-        //loading the template
         $TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-
-        $lines = array();
-
-        // add global variables with publipost shorcuts
         $classCatalog = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getTermCatalog(get_class(current($entities)));
+
+        return array($TBS, $classCatalog);
+    }
+
+    /**
+     * @param $entities
+     *
+     * @return array
+     *
+     * @throws \Throwable
+     */
+    protected function getTemplateLines($entities)
+    {
+        $lines = array();
+        foreach ($entities as $entity) {
+            if ($this->securityContext->isGranted('VIEW', $entity)) {
+                $lines[$entity->getId()] = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
+            }
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param \clsTinyButStrong $TBS
+     * @param array             $lines
+     *
+     * @return array
+     *
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    protected function mergeLinesWithPublipostTemplate($TBS, $lines)
+    {
+        ob_start();
+        $alias = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getEntityAlias($this->targetClass);
+        $entityName = ($alias !== null) ? $alias : 'entity';
+        $TBS->MergeBlock($entityName, $lines);
+        // add global variable matching first entity
+        if (count($lines) > 0) {
+            reset($lines);
+            $TBS->MergeField('global', current($lines)->toArray());
+        }
+        $error = ob_get_flush();
+
+        return $error ? array('error' => $error) : array();
+    }
+
+    /**
+     * Add global variables with publipost shorcuts.
+     *
+     * @param \clsTinyButStrong $TBS
+     * @param array             $entities
+     * @param string            $classCatalog
+     *
+     * @return int
+     *
+     * @throws \Throwable
+     */
+    protected function computeShorcutsAndMerge($TBS, $entities, $classCatalog)
+    {
+        $i = 0;
         if (isset($classCatalog['shorcuts'])) {
             $aliases = $classCatalog['shorcuts'];
 
@@ -271,125 +415,28 @@ class MailingBatchOperation extends AbstractBatchOperation implements ContainerA
                 }
 
                 $TBS->MergeBlock($alias, $arrayValues);
+                ++$i;
             }
         }
 
-        //iterating through properties to construct a (nested) array of properties => values
-        foreach ($entities as $entity) {
-            if ($this->securityContext->isGranted('VIEW', $entity)) {
-                $data = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
-                $lines[$entity->getId()] = $data;
-            }
-        }
+        return $i;
+    }
 
-        ob_start();
-
-        $alias = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getEntityAlias($this->targetClass);
-        $entityName = ($alias !== null) ? $alias : 'entity';
-
-        // merge all fields from the first object
-        //fields are merged one by one, so that we dont have to recall a enity name for global names
-        if (!empty($lines)) {
-            //            $vals = current($lines)->toArray();
-            //            //var_dump($vals);die();
-            //            foreach ($vals as $fieldName => $prop){
-            //                $TBS->MergeField($fieldName,$prop);
-            //            }
-            //var_dump(current($lines));
-
-            $TBS->MergeField('global', current($lines)->toArray());
-        }
-
-        reset($lines);
-
-        $TBS->MergeBlock($entityName, $lines);
-
-        $error = ob_get_flush();
-
-        if ($error) {
-            return array('error' => $error);
-        }
-
-        $uid = substr(md5(rand()), 0, 5);
-        $fileName = $this->removeAccents($uid.'_'.((!empty($this->currentTemplateFileName) ? $this->currentTemplateFileName : $template->getFileName())));
-        $TBS->Show(OPENTBS_FILE, $this->options['tempDir'].$fileName);
+    /**
+     * @param \clsTinyButStrong        $TBS
+     * @param string|PublipostTemplate $template
+     *
+     * @return mixed|string
+     */
+    protected function generateFinalFile($TBS, $template)
+    {
+        $uid = uniqid();
+        $fileName = empty($this->currentTemplateFileName) ? $template->getFileName() : $this->currentTemplateFileName;
+        $uniqFileName = $this->removeAccents($uid.'_'.$fileName);
+        $TBS->Show(OPENTBS_FILE, $this->options['tempDir'].$uniqFileName);
         $TBS->_PlugIns[OPENTBS_PLUGIN]->Close();
 
-        //do we want the file or just infos about it ?
-        if ($getFile) {
-            return $this->sendFile($fileName, $outputFileName, array('pdf' => $getPdf, 'return' => true));
-        } else {
-            // file can then be taken using senFile.
-            return array('fileUrl' => $fileName);
-        }
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return array
-     */
-    public function getModalConfig($options = array())
-    {
-        $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_publipost_template');
-        /** @var EntityManager $em */
-        $em = $this->em;
-        $repo = $em->getRepository(get_class($templateTerm));
-        /** @var PublipostTemplate[] $templates */
-        $templates = $repo->findBy(array('organization' => $this->securityContext->getToken()->getUser()->getOrganization()));
-
-        $files = array();
-        foreach ($templates as $template) {
-            //file is added if its associated entity is an ancestor for current target class
-            if ($template->getEntity() == $this->targetClass) {
-                $files[] = array('id' => $template->getId(), 'name' => $template->getName(), 'fileName' => $template->getFileName());
-            }
-        }
-
-        return array('templateList' => $files);
-    }
-
-    /**
-     * @param $fileName
-     * @param null $outputFileName
-     *
-     * @return string pdf file name, or null if error
-     */
-    public function toPdf($fileName, $outputFileName = null)
-    {
-        if (empty($outputFileName)) {
-            $outputFileName = $fileName;
-        }
-
-        //renaming output filename (for end user)
-        $info = pathinfo($outputFileName);
-        $outputFileName = $info['filename'].'.pdf';
-
-        // prepare the process
-        $unoconvBin = $this->container->getParameter('unoconv_bin');
-        $args = array(
-            $unoconvBin,
-            '--output='.$this->options['tempDir'].$outputFileName,
-            $this->options['tempDir'].$fileName,
-        );
-        $process = new Process(implode(' ', $args));
-
-        // run
-        try {
-            $process->run();
-        } catch (RuntimeException $exception) {
-            // unoconv somtimes returns 8 (SIGFPE) error code but still produces a correct output,
-            // so we can ignore it.
-            if ($exception->getCode() !== 8) {
-                throw $exception;
-            }
-        }
-
-        if (!empty($process->getErrorOutput())) {
-            throw new RuntimeException('The PDF file has not been generated : '.$process->getErrorOutput());
-        }
-
-        return $outputFileName;
+        return $uniqFileName;
     }
 
     /**

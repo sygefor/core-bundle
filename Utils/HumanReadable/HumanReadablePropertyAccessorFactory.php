@@ -13,29 +13,31 @@ use Doctrine\Common\Persistence\Mapping\MappingException;
 use Doctrine\ORM\EntityManager;
 
 /**
- * instantiates
  * Class HumanReadablePropertyAccessorFactory.
  */
 class HumanReadablePropertyAccessorFactory
 {
     protected $termCatalog;
 
+    /** @var EntityManager */
+    protected $em;
+
     /**
      * @param EntityManager $em
      */
-    protected $em;
-
     public function __construct($em)
     {
         $this->em = $em;
     }
 
     /**
+     * Factory is given an alternate version of configuration array,
+     *  indexed by each entry corresponding className.
+     *
      * @param $termCatalog
      */
     public function setTermCatalog($termCatalog)
     {
-        //factory is given an alternate version of configuration array, indexed by each entry corresponding className
         foreach ($termCatalog as $confEntry) {
             $class = $this->getClassName($confEntry['class']);
             if (!empty($confEntry['parent']) && !empty($termCatalog[$confEntry['parent']])) {
@@ -61,25 +63,24 @@ class HumanReadablePropertyAccessorFactory
             }
 
             return $this->termCatalog[$this->getClassName($class)];
-        } else {
-            return $this->termCatalog;
         }
+
+        return $this->termCatalog;
     }
 
     /**
-     * @param null $class
+     * creates an accessor for the given object.
      *
-     * @throws \Exception
+     * @param $object
+     *
+     * @return HumanReadablePropertyAccessor
      */
-    public function getEntityAlias($class = null)
+    public function getAccessor($object)
     {
-        if (!isset($this->termCatalog[$this->getClassName($class)])) {
-            throw new \Exception('no catalog for this class : '.$class);
-        } elseif (!isset($this->termCatalog[$this->getClassName($class)]['alias'])) {
-            return;
-        } else {
-            return $this->termCatalog[$this->getClassName($class)]['alias'];
-        }
+        $propertyAccessor = new HumanReadablePropertyAccessor($object);
+        $propertyAccessor->setAccessorFactory($this);
+
+        return $propertyAccessor;
     }
 
     /**
@@ -130,40 +131,21 @@ class HumanReadablePropertyAccessorFactory
     }
 
     /**
-     * creates an accessor for the given object.
+     * @param null $class
      *
-     * @param $object
+     * @return mixed
      *
-     * @return HumanReadablePropertyAccessor
+     * @throws \Exception
      */
-    public function getAccessor($object)
+    public function getEntityAlias($class = null)
     {
-        $propertyAccessor = new HumanReadablePropertyAccessor($object);
-        $propertyAccessor->setAccessorFactory($this);
-
-        return $propertyAccessor;
-    }
-
-    /**
-     * Returns mail path for entity if defined, null otherwise.
-     *
-     * @param $class
-     *
-     * @return string|null
-     */
-    public function getMailPath($class)
-    {
-        $class = $this->getClassName($class);
-        if (isset($this->termCatalog[$class]) && isset($this->termCatalog[$class]['emailPath'])) {
-            return $this->termCatalog[$class]['emailPath'];
+        if (!isset($this->termCatalog[$this->getClassName($class)])) {
+            throw new \Exception('no catalog for this class : '.$class);
+        } elseif (!isset($this->termCatalog[$this->getClassName($class)]['alias'])) {
+            return null;
         } else {
-            $parentClass = get_parent_class($class);
-            if (isset($this->termCatalog[$parentClass]) && isset($this->termCatalog[$parentClass]['emailPath'])) {
-                return $this->termCatalog[$parentClass]['emailPath'];
-            }
+            return $this->termCatalog[$this->getClassName($class)]['alias'];
         }
-
-        return;
     }
 
     /**
@@ -181,7 +163,29 @@ class HumanReadablePropertyAccessorFactory
             return $this->termCatalog[$class]['fields'][$alias]['property'];
         }
 
-        return;
+        return null;
+    }
+
+    /**
+     * Returns mail path for entity if defined, null otherwise.
+     *
+     * @param $class
+     *
+     * @return string|null
+     */
+    public function getMailPath($class)
+    {
+        $class = $this->getClassName($class);
+        if (isset($this->termCatalog[$class])) {
+            if (isset($this->termCatalog[$class]['emailPath'])) {
+                return $this->termCatalog[$class]['emailPath'];
+            } elseif (isset($this->termCatalog[$class]['fields']) &&
+                isset($this->termCatalog[$class]['fields']['email'])) {
+                return 'email';
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -197,12 +201,11 @@ class HumanReadablePropertyAccessorFactory
         $class = $this->getClassName($class);
         if (isset($this->termCatalog[$class]) &&
             isset($this->termCatalog[$class]['fields'][$alias]) &&
-            isset($this->termCatalog[$class]['fields'][$alias]['format'])
-        ) {
+            isset($this->termCatalog[$class]['fields'][$alias]['format'])) {
             return $this->termCatalog[$class]['fields'][$alias]['format'];
         }
 
-        return;
+        return null;
     }
 
     /**
