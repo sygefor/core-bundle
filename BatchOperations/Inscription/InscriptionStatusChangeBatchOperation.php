@@ -66,7 +66,7 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
                 //setting new inscription status
                 if ($inscriptionStatus) {
                     $inscription->setInscriptionStatus($inscriptionStatus);
-                } elseif ($presenceStatus || isset($options['presenceStatus'])) {
+                } elseif ($presenceStatus) {
                     $inscription->setPresenceStatus($presenceStatus);
                 }
                 $arrayInscriptionsGranted[] = $inscription;
@@ -94,6 +94,17 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
                 );
             }
         }
+
+        $data = array();
+        foreach ($arrayInscriptionsGranted as $inscription) {
+            $data[] = [
+                'id' => $inscription->getId(),
+                'inscriptionStatus' => $inscription->getInscriptionStatus(),
+                'presenceStatus' => $inscription->getPresenceStatus(),
+            ];
+        }
+
+        return $data;
     }
 
     /**
