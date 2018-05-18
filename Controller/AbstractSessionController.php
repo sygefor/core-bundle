@@ -95,10 +95,8 @@ abstract class AbstractSessionController extends Controller
             if ($form->isValid()) {
                 $em = $this->getDoctrine()->getManager();
                 $em->flush();
-                // force reload to prevent erorr because of doctrine entity cache with participant summaries
-                if ($sessionRegistration !== $session->getRegistration()) {
-                    return $this->redirectToRoute('session.view', array('id' => $session->getId()));
-                }
+
+                return $this->redirectToRoute('session.view', array('id' => $session->getId()));
             }
         }
 
