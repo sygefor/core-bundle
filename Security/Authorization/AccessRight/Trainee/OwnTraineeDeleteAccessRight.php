@@ -35,7 +35,7 @@ class OwnTraineeDeleteAccessRight extends AbstractAccessRight
             return false;
         }
         if ($object) {
-            return $object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId();
+            return $object->getOrganization() && $object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId();
         } else {
             return true;
         }

@@ -36,7 +36,7 @@ class OwnTraineeViewAccessRight extends AbstractAccessRight
         }
 
         if ($object) {
-            return $object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId();
+            return $object->getOrganization() && $object->getOrganization()->getId() === $token->getUser()->getOrganization()->getId();
         } else {
             return true;
         }
