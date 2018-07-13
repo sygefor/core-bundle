@@ -2,17 +2,17 @@
 
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use JMS\Serializer\Annotation as Serializer;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Symfony\Component\Validator\Constraints as Assert;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
+use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Sygefor\Bundle\CoreBundle\Form\Type\AbstractInscriptionType;
 use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAccessRights;
-use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
-use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Trainee.
@@ -39,6 +39,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $id;
 
     /**
+     * @var AbstractTrainee
      * @ORM\ManyToOne(targetEntity="AbstractTrainee", inversedBy="inscriptions")
      * @ORM\JoinColumn(name="trainee_id", referencedColumnName="id")
      * @Assert\NotNull(message="Vous devez sélectionner un stagiaire.")
@@ -47,6 +48,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $trainee;
 
     /**
+     * @var AbstractSession
      * @ORM\ManyToOne(targetEntity="AbstractSession", inversedBy="inscriptions")
      * @ORM\JoinColumn(name="session_id", referencedColumnName="id")
      * @Assert\NotNull()
@@ -55,6 +57,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $session;
 
     /**
+     * @var InscriptionStatus
      * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus")
      * @Assert\NotNull(message="Vous devez spécifier un status d'inscription.")
      * @Serializer\Groups({"Default", "api"})
@@ -62,6 +65,7 @@ abstract class AbstractInscription implements SerializedAccessRights
     protected $inscriptionStatus;
 
     /**
+     * @var PresenceStatus
      * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus")
      * @Serializer\Groups({"Default", "api"})
      */
