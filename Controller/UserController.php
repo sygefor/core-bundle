@@ -165,9 +165,8 @@ class UserController extends Controller
             if ($form->isValid()) {
                 $newPwd = $form->get('plainPassword')->getData();
                 if (isset($newPwd)) {
-                    $factory = $this->get('security.encoder_factory');
-                    $encoder = $factory->getEncoder($user);
-                    $user->setPassword($encoder->encodePassword($newPwd, $user->getSalt()));
+                    $user->setPassword(null);
+                    $user->setPlainPassword($newPwd);
                 } else {
                     $user->setPassword($oldPwd);
                 }
@@ -212,9 +211,8 @@ class UserController extends Controller
 
             if ($form->isValid()) {
                 if (isset($newPwd)) {
-                    $factory = $this->get('security.encoder_factory');
-                    $encoder = $factory->getEncoder($this->getUser());
-                    $this->getUser()->setPassword($encoder->encodePassword($newPwd, $this->getUser()->getSalt()));
+                    $this->getUser()->setPassword(null);
+                    $this->getUser()->setPlainPassword($newPwd);
                 } else {
                     $this->getUser()->setPassword($oldPwd);
                 }
