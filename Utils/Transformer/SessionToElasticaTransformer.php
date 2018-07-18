@@ -71,7 +71,7 @@ class SessionToElasticaTransformer extends ModelToElasticaTransformer
             if ($session instanceof AbstractSession) {
                 $stats = $document->get('participantsStats');
                 foreach ($stats as $key => $stat) {
-                    if (!$stat['geographicOrigin']) {
+                    if (isset($stat['geographicOrigin']) && !$stat['geographicOrigin']) {
                         $stats[$key]['geographicOrigin'] = 'Autre';
                     }
                 }
