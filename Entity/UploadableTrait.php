@@ -6,6 +6,7 @@
  * Date: 10/07/14
  * Time: 14:45.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -14,6 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ExecutionContextInterface;
 
 /**
@@ -24,14 +26,14 @@ use Symfony\Component\Validator\ExecutionContextInterface;
 trait UploadableTrait
 {
     /**
-     * @ORM\Column(name="file_path", type="string", nullable=false)
+     * @ORM\Column(name="file_path", type="string", nullable=true)
      *
      * @var string
      */
     protected $filePath;
 
     /**
-     * @ORM\Column(name="file_name", type="string", nullable=false)
+     * @ORM\Column(name="file_name", type="string", nullable=true)
      *
      * @var string
      */
@@ -46,24 +48,19 @@ trait UploadableTrait
      * used to force file update when changing file.
      *
      * @var \DateTime
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     protected $uploaded;
-
-    /**
-     * @var
-     */
-    static protected $maxFileSize = 50000000;
 
     public function __clone()
     {
         $file = $this->getFile();
-        if ( ! empty($file)) {
-            $this->id    = null;
-            $fs          = new Filesystem();
-            $tmpFileName = sha1(uniqid(mt_rand(), true)) . '.' . $file->getFileInfo()->getExtension();
-            $fs->copy($this->getTemplatesRootDir() . '/' . $this->filePath, $this->getTemplatesRootDir() . '/' . $tmpFileName);
-            $this->setFile(new File($this->getTemplatesRootDir() . '/' . $tmpFileName), $this->getFileName());
+        if (!empty($file)) {
+            $this->id = null;
+            $fs = new Filesystem();
+            $tmpFileName = sha1(uniqid(mt_rand(), true)).'.'.$file->getFileInfo()->getExtension();
+            $fs->copy($this->getTemplatesRootDir().'/'.$this->filePath, $this->getTemplatesRootDir().'/'.$tmpFileName);
+            $this->setFile(new File($this->getTemplatesRootDir().'/'.$tmpFileName), $this->getFileName());
         }
     }
 
@@ -80,8 +77,8 @@ trait UploadableTrait
      */
     public function getFile()
     {
-        if ($this->filePath !== null) {
-            $this->file = new File($this->getTemplatesRootDir() . '/' . $this->filePath);
+        if ($this->filePath !== null && file_exists($this->getTemplatesRootDir().'/'.$this->filePath)) {
+            $this->file = new File($this->getTemplatesRootDir().'/'.$this->filePath);
         }
 
         return $this->file;
@@ -120,13 +117,12 @@ trait UploadableTrait
     {
         if (!empty($file)) {
             $this->uploaded = new \DateTime();
-            $this->file     = $file;
+            $this->file = $file;
             if ($this->file instanceof UploadedFile) {
-                $this->filePath = sha1(uniqid(mt_rand(), true)) . '.' . $this->file->guessClientExtension();
+                $this->filePath = sha1(uniqid(mt_rand(), true)).'.'.$this->file->guessClientExtension();
                 $this->fileName = $this->file->getClientOriginalName();
                 $this->slugFileName();
-            }
-            else {
+            } else {
                 $this->filePath = $file->getFileInfo()->getFilename();
                 $this->fileName = ($name) ? $name : $file->getFileInfo()->getFilename();
                 $this->slugFileName();
@@ -140,8 +136,7 @@ trait UploadableTrait
     public function preUpload()
     {
         if (null !== $this->file && ($this->file instanceof UploadedFile)) {
-            // nom unique du fichier.
-            $this->filePath = sha1(uniqid(mt_rand(), true)) . '.' . $this->file->guessClientExtension();
+            $this->filePath = sha1(uniqid(mt_rand(), true)).'.'.$this->file->guessClientExtension();
             $this->fileName = $this->file->getClientOriginalName();
             $this->slugFileName();
         }
@@ -170,12 +165,11 @@ trait UploadableTrait
     public function preUpdateUpload(PreUpdateEventArgs $args)
     {
         //a new file is set : we delete the old one
-        if ($args->hasChangedField('uploaded')) {//new uploaded file : old one is deleted
+        if ($args->hasChangedField('uploaded')) {
+            //new uploaded file : old one is deleted
             try {
-                unlink($this->getTemplatesRootDir() . '/' . $args->getOldValue('filePath'));
-            }
-            catch (\Exception $e) {
-
+                unlink($this->getTemplatesRootDir().'/'.$args->getOldValue('filePath'));
+            } catch (\Exception $e) {
             }
         }
     }
@@ -195,16 +189,17 @@ trait UploadableTrait
     }
 
     /**
-     * @ORM\PostRemove()
+     * @ORM\PreRemove()
      */
     public function removeUpload()
     {
         if ($file = $this->getAbsolutePath()) {
             try {
                 unlink($file);
-            }
-            catch (\Exception $e) {
-
+                $this->filePath = null;
+                $this->fileName = null;
+                $this->file = null;
+            } catch (\Exception $e) {
             }
         }
     }
@@ -214,24 +209,86 @@ trait UploadableTrait
      */
     public function getAbsolutePath()
     {
-        return (null === $this->filePath) ? null : $this->getTemplatesRootDir() . '/' . $this->filePath;
+        return (null === $this->filePath) ? null : $this->getTemplatesRootDir().'/'.$this->filePath;
     }
 
     /**
-     * @return string
-     */
-    protected function getTemplatesRootDir()
-    {
-        // le chemin absolu du répertoire où les documents uploadés doivent être sauvegardés
-        return __DIR__ . '/../../../../../../app/Resources/default';
-    }
-
-    /**
-     * @return mixed
+     * @return int file max size
+     *             Default max size is 2Mo
      */
     public static function getMaxFileSize()
     {
-        return self::$maxFileSize;
+        return 2097152;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getAllowedMimeTypes()
+    {
+        return array();
+    }
+
+    /**
+     * @return array
+     */
+    public static function getNotAllowedMimeTypeMessage()
+    {
+        return null;
+    }
+
+    /**
+     * Return max unit size.
+     *
+     * @return string
+     */
+    public function getHumanMaxFileSize()
+    {
+        $maxSize = $this->getMaxFileSize();
+        for ($i = 0; $i < 8 && $maxSize >= 1024; ++$i) {
+            $maxSize = $maxSize / 1024;
+        }
+
+        if ($i > 0) {
+            return preg_replace('/,00$/', '', number_format($maxSize, 2, ',', ''))
+            .' '.substr('KMGTPEZY', $i - 1, 1).'o';
+        } else {
+            return $maxSize.' o';
+        }
+    }
+
+    /**
+     * @Assert\Callback()
+     */
+    public function validateFile(ExecutionContextInterface $context)
+    {
+        $errorMessage = null;
+
+        if (!$this->file) {
+            return;
+        }
+
+        // check error
+        if ($this->file->getError()) {
+            // @see http://php.net/manual/fr/features.file-upload.errors.php
+            $errorMessage = 'Il y a eu un problème lors de l\'envoi du fichier (code '.$this->file->getError().' )';
+        } else {
+            // check file max size
+            if ($this->file->getSize() > $this->getMaxFileSize()) {
+                $errorMessage = 'La taille du fichier dépasse la limite autorisée ('.$this->getHumanMaxFileSize().')';
+            }
+            // check file allowed mime types
+            if ($this->file && !empty($this->file) &&
+                !empty($this->getAllowedMimeTypes()) && !in_array($this->file->getMimeType(), $this->getAllowedMimeTypes())) {
+                $errorMessage = $this->getNotAllowedMimeTypeMessage();
+            }
+        }
+
+        // assert error
+        if ($errorMessage) {
+            $context->buildViolation($errorMessage)->atPath('file')->addViolation();
+            $this->resetFile();
+        }
     }
 
     /**
@@ -247,7 +304,7 @@ trait UploadableTrait
 
         // Set headers
         $response->headers->set('Cache-Control', 'private');
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $this->getFileName() . '";');
+        $response->headers->set('Content-Disposition', 'attachment; filename="'.$this->getFileName().'";');
         $response->headers->set('Content-length', filesize($fp));
         $response->sendHeaders();
         $response->setContent(readfile($fp));
@@ -256,22 +313,31 @@ trait UploadableTrait
     }
 
     /**
-     * @param ExecutionContextInterface $context
-     */
-    public function validateFileSize(ExecutionContextInterface $context)
-    {
-        if ($this->file->getSize() > self::$maxFileSize) {
-            $context->addViolationAt('file', 'La taille du fichier dépasse la limite autorisée', array(), null);
-        }
-    }
-
-    /**
      * Slug file name for PDF generation
-     * Because pdf file name is get from file system
+     * Because pdf file name is get from file system.
      */
     public function slugFileName()
     {
         $this->fileName = str_replace(' ', '_', $this->fileName);
         $this->fileName = str_replace('\'', '-', $this->fileName);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTemplatesRootDir()
+    {
+        // le chemin absolu du répertoire où les documents uploadés doivent être sauvegardés
+        return __DIR__.'/../../../../var/Files';
+    }
+
+    /**
+     * Reset form file.
+     */
+    protected function resetFile()
+    {
+        $this->file = null;
+        $this->fileName = null;
+        $this->filePath = null;
     }
 }

@@ -1,9 +1,17 @@
 parameters:
     sygefor_core.taxonomy.group: "Sygefor3"
+    sygefor_training.taxonomy.group: "Formation"
+    sygefor_trainee.taxonomy.group: "Public"
+    sygefor_inscription.taxonomy.group: "Inscription"
+    sygefor_trainer.taxonomy.group: "Intervenant"
 
 services:
+    # taxonomy
+    sygefor_core.vocabulary_registry:
+        class: Sygefor\Bundle\CoreBundle\Utils\VocabularyRegistry
+
     sygefor_core.vocabulary_title:
-        class:        Sygefor\Bundle\CoreBundle\Entity\PersonTrait\Term\Title
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\Title
         tags:
             - { name: sygefor_core.vocabulary_provider, group: "%sygefor_core.taxonomy.group%" }
 
@@ -11,3 +19,18 @@ services:
         class:        Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate
         tags:
             - { name: sygefor_core.vocabulary_provider, group: "%sygefor_core.taxonomy.group%" }
+
+    sygefor_core.vocabulary_inscription_status:
+            class:        Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus
+            tags:
+                - { name: sygefor_core.vocabulary_provider, group: "%sygefor_inscription.taxonomy.group%" }
+
+    sygefor_core.vocabulary_presence_status:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_inscription.taxonomy.group%" }
+
+    sygefor_core.vocabulary_email_template:
+        class:        Sygefor\Bundle\CoreBundle\Entity\Term\EmailTemplate
+        tags:
+            - { name: sygefor_core.vocabulary_provider, group: "%sygefor_trainee.taxonomy.group%" }

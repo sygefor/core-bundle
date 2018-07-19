@@ -1,4 +1,4 @@
-Sygefor\Bundle\CoreBundle\Entity\User\User:
+Sygefor\Bundle\CoreBundle\Entity\User:
     exclusion_policy: NONE
     properties:
         password:

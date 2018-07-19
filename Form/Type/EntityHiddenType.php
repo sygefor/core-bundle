@@ -6,6 +6,7 @@
  * Date: 25/06/14
  * Time: 16:48.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -35,8 +36,7 @@ class EntityHiddenType extends AbstractType
     {
         if ($options['class'] === null) {
             throw new MissingOptionsException('Missing required class option ');
-        }
-        else {
+        } else {
             $transformer = new EntityToIdTransformer($this->om);
             $transformer->setEntityClass($options['class']);
             $builder->addViewTransformer($transformer);
@@ -47,7 +47,7 @@ class EntityHiddenType extends AbstractType
     {
         $resolver->setDefaults(
             array(
-                'class'          => null,
+                'class' => null,
                 'error_bubbling' => false,
             )
         );

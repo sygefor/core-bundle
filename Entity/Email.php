@@ -6,11 +6,11 @@
  * Date: 24/08/2015
  * Time: 14:34.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
 
 /**
  * Email.
@@ -31,7 +31,7 @@ class Email
 
     /**
      * @var User
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\User\User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      * @Serializer\Groups({"user"})
      */
@@ -44,22 +44,22 @@ class Email
     protected $emailFrom;
 
     /**
-     * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TraineeBundle\Entity\AbstractTrainee")
+     * @var AbstractTrainee
+     * @ORM\ManyToOne(targetEntity="AbstractTrainee")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainee;
 
     /**
-     * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TrainerBundle\Entity\AbstractTrainer")
+     * @var AbstractTrainer
+     * @ORM\ManyToOne(targetEntity="AbstractTrainer")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $trainer;
 
     /**
-     * @var
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\TrainingBundle\Entity\Session\AbstractSession")
+     * @var AbstractSession
+     * @ORM\ManyToOne(targetEntity="AbstractSession")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     protected $session;
@@ -135,7 +135,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return AbstractTrainee
      */
     public function getTrainee()
     {
@@ -143,7 +143,7 @@ class Email
     }
 
     /**
-     * @param mixed $trainee
+     * @param AbstractTrainee $trainee
      */
     public function setTrainee($trainee)
     {
@@ -151,7 +151,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return AbstractTrainer
      */
     public function getTrainer()
     {
@@ -159,7 +159,7 @@ class Email
     }
 
     /**
-     * @param mixed $trainer
+     * @param AbstractTrainee $trainer
      */
     public function setTrainer($trainer)
     {
@@ -167,7 +167,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return AbstractSession
      */
     public function getSession()
     {
@@ -175,7 +175,7 @@ class Email
     }
 
     /**
-     * @param mixed $session
+     * @param AbstractSession $session
      */
     public function setSession($session)
     {
@@ -238,7 +238,7 @@ class Email
      */
     public function addCc($cc, $name)
     {
-        if ( ! isset($this->cc[$cc])) {
+        if (!isset($this->cc[$cc])) {
             $this->cc[$cc] = $name;
 
             return true;
@@ -248,7 +248,7 @@ class Email
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getBody()
     {
@@ -256,7 +256,7 @@ class Email
     }
 
     /**
-     * @param mixed $body
+     * @param string $body
      */
     public function setBody($body)
     {

@@ -6,9 +6,10 @@
  * Date: 19/03/14
  * Time: 15:18.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
-use Sygefor\Bundle\CoreBundle\AccessRight\AccessRightRegistry;
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -53,22 +54,22 @@ class AccessRightType extends AbstractType
      */
     public function preSubmit(FormEvent $event)
     {
-        $form   = $event->getForm();
+        $form = $event->getForm();
         $rights = $event->getData();
 
         // $form->getData() return an array with index reseted
         // we need to set the right key for each initial right
         $initialRights = array();
-        $choices       = $form->getConfig()->getOption('choice_list')->getChoices();
+        $choices = $form->getConfig()->getOption('choice_list')->getChoices();
         foreach ($form->getData() as $right) {
-            $key                 = array_search($right, $choices, true);
+            $key = array_search($right, $choices, true);
             $initialRights[$key] = $right;
         }
 
         // foreach initial rights,
         foreach ($initialRights as $key => $right) {
             // if unauthorized, force it the the submitted value
-            if ( ! $this->accessRightsRegistry->hasAccessRight($right)) {
+            if (!$this->accessRightsRegistry->hasAccessRight($right)) {
                 $rights[$key] = $right;
             }
         }
@@ -76,10 +77,10 @@ class AccessRightType extends AbstractType
         // foreach submitted right
         foreach ($rights as $key => $right) {
             // if unauthorized & not in initial rights, remove it
-            if ( ! $this->accessRightsRegistry->hasAccessRight($right)) {
-               if( ! in_array($right, $initialRights, true)) {
-                   unset($rights[$key]);
-               }
+            if (!$this->accessRightsRegistry->hasAccessRight($right)) {
+                if (!in_array($right, $initialRights, true)) {
+                    unset($rights[$key]);
+                }
             }
         }
 
@@ -92,7 +93,7 @@ class AccessRightType extends AbstractType
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        $choices      = array();
+        $choices = array();
         $rightsGroups = $this->accessRightsRegistry->getGroups();
 
         //building choices list on the form of a double dimension array : category -> rights
@@ -106,7 +107,7 @@ class AccessRightType extends AbstractType
         $resolver->setDefaults(array(
             'expanded' => true,
             'multiple' => true,
-            'choices'  => $choices,
+            'choices' => $choices,
         ));
     }
 
@@ -121,9 +122,9 @@ class AccessRightType extends AbstractType
     {
         foreach ($view->children as $key => $item) {
             $value = $item->vars['value'];
-            if ( ! $this->accessRightsRegistry->hasAccessRight($value)) {
+            if (!$this->accessRightsRegistry->hasAccessRight($value)) {
                 $item->vars['attr']['disabled'] = 'disabled';
-                $item->vars['attr']['title']    = "Vous ne pouvez pas modifier ce droit d'accès.";
+                $item->vars['attr']['title'] = "Vous ne pouvez pas modifier ce droit d'accès.";
             }
         }
     }

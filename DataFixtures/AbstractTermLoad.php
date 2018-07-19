@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\DataFixtures;
 
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -14,13 +15,13 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
  */
 abstract class AbstractTermLoad extends AbstractDataFixture
 {
-    static $class;
+    public static $class;
 
-    abstract function getTerms();
+    abstract public function getTerms();
 
     protected $organizations;
 
-    /** @var  ObjectManager */
+    /** @var ObjectManager */
     protected $manager;
 
     /**
@@ -30,20 +31,20 @@ abstract class AbstractTermLoad extends AbstractDataFixture
      */
     public function doLoad(ObjectManager $manager)
     {
-        $this->manager       = $manager;
-        $this->organizations = $manager->getRepository('SygeforCoreBundle:Organization')->findAll();
+        $this->manager = $manager;
+        $this->organizations = $manager->getRepository(AbstractOrganization::class)->findAll();
 
         $this->autoId = 0;
-        $metadata     = $manager->getClassMetaData($this::$class);
+        $metadata = $manager->getClassMetaData($this::$class);
         $metadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_NONE);
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
 
         foreach ($this->getTerms() as $term) {
-            $class  = $this::$class;
+            $class = $this::$class;
             $entity = new $class();
             $entity->setId(++$this->autoId);
 
-            if ( ! is_array($term)) {
+            if (!is_array($term)) {
                 $term = array('name' => $term);
             }
 
@@ -61,7 +62,7 @@ abstract class AbstractTermLoad extends AbstractDataFixture
         $manager->flush();
     }
 
-    function getOrder()
+    public function getOrder()
     {
         return 1;
     }

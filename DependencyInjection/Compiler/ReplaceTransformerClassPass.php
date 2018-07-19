@@ -6,8 +6,10 @@
  * Date: 01/09/14
  * Time: 10:23.
  */
+
 namespace Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler;
 
+use Sygefor\Bundle\CoreBundle\Utils\Transformer\ModelToElasticaTransformer;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -24,6 +26,6 @@ class ReplaceTransformerClassPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         // replace the fos_elastica.model_to_elastica_transformer.class parameter
-        $container->setParameter('fos_elastica.model_to_elastica_transformer.class', 'Sygefor\Bundle\CoreBundle\Transformer\ModelToElasticaTransformer');
+        $container->setParameter('fos_elastica.model_to_elastica_transformer.class', ModelToElasticaTransformer::class);
     }
 }

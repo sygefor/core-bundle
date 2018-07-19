@@ -11,17 +11,19 @@
         <title>{% block title %}Sygefor{% endblock %}</title>
         <!-- global styles -->
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="{{ asset('build/styles.css') }}" />
+        <link rel="stylesheet" href="{{ asset('assets/styles/styles.css') }}" />
         <!-- page styles -->
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <script type="application/javascript">window.CKEDITOR_BASEPATH = '/ckeditor/';</script>
     </head>
     <body class="{{ body_classes is defined ? body_classes|join(" ") : '' }}">
         <!-- body -->
         {% block body %}{% endblock %}
 
         <!-- global scripts -->
-        <script src="{{ asset('build/scripts.js') }}"></script>
+        <script src="{{ asset('assets/scripts/scripts.js') }}"></script>
+        <script src="{{ asset('assets/scripts/ckeditor.js') }}"></script>
         <script language="javascript">sygeforApp.config(['$userProvider', function($userProvider) {
             $userProvider.setUser({{ app.user|serialize()|raw }});
         }]);</script>

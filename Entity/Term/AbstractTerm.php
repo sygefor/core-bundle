@@ -4,9 +4,8 @@ namespace Sygefor\Bundle\CoreBundle\Entity\Term;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sygefor\Bundle\CoreBundle\Entity\Organization;
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 
 /**
  * Class AbstractTerm.
@@ -51,8 +50,8 @@ abstract class AbstractTerm implements VocabularyInterface
     private $label = null;
 
     /**
-     * @var Organization
-     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\Organization")
+     * @var AbstractOrganization
+     * @ORM\ManyToOne(targetEntity="Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $organization;
@@ -82,6 +81,14 @@ abstract class AbstractTerm implements VocabularyInterface
     public function getVocabularyLabel()
     {
         return $this->label ? $this->label : $this->getVocabularyName();
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getName();
     }
 
     /**
@@ -133,7 +140,7 @@ abstract class AbstractTerm implements VocabularyInterface
     }
 
     /**
-     * @param Organization $organization
+     * @param AbstractOrganization $organization
      */
     public function setOrganization($organization)
     {
@@ -141,7 +148,7 @@ abstract class AbstractTerm implements VocabularyInterface
     }
 
     /**
-     * @return Organization
+     * @return AbstractOrganization
      */
     public function getOrganization()
     {
@@ -184,7 +191,7 @@ abstract class AbstractTerm implements VocabularyInterface
      */
     public function isLocked($machineName = null)
     {
-        return ! empty($this->machineName);
+        return !empty($this->machineName);
     }
 
     /**
@@ -223,13 +230,5 @@ abstract class AbstractTerm implements VocabularyInterface
     public static function orderBy()
     {
         return 'name';
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getName();
     }
 }

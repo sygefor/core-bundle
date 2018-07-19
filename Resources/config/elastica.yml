@@ -1,6 +1,13 @@
 services:
+    sygefor_core.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index"]
+
+    sygefor.search:
+        alias: sygefor_core.search
+
     sygefor_core.elastica_mapping_provider:
-        class: Sygefor\Bundle\CoreBundle\MappingProvider\MappingProvider
+        class: Sygefor\Bundle\CoreBundle\Utils\ElasticaMappingProvider
         arguments:
             - '' #argument is set during configuration
             - '@service_container'
@@ -8,7 +15,7 @@ services:
         #    - [setEntityManager, [@doctrine.orm.entity_manager]]
 
     sygefor_core.cascade_update_listener:
-        class: Sygefor\Bundle\CoreBundle\Listener\ElasticaCascadeUpdateListener
+        class: Sygefor\Bundle\CoreBundle\EventListener\ElasticaCascadeUpdateListener
         arguments:
             - "@kernel"
             - "@sygefor_core.elastica_mapping_provider"
@@ -16,7 +23,51 @@ services:
             - { name: doctrine.event_subscriber, priority: -2 }
             - { name: fos_elastica.listener }
 
+    sygefor_inscription.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index.sygefor3.inscription"]
+
+    sygefor_trainee.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index.sygefor3.trainee"]
+
+    sygefor_trainer.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index.sygefor3.trainer"]
+
+    sygefor_training.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index.sygefor3.training"]
+
+    sygefor_training.session.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index.sygefor3.session"]
+
+    sygefor_training.semestered.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index.sygefor3.semestered_training"]
+
+    # elastica transformer
+    sygefor_training.session.elastica.transformer:
+        class: Sygefor\Bundle\CoreBundle\Utils\Transformer\SessionToElasticaTransformer
+        arguments: ["@service_container"]
+        calls:
+            - [setPropertyAccessor, ["@fos_elastica.property_accessor"]]
+
+    #provider for semestered training
+    sygefor_training.elastica_provider.semestered_training:
+        class: Sygefor\Bundle\CoreBundle\Utils\SemesteredTrainingProvider
+        arguments:
+            - "@fos_elastica.object_persister.sygefor3.semestered_training"
+            - "@fos_elastica.indexable"
+            - "@doctrine"
+        tags:
+            - { name: fos_elastica.provider, index: sygefor3, type: semestered_training }
 
     sygefor_email.search:
-        class: Sygefor\Bundle\CoreBundle\Search\SearchService
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
         arguments: ["@fos_elastica.index.sygefor3.email"]
+
+    sygefor_participation.search:
+        class: Sygefor\Bundle\CoreBundle\Utils\Search\SearchService
+        arguments: ["@fos_elastica.index.sygefor3.participation"]

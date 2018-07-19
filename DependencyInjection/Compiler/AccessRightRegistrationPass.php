@@ -6,8 +6,10 @@
  * Date: 14/03/14
  * Time: 16:31.
  */
+
 namespace Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler;
 
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -21,17 +23,17 @@ class AccessRightRegistrationPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if ( ! $container->hasDefinition('sygefor_core.access_right_registry')) {
+        if (!$container->hasDefinition('sygefor_core.access_right_registry')) {
             return;
         }
 
-        $definition        = $container->getDefinition('sygefor_core.access_right_registry');
+        $definition = $container->getDefinition('sygefor_core.access_right_registry');
         $rightsRegistrants = $container->findTaggedServiceIds('sygefor_core.right_provider');
         foreach ($rightsRegistrants as $id => $tagAttributes) {
             foreach ($tagAttributes as $attributes) {
                 //checking class
                 $class = $container->getDefinition($id)->getClass();
-                if ( ! $class || ! $this->isAccessRightImplementation($class)) {
+                if (!$class || !$this->isAccessRightImplementation($class)) {
                     throw new \InvalidArgumentException(sprintf('Access Right Registration : %s must implement AccessRightInterface', $class));
                 }
                 $definition->addMethodCall(
@@ -52,6 +54,6 @@ class AccessRightRegistrationPass implements CompilerPassInterface
     {
         $refl = new \ReflectionClass($class);
 
-        return $refl->implementsInterface('Sygefor\Bundle\CoreBundle\AccessRight\AccessRightInterface');
+        return $refl->implementsInterface(AccessRightInterface::class);
     }
 }

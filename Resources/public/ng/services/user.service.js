@@ -31,12 +31,16 @@ sygeforApp.provider('$user', [function() {
             if(this.roles.indexOf("ROLE_ADMIN") > -1) {
                 return true;
             }
+
             // search for the access right in groups
             for(var j in this.accessRights){
-                if (this.accessRights[j] == id) return true;
+                if (this.accessRights[j] === id) {
+                    return true;
+                }
             }
+
             return false;
-        }
+        };
 
         return user;
     };

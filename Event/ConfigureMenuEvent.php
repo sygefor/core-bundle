@@ -3,6 +3,7 @@
 /**
  * Auteur: Blaise de Carné - blaise@concretis.com.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Event;
 
 use Knp\Menu\FactoryInterface;
@@ -15,7 +16,7 @@ use Symfony\Component\EventDispatcher\Event;
 class ConfigureMenuEvent extends Event
 {
     const CONFIGURE = 'sygefor_core.menu_configure';
-    const ALTER     = 'sygefor_core.menu_alter';
+    const ALTER = 'sygefor_core.menu_alter';
 
     /**
      * @var \Knp\Menu\FactoryInterface
@@ -33,7 +34,7 @@ class ConfigureMenuEvent extends Event
     public function __construct(FactoryInterface $factory, ItemInterface $menu)
     {
         $this->factory = $factory;
-        $this->menu    = $menu;
+        $this->menu = $menu;
     }
 
     /**

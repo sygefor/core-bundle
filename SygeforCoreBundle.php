@@ -6,8 +6,10 @@ use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\AccessRightRegistrati
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\BatchOperationRegistrationPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\DisableListenersPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\DynamicMappingPass;
+use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\EmailCCRegistryPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\MappingProviderPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\ReplaceTransformerClassPass;
+use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\TrainingTypeRegistryPass;
 use Sygefor\Bundle\CoreBundle\DependencyInjection\Compiler\VocabularyRegistrationPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -31,8 +33,13 @@ class SygeforCoreBundle extends Bundle
         // batch operation compiler pass
         $container->addCompilerPass(new BatchOperationRegistrationPass(), PassConfig::TYPE_BEFORE_REMOVING);
 
+        // email cc registry
+        $container->addCompilerPass(new EmailCCRegistryPass());
+
         // taxonomy compiler pass
         $container->addCompilerPass(new VocabularyRegistrationPass());
+
+        $container->addCompilerPass(new TrainingTypeRegistryPass());
     }
 
     public function getParent()

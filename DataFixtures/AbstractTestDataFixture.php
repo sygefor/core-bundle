@@ -18,7 +18,7 @@ abstract class AbstractTestDataFixture extends AbstractDataFixture
     /**
      * {@inheritdoc}
      */
-    function getOrder()
+    public function getOrder()
     {
         return 1;
     }

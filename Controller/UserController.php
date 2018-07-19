@@ -6,6 +6,7 @@
  * Date: 13/03/14
  * Time: 15:18.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
 use Doctrine\ORM\EntityManager;
@@ -15,10 +16,11 @@ use JMS\SecurityExtraBundle\Annotation\SecureParam;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sygefor\Bundle\CoreBundle\Entity\User\User;
+use Sygefor\Bundle\CoreBundle\Entity\User;
+use Sygefor\Bundle\CoreBundle\Form\Type\AccountType;
 use Sygefor\Bundle\CoreBundle\Form\Type\UserType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -31,19 +33,18 @@ class UserController extends Controller
 {
     /**
      * @Route("/", name="user.index")
-     * @Template()
-     * @Security("is_granted('VIEW', 'SygeforCoreBundle:User\\User')")
+     * @Security("is_granted('VIEW', 'SygeforCoreBundle:User')")
      */
     public function indexAction()
     {
         /* @var EntityManager */
-        $em         = $this->get('doctrine')->getManager();
-        $repository = $em->getRepository('SygeforCoreBundle:User\User');
+        $em = $this->get('doctrine')->getManager();
+        $repository = $em->getRepository(User::class);
 
-        $organization         = $this->get('security.context')->getToken()->getUser()->getOrganization();
-        $hasAccessRightForAll = $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.user.all');
+        $organization = $this->get('security.context')->getToken()->getUser()->getOrganization();
+        $hasAccessRightForAll = $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.user.all');
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder         = $repository->createQueryBuilder('u');
+        $queryBuilder = $repository->createQueryBuilder('u');
 
         if (!$hasAccessRightForAll) {
             $queryBuilder->where('u.organization = :organization')
@@ -52,7 +53,10 @@ class UserController extends Controller
 
         $users = $queryBuilder->orderBy('u.username')->getQuery()->getResult();
 
-        return array('users' => $users, 'isAdmin' => $this->getUser()->isAdmin());
+        return $this->render('user/index.html.twig', array(
+            'users' => $users,
+            'isAdmin' => $this->getUser()->isAdmin(),
+        ));
     }
 
     /**
@@ -61,7 +65,7 @@ class UserController extends Controller
      * @Route("/{id}", requirements={"id" = "\d+"}, name="user.view", options={"expose"=true}, defaults={"_format" = "json"})
      * @Rest\View(serializerEnableMaxDepthChecks=true)
      * @SecureParam(name="user", permissions="VIEW")
-     * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
+     * @ParamConverter("user", class="SygeforCoreBundle:User", options={"id" = "id"})
      *
      * @return User
      */
@@ -74,8 +78,7 @@ class UserController extends Controller
      * @param Request $request
      *
      * @Route("/add", name="user.add")
-     * @Template("SygeforCoreBundle:User:edit.html.twig")
-     * @Security("is_granted('ADD', 'SygeforCoreBundle:User\\User')")
+     * @Security("is_granted('ADD', 'SygeforCoreBundle:User')")
      *
      * @return array|RedirectResponse
      */
@@ -95,19 +98,35 @@ class UserController extends Controller
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($user);
 
-                $scope = $user->getAccessRightScope();
+                $scope = $form->get('accessRightScope')->getData();
                 if ($scope) {
-                    $userAccessRights = array();
-                    $accessRights = array_keys($this->get('sygefor_core.access_right_registry')->getAccessRights());
-                    foreach ($accessRights as $accessRight) {
-                        if ((strstr($accessRight, $scope) || $scope === "all") && $this->get('sygefor_core.access_right_registry')->hasAccessRight($accessRight)) {
-                            $userAccessRights[] = $accessRight;
+                    $getUserAccessRights = function ($scope, array $accessRights) {
+                        if (!is_string($scope)) {
+                            throw new \UnexpectedValueException('String expected, '.gettype($scope).' given.');
                         }
-                    }
+                        $availableExts = call_user_func(function () use (&$scope) {
+                            switch ($scope) {
+                                case 'own.view':   return ['.own.view'];
+                                case 'own.manage': return ['.own'];
+                                case 'all.view':   return ['.all.view', '.own.view'];
+                                case 'all.manage': return ['.all', '.own', '.national'];
+                                default:           return [];
+                            }
+                        });
+                        $userAccessRights = [];
+                        foreach ($accessRights as $accessRight) {
+                            for ($i = 0, $count = count($availableExts); $i < $count; ++$i) {
+                                if (strpos($accessRight, $availableExts[$i]) !== false || $scope === 'all.manage') {
+                                    $userAccessRights[] = $accessRight;
+                                }
+                            }
+                        }
 
-                    if ($scope !== "all" && $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.rights.vocabulary.view.all')) {
-                        $userAccessRights[] = 'sygefor_core.rights.vocabulary.view.all';
-                    }
+                        return $userAccessRights;
+                    };
+
+                    $accessRights = array_keys($this->get('sygefor_core.access_right_registry')->getAccessRights());
+                    $userAccessRights = $getUserAccessRights($scope, $accessRights);
 
                     $user->setAccessRights($userAccessRights);
                 }
@@ -120,7 +139,10 @@ class UserController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'user' => $user, 'isAdmin' => $user->isAdmin());
+        return $this->render('user/edit.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $user, 'isAdmin' => $user->isAdmin(),
+        ));
     }
 
     /**
@@ -128,27 +150,24 @@ class UserController extends Controller
      * @param User    $user
      *
      * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="user.edit", options={"expose"=true})
-     * @Template
      * @SecureParam(name="user", permissions="EDIT")
-     * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
+     * @ParamConverter("user", class="SygeforCoreBundle:User", options={"id" = "id"})
      *
      * @return array|RedirectResponse
      */
     public function editAction(Request $request, User $user)
     {
         $oldPwd = $user->getPassword();
-        $form   = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
                 $newPwd = $form->get('plainPassword')->getData();
                 if (isset($newPwd)) {
-                    $factory = $this->get('security.encoder_factory');
-                    $encoder = $factory->getEncoder($user);
-                    $user->setPassword($encoder->encodePassword($newPwd, $user->getSalt()));
-                }
-                else {
+                    $user->setPassword(null);
+                    $user->setPlainPassword($newPwd);
+                } else {
                     $user->setPassword($oldPwd);
                 }
                 $this->getDoctrine()->getManager()->flush();
@@ -158,14 +177,63 @@ class UserController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'user' => $user, 'isAdmin' => $user->isAdmin());
+        return $this->render('user/edit.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $user,
+            'isAdmin' => $user->isAdmin(),
+        ));
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/account", name="user.account", options={"expose"=true})
+     *
+     * @return array|RedirectResponse
+     */
+    public function accountAction(Request $request)
+    {
+        $factory = $this->get('security.encoder_factory');
+        $encoder = $factory->getEncoder($this->getUser());
+        $oldUsername = $this->getUser()->getUsername();
+        $oldPwd = $this->getUser()->getPassword();
+
+        $form = $this->createForm(AccountType::class, $this->getUser());
+
+        if ($request->getMethod() === 'POST') {
+            $form->handleRequest($request);
+
+            // verify password is set if username has changed
+            $newPwd = $form->get('plainPassword')->getData();
+            if ($form->get('username')->getData() !== $oldUsername && $encoder->encodePassword($newPwd, $this->getUser()->getSalt()) !== $oldPwd) {
+                $form->get('plainPassword')->get('first')->addError(new FormError('Le mot de passe est invalide'));
+            }
+
+            if ($form->isValid()) {
+                if (isset($newPwd)) {
+                    $this->getUser()->setPassword(null);
+                    $this->getUser()->setPlainPassword($newPwd);
+                } else {
+                    $this->getUser()->setPassword($oldPwd);
+                }
+
+                $this->getDoctrine()->getManager()->flush();
+                $this->get('session')->getFlashBag()->add('success', 'Votre profil a bien été mis à jour.');
+
+                return $this->redirect($this->generateUrl('user.account'));
+            }
+        }
+
+        return $this->render('user/profil.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $this->getUser(),
+        ));
     }
 
     /**
      * @Route("/{id}/access-rights", requirements={"id" = "\d+"}, name="user.access_rights", options={"expose"=true})
-     * @Template
      * @SecureParam(name="user", permissions="EDIT")
-     * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
+     * @ParamConverter("user", class="SygeforCoreBundle:User", options={"id" = "id"})
      */
     public function accessRightsAction(Request $request, User $user)
     {
@@ -183,14 +251,16 @@ class UserController extends Controller
             }
         }
 
-        return array('form' => $form->createView(), 'user' => $user);
+        return $this->render('user/accessRights.html.twig', array(
+            'form' => $form->createView(),
+            'user' => $user,
+        ));
     }
 
     /**
      * @Route("/{id}/remove", requirements={"id" = "\d+"}, name="user.remove")
-     * @Template()
      * @SecureParam(name="user", permissions="REMOVE")
-     * @ParamConverter("user", class="SygeforCoreBundle:User\User", options={"id" = "id"})
+     * @ParamConverter("user", class="SygeforCoreBundle:User", options={"id" = "id"})
      */
     public function removeAction(Request $request, User $user)
     {
@@ -208,12 +278,14 @@ class UserController extends Controller
             return $this->redirect($this->generateUrl('user.index'));
         }
 
-        return array('user' => $user);
+        return $this->render('user/remove.html.twig', array(
+            'user' => $user,
+        ));
     }
 
     /**
      * @Route("/{id}/login", requirements={"id" = "\d+"}, name="user.login")
-     * @ParamConverter("loginAsUser", class="SygeforCoreBundle:User\User", options={"id" = "id"})
+     * @ParamConverter("loginAsUser", class="SygeforCoreBundle:User", options={"id" = "id"})
      *
      * @param User $loginAsUser
      *
@@ -221,7 +293,7 @@ class UserController extends Controller
      */
     public function loginAsAction(User $loginAsUser)
     {
-        if ( ! $this->getUser()->isAdmin()) {
+        if (!$this->getUser()->isAdmin()) {
             throw new AccessDeniedHttpException('You can\'t do this action');
         }
         $token = new UsernamePasswordToken($loginAsUser, null, 'user_db', $loginAsUser->getRoles());

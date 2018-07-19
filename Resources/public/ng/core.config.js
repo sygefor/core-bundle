@@ -1,5 +1,5 @@
 /**
- * TrainingBundle
+ * CoreBundle
  */
 sygeforApp.config(['$listStateProvider', '$tooltipProvider', function($listStateProvider, $tooltipProvider) {
 

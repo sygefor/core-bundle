@@ -7,7 +7,7 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Events;
 use FOS\ElasticaBundle\Doctrine\Listener;
-use Sygefor\Bundle\CoreBundle\Listener\ElasticaCascadeUpdateListener;
+use Sygefor\Bundle\CoreBundle\EventListener\ElasticaCascadeUpdateListener;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -48,9 +48,9 @@ abstract class AbstractDataFixture implements ContainerAwareInterface, FixtureIn
     }
 
     /**
-     * @param ObjectManager $manager
+     * @param objectManager $manager
      *
-     * Remove elastica indexing during the anonymization by removing elastica listeners.
+     * Remove elastica indexing during the anonymization by removing elastica listeners
      */
     protected function removeElasticaListeners(ObjectManager $manager)
     {
@@ -75,14 +75,14 @@ abstract class AbstractDataFixture implements ContainerAwareInterface, FixtureIn
      *
      * @see \Doctrine\Common\DataFixtures\FixtureInterface::load()
      *
-     * @param ObjectManager $manager The object manager.
+     * @param ObjectManager $manager the object manager
      */
     abstract protected function doLoad(ObjectManager $manager);
 
     /**
      * Returns the environments the fixtures may be loaded in.
      *
-     * @return array The name of the environments.
+     * @return array the name of the environments
      */
     protected function getEnvironments()
     {
@@ -94,7 +94,7 @@ abstract class AbstractDataFixture implements ContainerAwareInterface, FixtureIn
      *
      * @return int
      */
-    function getOrder()
+    public function getOrder()
     {
         return 0;
     }

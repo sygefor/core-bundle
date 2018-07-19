@@ -2,8 +2,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary;
 
-use Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface;
-use Sygefor\Bundle\CoreBundle\AccessRight\AbstractAccessRight;
+use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
+use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AbstractAccessRight;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class NationalVocabularyViewAccessRight extends AbstractAccessRight
@@ -25,16 +25,15 @@ class NationalVocabularyViewAccessRight extends AbstractAccessRight
      */
     public function supportsClass($class)
     {
-        if ($class === 'Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface') {
+        if ($class === VocabularyInterface::class) {
             return true;
         }
 
         try {
             $refl = new \ReflectionClass($class);
 
-            return $refl->isSubclassOf('Sygefor\Bundle\CoreBundle\Vocabulary\VocabularyInterface');
-        }
-        catch (\ReflectionException $re){
+            return $refl->isSubclassOf(VocabularyInterface::class);
+        } catch (\ReflectionException $re) {
             return false;
         }
     }
@@ -46,13 +45,11 @@ class NationalVocabularyViewAccessRight extends AbstractAccessRight
     {
         if (is_string($token)) {
             return $attribute === 'VIEW';
-        }
-        else if ($object) {
-            return ($attribute === 'VIEW' && (
+        } elseif ($object) {
+            return $attribute === 'VIEW' && (
                 $object->getVocabularyStatus() === VocabularyInterface::VOCABULARY_NATIONAL ||
-                ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !$object->getOrganization())));
-        }
-        else {
+                ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !$object->getOrganization()));
+        } else {
             return $attribute === 'VIEW';
         }
     }

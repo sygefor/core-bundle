@@ -6,6 +6,7 @@
  * Date: 25/08/2015
  * Time: 12:30.
  */
+
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -34,13 +35,13 @@ class EmailController extends Controller
         $requestFilters = $request->request->get('filters');
 
         // security check
-        if (isset($requestFilters['trainee.id']) && ! $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_trainee.rights.trainee.all.view')) {
+        if (isset($requestFilters['trainee.id']) && !$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.trainee.all.view')) {
             $search->addTermFilter('trainee.organization.id', $this->getUser()->getOrganization()->getId());
         }
-        if (isset($requestFilters['session.id']) && ! $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_session.rights.session.all.view')) {
+        if (isset($requestFilters['session.id']) && !$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.training.all.view')) {
             $search->addTermFilter('session.training.organization.id', $this->getUser()->getOrganization()->getId());
         }
-        if (isset($requestFilters['trainer.id']) && ! $this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_trainer.rights.trainer.all.view')) {
+        if (isset($requestFilters['trainer.id']) && !$this->get('sygefor_core.access_right_registry')->hasAccessRight('sygefor_core.access_right.trainer.all.view')) {
             $search->addTermFilter('trainer.organization.id', $this->getUser()->getOrganization()->getId());
         }
 

@@ -1,7 +1,7 @@
 services:
     # AccessRightRegistry
     sygefor_core.access_right_registry:
-        class: Sygefor\Bundle\CoreBundle\AccessRight\AccessRightRegistry
+        class: Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\AccessRightRegistry
         arguments:
           - "@service_container"
 
@@ -21,31 +21,3 @@ services:
         public: false
         tags:
             - { name:security.voter }
-
-    # vocabulary voters
-    sygefor_core.rights.vocabulary.own:
-        class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\OwnOrganizationVocabularyAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Vocabulaires" }
-    sygefor_core.rights.vocabulary.all:
-        class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\AllOrganizationVocabularyAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Vocabulaires" }
-    sygefor_core.rights.vocabulary.national:
-        class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\NationalVocabularyAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Vocabulaires" }
-    sygefor_core.rights.vocabulary.view.all:
-        class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\Vocabulary\NationalVocabularyViewAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Vocabulaires" }
-
-    # user voters
-    sygefor_core.rights.user.own:
-        class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\User\OwnOrganizationUserAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Utilisateurs" }
-    sygefor_core.rights.user.all:
-        class:        Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\User\AllOrganizationUserAccessRight
-        tags:
-            - { name: sygefor_core.right_provider, group: "Utilisateurs" }

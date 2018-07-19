@@ -23,23 +23,26 @@
                 <input type="text" class="form-control" id="subject" ng-model="message.subject" placeholder="Sujet du mail" autofocus>
             </div>
         </div>
-        <div class="form-group">
+
+        <div class="form-group" ng-if="objectLength(message.cc) > 0">
             <label for="cc" class="col-sm-2 control-label">CC</label>
             <div class="col-sm-10">
-                <input type="checkbox" ng-model="message.cc.employer" id="cc_1">
-                <label class="control-label" for="cc_1">Employeur</label>&nbsp;
-
-                <input type="checkbox" ng-model="message.cc.manager" id="cc_2">
-                <label class="control-label" for="cc_2">Directeur</label>&nbsp;
-
-                <input type="checkbox" ng-model="message.cc.trainingCorrespondent" id="cc_3">
-                <label class="control-label" for="cc_3">Correspondants formation</label>
+                <span ng-repeat="(name, checked) in message.cc">
+                    <input type="checkbox" ng-model="message.cc[name]" ng-checked="checked" id="cc_{{ name }}">
+                    <label class="control-label" for="cc_{{ name }}">{{ name }}</label>&nbsp;
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="additionalCC" class="col-sm-2 control-label">{{ objectLength(message.cc) > 0 ? 'Autres ' : '' }}CC </label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="additionalCC" ng-model="message.additionalCC" placeholder="prenom@domaine.fr; nom@domaine.fr">
             </div>
         </div>
         <div class="form-group">
             <label for="message" class="col-sm-2 control-label">Message </label>
             <div class="col-sm-10">
-                <textarea class="form-control" rows="10" id="message" ng-model="message.body"  placeholder="Message du mail"></textarea>
+                <textarea class="form-control" rows="10" id="message" ckeditor ng-model="message.body"  placeholder="Message du mail"></textarea>
             </div>
         </div>
         <div class="form-group" ng-if="message.templateAttachments.length > 0">
