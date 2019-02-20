@@ -491,29 +491,33 @@ abstract class AbstractSession implements SerializedAccessRights
      */
     public function isRegistrable()
     {
-        if ($this->getStatus() !== self::STATUS_OPEN) {
-            return false;
-        }
+	    if ($this->getStatus() !== self::STATUS_OPEN) {
+		    return false;
+	    }
 
-        $now = new \DateTime();
+	    $now = new \DateTime();
 
-        // check date
-        if ($this->getDateBegin() <= $now) {
-            return false;
-        }
+	    // check date
+	    if ($this->getDateBegin() <= $now) {
+		    return false;
+	    }
 
-        // check status
-        if ($this->getRegistration() < self::REGISTRATION_PRIVATE) {
-            return false;
-        }
+	    // check status
+	    if ($this->getRegistration() < self::REGISTRATION_PRIVATE) {
+		    return false;
+	    }
 
-        // check limit registration date
-        if ($this->getLimitRegistrationDate() && $this->getLimitRegistrationDate() < $now) {
-            return false;
-        }
+	    // check limit registration date
+	    if ($this->getLimitRegistrationDate()) {
+		    $limitRegistrationDate = clone $this->getLimitRegistrationDate();
+		    $limitRegistrationDate->modify('+1 days');
+		    if ($limitRegistrationDate < $now) {
+			    return false;
+		    }
+	    }
 
-        // else
-        return true;
+	    // ok
+	    return $this->getAvailablePlaces() > 0;
     }
 
     /**
