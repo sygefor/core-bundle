@@ -218,6 +218,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
             return $errors;
         }
         $this->computeShorcutsAndMerge($TBS, $entities, $classCatalog);
+	    $TBS->Source = str_replace(' draw:name=', ' xxx=', $TBS->Source);
         $fileName = $this->generateFinalFile($TBS, $template);
 
         return array('fileUrl' => $fileName);
