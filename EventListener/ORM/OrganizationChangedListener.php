@@ -93,11 +93,11 @@ class OrganizationChangedListener implements EventSubscriber
                                 }
                             }
                             // remove properties related to another organization
-                            elseif (method_exists($value, 'getOrganization')) {
-                                if ($value->getOrganization() !== null && $value->getOrganization() !== $entity->getOrganization()) {
-                                    $propertyAccessor->setValue($value, 'setOrganization', null);
-                                }
-                            }
+//                            elseif (method_exists($value, 'getOrganization')) {
+//                                if ($value->getOrganization() !== null && $value->getOrganization() !== $entity->getOrganization()) {
+//                                    $propertyAccessor->setValue($value, 'setOrganization', null);
+//                                }
+//                            }
                         }
                     }
                 }
