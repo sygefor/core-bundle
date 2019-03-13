@@ -115,6 +115,8 @@ abstract class AbstractTrainerController extends Controller
             $form->handleRequest($request);
             if ($form->isValid()) {
                 $this->getDoctrine()->getManager()->flush();
+
+	            return $this->redirectToRoute('trainer.view', ['id' => $trainer->getId()]);
             }
         }
 

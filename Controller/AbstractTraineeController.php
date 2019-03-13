@@ -211,7 +211,7 @@ abstract class AbstractTraineeController extends Controller
      * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
      * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
      *
-     * @return array
+     * @return mixed
      */
     public function changeOrganizationAction(Request $request, AbstractTrainee $trainee)
     {
@@ -225,6 +225,8 @@ abstract class AbstractTraineeController extends Controller
             $form->handleRequest($request);
             if ($form->isValid()) {
                 $this->getDoctrine()->getManager()->flush();
+
+	            return $this->redirectToRoute('trainee.view', ['id' => $trainee->getId()]);
             }
         }
 
