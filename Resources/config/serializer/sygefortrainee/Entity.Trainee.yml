@@ -1,0 +1,7 @@
+Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee:
+    exclusion_policy: NONE
+    properties:
+        password:
+            exclude: true
+        salt:
+            exclude: true
