@@ -33,13 +33,13 @@ abstract class AbstractTraineeController extends Controller
 
     /**
      * @param Request $request
-     * 
+     *
      * @Route("/search", name="trainee.search", options={"expose"=true}, defaults={"_format" = "json"})
      * @Security("is_granted('VIEW', 'SygeforCoreBundle:AbstractTrainee')")
      * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
-     * 
+     *
      * @return array
-     * 
+     *
      * @throws \Exception
      */
     public function searchAction(Request $request)
@@ -61,7 +61,7 @@ abstract class AbstractTraineeController extends Controller
      * @Route("/create", name="trainee.create", options={"expose"=true}, defaults={"_format" = "json"})
      * @Security("is_granted('CREATE', 'SygeforCoreBundle:AbstractTrainee')")
      * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
-     * 
+     *
      * @return array
      */
     public function createAction(Request $request)
@@ -89,13 +89,13 @@ abstract class AbstractTraineeController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param Request         $request
      * @param AbstractTrainee $trainee
-     * 
+     *
      * @Route("/{id}/view", requirements={"id" = "\d+"}, name="trainee.view", options={"expose"=true}, defaults={"_format" = "json"})
      * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
      * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
-     * 
+     *
      * @return array
      */
     public function viewAction(Request $request, AbstractTrainee $trainee)
@@ -123,16 +123,16 @@ abstract class AbstractTraineeController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param Request         $request
      * @param AbstractTrainee $trainee
-     * 
+     *
      * @Route("/{id}/toggleActivation", requirements={"id" = "\d+"}, name="trainee.toggleActivation", options={"expose"=true}, defaults={"_format" = "json"})
      * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
      * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
      * @Method("POST")
-     * 
+     *
      * @return array
-     * 
+     *
      * @throws \Html2Text\Html2TextException
      * @throws \Twig_Error
      */
@@ -164,14 +164,14 @@ abstract class AbstractTraineeController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param Request         $request
      * @param AbstractTrainee $trainee
      *
      * @Route("/{id}/changepwd", name="trainee.changepwd", options={"expose"=true}, defaults={"_format" = "json"})
      * @SecureParam(name="trainee", permissions="EDIT")
      * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
      * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
-     * 
+     *
      * @return array
      */
     public function changePasswordAction(Request $request, AbstractTrainee $trainee)
@@ -203,7 +203,7 @@ abstract class AbstractTraineeController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param Request         $request
      * @param AbstractTrainee $trainee
      *
      * @Route("/{id}/changeorg", name="trainee.changeorg", options={"expose"=true}, defaults={"_format" = "json"})
@@ -226,7 +226,7 @@ abstract class AbstractTraineeController extends Controller
             if ($form->isValid()) {
                 $this->getDoctrine()->getManager()->flush();
 
-	            return $this->redirectToRoute('trainee.view', ['id' => $trainee->getId()]);
+                return $this->redirectToRoute('trainee.view', ['id' => $trainee->getId()]);
             }
         }
 
@@ -241,7 +241,7 @@ abstract class AbstractTraineeController extends Controller
      * @SecureParam(name="trainee", permissions="DELETE")
      * @ParamConverter("trainee", class="SygeforCoreBundle:AbstractTrainee", options={"id" = "id"})
      * @Rest\View(serializerGroups={"Default", "trainee"}, serializerEnableMaxDepthChecks=true)
-     * 
+     *
      * @return array
      */
     public function deleteAction(AbstractTrainee $trainee)
