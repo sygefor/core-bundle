@@ -14,6 +14,7 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
+use Sygefor\Bundle\CoreBundle\Utils\ArrayFunctions;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
@@ -348,8 +349,16 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         $TBS->MergeBlock($entityName, $lines);
         // add global variable matching first entity
         if (count($lines) > 0) {
-            reset($lines);
-            $TBS->MergeField('global', current($lines)->toArray());
+	        /**
+	         * We need to handle empty arrays ourselves, or TBS will cast them to string "Array".
+	         * @see  vendor/mbence/opentbs-bundle/MBence/OpenTBSBundle/lib/tbs_class.php:3360
+	         * @var  array  $Value  Named after TBS convention
+	         */
+	        $Value = ArrayFunctions::emptyArraysToStringsRecursive(
+		        reset($lines)->toArray()
+	        );
+
+	        $TBS->MergeField('global', $Value);
         }
         $error = ob_get_flush();
 
