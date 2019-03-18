@@ -1,11 +1,11 @@
 //require('angular/angular');
 
-var sygeforApp = angular.module('conjecto.sygefor.app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'angular-growl', 'zeroclipboard', 'chieffancypants.loadingBar', 'angularjssearchbox', 'blueimp.fileupload', 'cfp.hotkeys', 'ngStorage', 'checklist-model', 'ngCkeditor']);
+var sygeforApp = angular.module('conjecto.sygefor.app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'angular-growl', 'ngclipboard', 'chieffancypants.loadingBar', 'angularjssearchbox', 'blueimp.fileupload', 'cfp.hotkeys', 'ngStorage', 'checklist-model', 'ngCkeditor']);
 
 /**
  * config block
  */
-sygeforApp.config(function($httpProvider, $urlRouterProvider, growlProvider, uiZeroclipConfigProvider) {
+sygeforApp.config(function($httpProvider, $urlRouterProvider, growlProvider) {
     // set some default headers
     $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     $httpProvider.defaults.headers.common['Accept'] = 'application/json';
@@ -18,11 +18,6 @@ sygeforApp.config(function($httpProvider, $urlRouterProvider, growlProvider, uiZ
 
     // growl
     growlProvider.globalTimeToLive(10000);
-
-    // ZeroClipboard
-    uiZeroclipConfigProvider.setZcConf({
-        swfPath: './ZeroClipboard.swf'
-    });
 });
 
 /**
