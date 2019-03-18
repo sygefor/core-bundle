@@ -15,6 +15,7 @@ use Sygefor\Bundle\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Security\Core\SecurityContext;
 use Volcanus\Csv\Writer;
 
@@ -73,25 +74,34 @@ class CSVBatchOperation extends AbstractBatchOperation
         foreach ($entities as $entity) {
             if (!$this->securityContext->getToken()->getUser() instanceof User || $this->securityContext->isGranted('VIEW', $entity)) {
                 $data = array();
-                foreach ($this->options['fields'] as $key => $value) {
-                    try {
-                        $rvalue = $accessor->getValue($entity, $key);
-
-                        // reformat values
-                        if (!empty($value['type'])) {
-                            if ($value['type'] === 'date') {
-                                if ($rvalue) {
-                                    $rvalue = $rvalue->format('d/m/Y');
-                                }
-                            } elseif ($value['type'] === 'boolean') {
-                                $rvalue = ($rvalue) ? 'Oui' : 'Non';
-                            }
-                        }
-
-                        $data[$key] = ($rvalue) ? $rvalue : '';
-                    } catch (UnexpectedTypeException $e) {
-                    }
-                }
+	            foreach ($this->options['fields'] as $key => $value) {
+		            try {
+			            $rvalue = null;
+			            try {
+				            $rvalue = $accessor->getValue($entity, $key);
+				            if (isset($value['subProperty'])) {
+					            $subProperties = array();
+					            $propertyAccessor = new PropertyAccessor();
+					            foreach ($rvalue as $rval) {
+						            try {
+							            $subProperty = $accessor->getValue($rval, $value['subProperty']);
+							            $subProperties[] = $subProperty;
+						            } catch (\Exception $e) {
+							            $subProperties[] = 'Non défini';
+						            }
+					            }
+					            $rvalue = implode('|', $subProperties);
+				            } elseif (!empty($value['type']) && $value['type'] == 'date') {
+					            if ($rvalue) {
+						            $rvalue = $rvalue->format('d/m/Y');
+					            }
+				            }
+			            } catch (\Exception $e) {
+			            }
+			            $data[$key] = ($rvalue) ? $rvalue : '';
+		            } catch (UnexpectedTypeException $e) {
+		            }
+	            }
                 $lines[$entity->getId()] = $data;
             }
         }
