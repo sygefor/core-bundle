@@ -53,7 +53,11 @@ class AbstractTraineeType extends AbstractType
                 'label' => 'Centre',
                 'class' => AbstractOrganization::class,
                 'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('o')->orderBy('o.name', 'ASC');
+                    return $er->createQueryBuilder('o')
+	                    ->where('o.traineeRegistrable = :traineeRegistrable')
+	                    ->orderBy('o.name', 'ASC')
+	                    ->setParameter('traineeRegistrable', true)
+                    ;
                 },
             ));
 
