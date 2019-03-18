@@ -15,6 +15,9 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
+/**
+ * Class AccountType.
+ */
 class AccountType extends AbstractType
 {
     /**

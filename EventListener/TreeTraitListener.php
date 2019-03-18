@@ -7,6 +7,9 @@ use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
+/**
+ * Class TreeTraitListener.
+ */
 class TreeTraitListener implements EventSubscriber
 {
     /**
@@ -53,6 +56,8 @@ class TreeTraitListener implements EventSubscriber
                 return true;
             }
         }
+
+        return false;
     }
 
     /**
