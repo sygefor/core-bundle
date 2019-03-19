@@ -34,6 +34,12 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
      */
     private $body;
 
+	/**
+	 * @ORM\Column(name="forceEmailSending", type="boolean", options={"default": false})
+	 * @var boolean
+	 */
+	private $forceEmailSending;
+
     /**
      * @ORM\ManyToOne(targetEntity="InscriptionStatus")
      *
@@ -55,6 +61,11 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
      * )
      */
     protected $attachmentTemplates;
+
+	public function __construct()
+	{
+		$this->forceEmailSending = false;
+	}
 
     /**
      * @param ArrayCollection $attachmentTemplates
@@ -87,6 +98,22 @@ class EmailTemplate extends AbstractTerm implements VocabularyInterface
     {
         return $this->body;
     }
+
+	/**
+	 * @return bool
+	 */
+	public function isForceEmailSending()
+	{
+		return $this->forceEmailSending;
+	}
+
+	/**
+	 * @param bool $forceEmailSending
+	 */
+	public function setForceEmailSending($forceEmailSending)
+	{
+		$this->forceEmailSending = $forceEmailSending;
+	}
 
     /**
      * @param string $subject

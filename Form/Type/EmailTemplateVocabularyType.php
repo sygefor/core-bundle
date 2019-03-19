@@ -9,6 +9,7 @@ use Sygefor\Bundle\CoreBundle\Entity\Term\PresenceStatus;
 use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Sygefor\Bundle\CoreBundle\Utils\Email\CCRegistry;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -57,7 +58,13 @@ class EmailTemplateVocabularyType extends VocabularyType
                 'attr' => array(
                     'rows' => 10,
                     'ckeditor' => 'ckeditor',
-                ), ))
+                ),
+            ))
+	        ->add('forceEmailSending', CheckboxType::class, array(
+		        'label' => 'Abonnement',
+		        'widget_suffix' => 'Envoi le courriel même si le stagiaire a désactivé les lettres d\'informations',
+		        'required' => false,
+	        ))
             ->add('inscriptionStatus', EntityType::class, array(
                 'label' => "Status d'inscription",
                 'class' => InscriptionStatus::class,

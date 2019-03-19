@@ -69,3 +69,10 @@ services:
         abstract: true
         arguments:
             - "@sygefor_core.access_right_registry"
+
+    # strong password validator
+    sygefor_core.strong_password_validator:
+        class: Sygefor\Bundle\CoreBundle\Validator\Constraints\StrongPasswordValidator
+        arguments: ["@security.token_storage", "@security.encoder_factory"]
+        tags:
+            - { name: validator.constraint_validator }

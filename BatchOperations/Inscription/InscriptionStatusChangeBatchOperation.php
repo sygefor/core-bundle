@@ -104,7 +104,7 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
             ];
         }
 
-        return $data;
+        return count ($data);
     }
 
     /**

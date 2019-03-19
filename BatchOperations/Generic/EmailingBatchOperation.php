@@ -66,6 +66,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                 isset($options['cc']) ? $options['cc'] : array(),
                 isset($options['additionalCC']) ? $options['additionalCC'] : array(),
                 isset($options['message']) ? $options['message'] : '',
+	            isset($options['forceEmailSending']) ? $options['forceEmailSending'] : false,
                 isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
                 null,
                 $preview = true,
@@ -89,13 +90,12 @@ class EmailingBatchOperation extends AbstractBatchOperation
             isset($options['cc']) ? $options['cc'] : array(),
             isset($options['additionalCC']) ? $options['additionalCC'] : array(),
             isset($options['message']) ? $options['message'] : '',
+	        isset($options['forceEmailSending']) ? $options['forceEmailSending'] : false,
             isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
             isset($options['attachment']) ? $options['attachment'] : null,
             false,
             isset($options['organization']) ? $options['organization'] : null
         );
-
-        return new Response('', 204);
     }
 
     /**
@@ -112,11 +112,13 @@ class EmailingBatchOperation extends AbstractBatchOperation
             $repoInscriptionStatus = $em->getRepository(InscriptionStatus::class);
             $inscriptionStatus = $repoInscriptionStatus->findById($options['inscriptionStatus']);
             $templates = $repo->findBy(array('inscriptionStatus' => $inscriptionStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
-        } elseif (!empty($options['presenceStatus'])) {
+        }
+        else if (!empty($options['presenceStatus'])) {
             $repoPresenceStatus = $em->getRepository(PresenceStatus::class);
             $presenceStatus = $repoPresenceStatus->findById($options['presenceStatus']);
             $templates = $repo->findBy(array('presenceStatus' => $presenceStatus, 'organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization()));
-        } else {
+        }
+        else {
             //if no presence/inscription status is found, we get all organization templates
             $templates = $repo->findBy(array('organization' => $this->container->get('security.context')->getToken()->getUser()->getOrganization(), 'presenceStatus' => null, 'inscriptionStatus' => null));
         }
@@ -136,12 +138,16 @@ class EmailingBatchOperation extends AbstractBatchOperation
      * @param $cc
      * @param $additionalCC
      * @param $body
+     * @param $forceEmailSending
      * @param array $attachments
      * @param bool  $preview
      *
      * @return array
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Html2Text\Html2TextException
      */
-    public function parseAndSendMail($entities, $subject, $cc = array(), $additionalCC = null, $body, $templateAttachments = array(), $attachments = array(), $preview = false, $organization = null)
+    public function parseAndSendMail($entities, $subject, $cc = array(), $additionalCC = null, $body, $forceEmailSending = false, $templateAttachments = array(), $attachments = array(), $preview = false, $organization = null)
     {
         $doClear = true;
         if (!is_array($entities)) {
@@ -153,18 +159,20 @@ class EmailingBatchOperation extends AbstractBatchOperation
             return;
         }
 
+	    $last = 0;
         if ($preview) {
             return array('email' => array(
                 'subject' => $this->replaceTokens($subject, $entities[0]),
                 'cc' => array_merge($cc, $this->additionalCCToArray($additionalCC)),
                 'message' => $this->replaceTokens($body, $entities[0]),
+	            'forceEmailSending' => $forceEmailSending,
                 'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) {
                     return $attachment['name'];
                 }, $templateAttachments) : null,
                 'attachments' => $attachments,
             ));
-        } else {
-            $last = 0;
+        }
+        else {
             $em = $this->em;
             $message = \Swift_Message::newInstance(null, null, 'text/html', null);
 
@@ -198,65 +206,75 @@ class EmailingBatchOperation extends AbstractBatchOperation
             }
             foreach ($entities as $entity) {
                 try {
-                    $_message = clone $message;
-                    $_message->generateId();
-                    // load publipost templates
-                    $publipostTemplates = array();
-                    if ($templateAttachments) {
-                        foreach ($templateAttachments as $templateAttachment) {
-                            if (is_int($templateAttachment)) {
-                                $publipostTemplates[] = $templateAttachment;
-                            } elseif (is_array($templateAttachment) && isset($templateAttachment['id'])) {
-                                $publipostTemplates[] = $templateAttachment['id'];
-                            } elseif ($templateAttachment && $templateAttachment instanceof PublipostTemplate) {
-                                $publipostTemplates[] = $templateAttachment->getId();
-                            }
-                        }
-                        $publipostTemplates = $em->getRepository(PublipostTemplate::class)->findBy(array('id' => $publipostTemplates));
-                        $this->attachPublipostAttachment($_message, $publipostTemplates, array($entity->getId()));
-                    }
+	                // reload entity because of em clear
+	                $entity = $em->getRepository(get_class($entity))->find($entity->getId());
+	                $copies = $this->findCCRecipients($entity, $cc);
 
-                    // reload entity because of em clear
-                    $entity = $em->getRepository(get_class($entity))->find($entity->getId());
-                    $copies = $this->findCCRecipients($entity, $cc);
+	                // ignore for trainers and inscriptions
+	                $sendEmail = true;
 
-                    $hrpa = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
-                    $email = $hrpa->email;
-                    $_message->setTo($email);
-                    $_message->setCc(array());
-                    foreach ($copies[0] as $key => $copy) {
-                        $_message->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);
-                    }
-                    foreach ($this->additionalCCToArray($additionalCC) as $email => $send) {
-                        if ($send && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            $_message->addCc($email);
-                        }
-                    }
-                    $subject = $this->replaceTokens($subject, $entity);
-                    $_message->setSubject('=?UTF-8?B?'.base64_encode($subject).'?=');
-                    $_message->setBody($this->replaceTokens($body, $entity));
-                    $_message->addPart(Html2Text::convert($_message->getBody()), 'text/plain');
-                    $last = $this->container->get('mailer')->send($_message);
+	                // used only from trainee list
+	                if (get_parent_class($entity) === AbstractTrainee::class) {
+		                $sendEmail = $forceEmailSending ? true : $entity->getNewsletter();
+	                }
+	                // if trainee agree to newsletters or email if not a newsletter
+	                if ($sendEmail) {
+		                $_message = clone $message;
+		                $_message->generateId();
+		                // load publipost templates
+		                $publipostTemplates = array();
+		                if ($templateAttachments) {
+			                foreach ($templateAttachments as $templateAttachment) {
+				                if (is_int($templateAttachment)) {
+					                $publipostTemplates[] = $templateAttachment;
+				                } elseif (is_array($templateAttachment) && isset($templateAttachment['id'])) {
+					                $publipostTemplates[] = $templateAttachment['id'];
+				                } elseif ($templateAttachment && $templateAttachment instanceof PublipostTemplate) {
+					                $publipostTemplates[] = $templateAttachment->getId();
+				                }
+			                }
+			                $publipostTemplates = $em->getRepository(PublipostTemplate::class)->findBy(array('id' => $publipostTemplates));
+			                $this->attachPublipostAttachment($_message, $publipostTemplates, array($entity->getId()));
+		                }
 
-                    // save email in db
-                    $email = new Email();
-                    $email->setUserFrom($em->getRepository(User::class)->find($this->container->get('security.context')->getToken()->getUser()->getId()));
-                    $email->setEmailFrom($organization->getEmail());
-                    foreach ($copies[0] as $key => $copy) {
-                        $email->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);
-                    }
-                    if (get_parent_class($entity) === AbstractTrainee::class) {
-                        $email->setTrainee($entity);
-                    } elseif (get_parent_class($entity) === AbstractTrainer::class) {
-                        $email->setTrainer($entity);
-                    } elseif (get_parent_class($entity) === AbstractInscription::class) {
-                        $email->setTrainee($entity->getTrainee());
-                        $email->setSession($entity->getSession());
-                    }
-                    $email->setSubject($subject);
-                    $email->setBody($_message->getBody());
-                    $email->setSendAt(new \DateTime('now', new \DateTimeZone('Europe/Paris')));
-                    $em->persist($email);
+		                $hrpa = $this->container->get('sygefor_core.human_readable_property_accessor_factory')->getAccessor($entity);
+		                $email = $hrpa->email;
+		                $_message->setTo($email);
+		                $_message->setCc(array());
+		                foreach ($copies[0] as $key => $copy) {
+			                $_message->addCc($copy, isset($copies[1][$key]) ? $copies[1][$key] : null);
+		                }
+		                foreach ($this->additionalCCToArray($additionalCC) as $email => $send) {
+			                if ($send && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				                $_message->addCc($email);
+			                }
+		                }
+		                // force encoding for webmails using UTF-7
+		                $subject = $this->replaceTokens($subject, $entity);
+		                $_message->setSubject('=?UTF-8?B?' . base64_encode($subject) . '?=');
+		                $_message->setBody($this->replaceTokens($body, $entity));
+		                $_message->addPart(Html2Text::convert($_message->getBody()), 'text/plain');
+		                $last += $this->container->get('mailer')->send($_message);
+
+		                // save email in db
+		                $email = new Email();
+		                $email->setUserFrom($em->getRepository(User::class)->find($this->container->get('security.context')->getToken()->getUser()->getId()));
+		                $email->setEmailFrom($organization->getEmail());
+		                if (get_parent_class($entity) === AbstractTrainee::class) {
+			                $email->setTrainee($entity);
+		                }
+		                else if (get_parent_class($entity) === AbstractTrainer::class) {
+			                $email->setTrainer($entity);
+		                }
+		                else if (get_parent_class($entity) === AbstractInscription::class) {
+			                $email->setTrainee($entity->getTrainee());
+			                $email->setSession($entity->getSession());
+		                }
+		                $email->setSubject($subject);
+		                $email->setBody($_message->getBody());
+		                $email->setSendAt(new \DateTime('now', new \DateTimeZone('Europe/Paris')));
+		                $em->persist($email);
+	                }
                     if (++$i % 500 === 0) {
                         $em->flush();
                         $em->clear();
@@ -274,12 +292,14 @@ class EmailingBatchOperation extends AbstractBatchOperation
         }
     }
 
-    /**
-     * @param $content
-     * @param $entity
-     *
-     * @return string
-     */
+	/**
+	 * @param $content
+	 * @param $entity
+	 *
+	 * @return mixed
+	 *
+	 * @throws \Exception
+	 */
     protected function replaceTokens($content, $entity)
     {
         /** @var HumanReadablePropertyAccessor $HRPA */
@@ -296,14 +316,16 @@ class EmailingBatchOperation extends AbstractBatchOperation
         return $newContent;
     }
 
-    /**
-     * Get recipients email and name.
-     *
-     * @param $entity
-     * @param $ccResolvers
-     *
-     * @return array
-     */
+	/**
+	 * Get recipients email and name.
+	 *
+	 * @param $entity
+	 * @param $ccResolvers
+	 *
+	 * @return array
+	 *
+	 * @throws \Exception
+	 */
     private function findCCRecipients($entity, $ccResolvers)
     {
         $emails = array();

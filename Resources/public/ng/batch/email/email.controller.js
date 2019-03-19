@@ -1,11 +1,13 @@
 /**
- * BatchMailingController
+ * BatchEMailController
  */
-sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$modalInstance', '$dialogParams', '$dialog', 'config', 'growl', function ($scope, $http, $window, $modalInstance, $dialogParams, $dialog, config, growl) {
+sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$modalInstance', '$dialogParams', '$dialog', 'config', function ($scope, $http, $window, $modalInstance, $dialogParams, $dialog, config) {
     $scope.dialog = $modalInstance;
     $scope.items = $dialogParams.items;
     $scope.targetClass = $dialogParams.targetClass;
     $scope.config = config;
+    $scope.sending = false;
+    $scope.error = false;
 
     // building templates contents
     $scope.templates = [];
@@ -16,6 +18,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             'subject': config.templates[i]['subject'],
             'cc': config.templates[i]['cc'],
             'body': config.templates[i]['body'],
+            'forceEmailSending': config.templates[i]['forceEmailSending'],
             'templateAttachments': config.templates[i]['attachmentTemplates'],
             'templateAttachmentChecklist': []
         };
@@ -28,21 +31,35 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         'subject': '',
         'cc': [],
         'body': '',
+        'forceEmailSending': false,
         'templateAttachments': null,
         'templateAttachmentChecklist': []
     });
 
-    // set default email
-    $scope.message = {
-        template: $scope.templates[0],
-        subject: $scope.templates[0]['subject'],
-        cc: $scope.templates[0]['cc'],
-        additionalCC: '',
-        body: $scope.templates[0]['body'],
-        templateAttachments: $scope.templates[0]['templateAttachments'],
-        templateAttachmentChecklist: []
-    };
-
+    if ($scope.templates.length) {
+        $scope.message = {
+            template: $scope.templates[0],
+            subject: $scope.templates[0]['subject'],
+            cc: $scope.templates[0]['cc'],
+            additionalCC: '',
+            body: $scope.templates[0]['body'],
+            forceEmailSending: $scope.templates[0]['forceEmailSending'],
+            templateAttachments: $scope.templates[0]['templateAttachments'],
+            templateAttachmentChecklist: []
+        };
+    }
+    else {
+        $scope.message = {
+            template: null,
+            subject: '',
+            cc: [],
+            additionalCC: '',
+            body: '',
+            forceEmailSending: false,
+            templateAttachments: null,
+            templateAttachmentChecklist: []
+        };
+    }
     $scope.message.attachments = [];
     $scope.formError = '';
 
@@ -64,6 +81,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 subject: $scope.message.subject,
                 cc: $scope.message.cc,
                 additionalCC: $scope.message.additionalCC,
+                forceEmailSending: $scope.message.forceEmailSending,
                 message: $scope.message.body,
                 templateAttachments: null
             },
@@ -74,6 +92,9 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         // remove checkbox template values and templateAttachments unchecked
         data.options.templateAttachments = removeUncheckedPublipostTemplate($scope.message.templateAttachments, $scope.message.templateAttachmentChecklist);
 
+        var deferred = new $.Deferred;
+        $scope.sending = true;
+        $scope.error = false;
         $http({
             method: 'POST',
             url: url,
@@ -86,6 +107,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 //now add all of the assigned files
                 formData.append("ids", angular.toJson(data.ids));
                 //add each file to the form data and iteratively name them
+
                 for (var key in data.attachments) {
                     formData.append("attachment_" + key, data.attachments[key]);
                 }
@@ -95,10 +117,13 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             headers: {'Content-Type': undefined},
             data: data
         }).success(function (data) {
-            growl.addSuccessMessage("Le message a bien été ajouté à la liste d'envoi.");
+            $modalInstance.close(deferred.resolve(data));
+        }).error(function() {
+            $scope.sending = false;
+            $scope.error = true;
         });
 
-        $modalInstance.close();
+        return deferred.promise();
     };
 
     /**
@@ -113,6 +138,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
                 subject: $scope.message.subject,
                 cc: $scope.message.cc,
                 additionalCC: $scope.message.additionalCC,
+                forceEmailSending: $scope.message.forceEmailSending,
                 message: $scope.message.body,
                 templateAttachments: removeUncheckedPublipostTemplate(attachments, $scope.message.templateAttachmentChecklist)
             },
@@ -129,6 +155,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             $scope.message.subject = newValue.subject;
             $scope.message.cc = $scope.replaceCCFormat(newValue.cc);
             $scope.message.body = newValue.body;
+            $scope.message.forceEmailSending = newValue.forceEmailSending;
             $scope.message.templateAttachments = newValue.templateAttachments;
             $scope.message.templateAttachmentChecklist = [];
             angular.forEach (newValue.templateAttachments, function(templateAttachment) {
@@ -137,6 +164,9 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         }
     });
 
+    /**
+     * watches file upload attachment
+     */
     $scope.fileChanged = function (element, $scope) {
         $scope.$apply(function () {
             for (var key in element.files) {

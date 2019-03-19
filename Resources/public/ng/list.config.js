@@ -51,6 +51,7 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
         controller: 'BatchEMailController',
         templateUrl: 'batch/email/email.html',
         size: 'lg',
+        backdrop: 'static',
         resolve: {
             config: function($http, $dialogParams) {
                 var route = 'sygefor_core.batch_operation.modal_config';
