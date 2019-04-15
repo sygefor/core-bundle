@@ -620,7 +620,7 @@ abstract class AbstractSession implements SerializedAccessRights
         // set it to the day before date begin
         if (!$this->getLimitRegistrationDate()) {
             $date = clone $this->getDateBegin();
-            $date->modify('-1 month');
+            $date->modify('-1 day');
             $this->setLimitRegistrationDate($date);
         }
     }
