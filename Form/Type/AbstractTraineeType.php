@@ -59,7 +59,8 @@ class AbstractTraineeType extends AbstractType
 	                    ->setParameter('traineeRegistrable', true)
                     ;
                 },
-            ));
+            ))
+        ;
 
         if ($options['enable_security_check']) {
             // If the user does not have the rights, remove the organization field and force the value

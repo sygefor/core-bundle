@@ -18,7 +18,7 @@ use Sygefor\Bundle\CoreBundle\Security\Authorization\AccessRight\SerializedAcces
  * Trainee.
  *
  * @ORM\Table(name="inscription", uniqueConstraints={@UniqueConstraint(name="traineesession_idx", columns={"trainee_id", "session_id"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sygefor\Bundle\CoreBundle\Repository\InscriptionRepository")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\HasLifecycleCallbacks()

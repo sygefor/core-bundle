@@ -26,20 +26,16 @@
                             <li><a href="{{ path('fos_user_security_logout') }}">Déconnexion</a></li>
                         </ul>
                     </li>
-                    {% set is_impersonated = false %}
                     {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
                         {% for role in app.security.token.roles %}
                             {% if role.role == 'ROLE_PREVIOUS_ADMIN' %}
-                                {% set is_impersonated = true %}
+                                <li>
+                                    <a href="{{ path('core.index', {'_switch_user': '_exit'}) }}">
+                                        <i class="fa fa-step-backward"></i>&nbsp;Arrêter la substitution
+                                    </a>
+                                </li>
                             {% endif %}
                         {% endfor %}
-                    {% endif %}
-                    {% if is_impersonated == true %}
-                        <li>
-                            <a href="{{ path('core.index', {'_switch_user': '_exit'}) }}">
-                                <i class="fa fa-step-backward"></i>&nbsp;Arrêter la substitution
-                            </a>
-                        </li>
                     {% endif %}
                 </ul>
             </nav>

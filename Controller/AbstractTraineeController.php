@@ -153,7 +153,7 @@ abstract class AbstractTraineeController extends Controller
             $message = \Swift_Message::newInstance(null, null, 'text/html', null)
                 ->setFrom($this->container->getParameter('mailer_from'), $this->container->getParameter('mailer_from_name'))
                 ->setReplyTo($trainee->getOrganization()->getEmail())
-                ->setSubject('SYGEFOR : activiation de votre compte')
+                ->setSubject('SYGEFOR : activation de votre compte')
                 ->setTo($trainee->getEmail())
                 ->setBody($body);
             $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
