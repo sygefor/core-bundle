@@ -40,6 +40,7 @@ abstract class AbstractTrainer implements SerializedAccessRights
      * @var AbstractOrganization
      * @ORM\ManyToOne(targetEntity="AbstractOrganization")
      * @ORM\JoinColumn(nullable=true)
+     * @Assert\NotNull(message="Vous devez renseigner un centre de rattachement.", groups={"organization"})
      * @Serializer\Groups({"trainer"})
      */
     protected $organization;

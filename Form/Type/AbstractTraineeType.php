@@ -79,15 +79,15 @@ class AbstractTraineeType extends AbstractType
         }
     }
 
-    /**
-     * @param $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => AbstractTrainee::class,
-            'validation_groups' => array('Default', 'trainee'),
-            'enable_security_check' => true,
-        ));
-    }
+	/**
+	 * @param OptionsResolver $resolver
+	 */
+	public function configureOptions(OptionsResolver $resolver)
+	{
+		$resolver->setDefaults(array(
+			'data_class' => AbstractTrainee::class,
+			'validation_groups' => ['Default', 'trainee', 'organization'],
+			'enable_security_check' => true,
+		));
+	}
 }

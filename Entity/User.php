@@ -26,7 +26,8 @@ class User extends BaseUser
     /**
      * @var AbstractOrganization
      * @ORM\ManyToOne(targetEntity="AbstractOrganization", inversedBy="users", cascade={"persist", "merge"})
-     * @Assert\NotNull()
+     * @ORM\JoinColumn(nullable=true)
+     * @Assert\NotNull(message="Vous devez renseigner un centre de rattachement.", groups={"organization"})
      */
     protected $organization;
 
