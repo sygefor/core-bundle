@@ -2,17 +2,17 @@
 
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\SecurityExtraBundle\Annotation\SecureParam;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
-use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sygefor\Bundle\CoreBundle\Entity\Term\InscriptionStatus;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sygefor\Bundle\CoreBundle\Form\Type\AbstractInscriptionType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -51,7 +51,7 @@ abstract class AbstractInscriptionController extends Controller
     {
         /** @var AbstractInscription $inscription */
         $inscription = $this->createInscription($session);
-        /** @var BaseInscriptionType $inscriptionClass */
+        /** @var AbstractInscriptionType $inscriptionClass */
         $inscriptionClass = $inscription::getFormType();
 
         $form = $this->createForm(new $inscriptionClass($session->getTraining()->getOrganization()), $inscription);
@@ -83,7 +83,7 @@ abstract class AbstractInscriptionController extends Controller
             throw new AccessDeniedException('Action non autorisée');
         }
 
-        /** @var BaseInscriptionType $inscriptionClass */
+        /** @var AbstractInscriptionType $inscriptionClass */
         $inscriptionClass = $inscription::getFormType();
         $form = $this->createForm(new $inscriptionClass($inscription->getSession()->getTraining()->getOrganization()), $inscription);
         if ($request->getMethod() === 'POST') {
@@ -124,17 +124,7 @@ abstract class AbstractInscriptionController extends Controller
         $em = $this->getDoctrine()->getManager();
         $inscription = new $this->inscriptionClass();
         $inscription->setSession($session);
-
-        // national inscription status
-        $defaultInscriptionStatus = $em->getRepository(InscriptionStatus::class)->findOneBy(
-            array('organization' => null, 'status' => InscriptionStatus::STATUS_PENDING));
-
-        // local inscription status if national is not found
-        if (!$defaultInscriptionStatus) {
-            $defaultInscriptionStatus = $em->getRepository(InscriptionStatus::class)->findOneBy(
-                array('organization' => $this->getUser()->getOrganization(), 'status' => InscriptionStatus::STATUS_PENDING));
-        }
-
+		$defaultInscriptionStatus = $em->getRepository(InscriptionStatus::class)->findOneBy(['machineName' => 'waiting']);
         $inscription->setInscriptionStatus($defaultInscriptionStatus);
 
         return $inscription;
