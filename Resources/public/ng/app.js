@@ -177,6 +177,24 @@ sygeforApp.filter('words', function () {
     };
 });
 
+/**
+ * Filter : fileSize
+ */
+sygeforApp.filter('fileSize', function () {
+    return function (fileSize) {
+        var label = ['O', 'Ko', 'Mo', 'Go', 'To', 'Po'];
+        for (var key in label) {
+            if (fileSize >= 1000) {
+                fileSize /= 1000
+            }
+            else {
+                return Math.round(fileSize * 100 ) / 100 + " " + label[key];
+            }
+        }
+
+        return fileSize;
+    };
+});
 
 /**
  * Factory : httpInterceptor

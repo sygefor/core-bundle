@@ -89,6 +89,12 @@ class Email
      */
     protected $body;
 
+	/**
+	 * @var bool
+	 * @ORM\Column(name="populate", type="boolean", options={"default": true})
+	 */
+	protected $populate;
+
     public function __construct()
     {
         $this->cc = array();
@@ -262,4 +268,20 @@ class Email
     {
         $this->body = $body;
     }
+
+	/**
+	 * @return bool
+	 */
+	public function isPopulate()
+	{
+		return $this->populate;
+	}
+
+	/**
+	 * @param bool $populate
+	 */
+	public function setPopulate($populate)
+	{
+		$this->populate = $populate;
+	}
 }

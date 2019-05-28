@@ -88,51 +88,42 @@ class InscriptionListener implements EventSubscriber
             'inscriptionStatus' => $inscription->getInscriptionStatus(),
         ), array('position' => 'ASC'));
 
-        if ($template) {
-            // send the mail with the batch service
-            $this->container->get('sygefor_core.batch.email')->parseAndSendMail(
-                $inscription,
-                $template->getSubject(),
-                $template->getCc(),
-                null,
-                $template->getBody(),
-                array(),
-                array(),
-                false,
-                null
-            );
-        }
+	    if ($template) {
+		    // send the mail with the batch service
+		    $this->container->get('sygefor_core.batch.email')->sendEmails(
+		    	$inscription,
+			    $template->getSubject(),
+			    $template->getCc(),
+			    null,
+			    $template->getBody()
+		    );
+	    }
     }
 
     /**
      * @param LifecycleEventArgs $eventArgs
+     *
+     * @return mixed
+     *
+     * @throws \Exception
      */
     protected function sendMailDisclaimerInscriptionStatusMail($eventArgs)
     {
-        /** @var AbstractInscription $inscription */
-        $inscription = $eventArgs->getEntity();
+	    /** @var AbstractInscription $inscription */
+	    $inscription = $eventArgs->getEntity();
 
-        $uow = $eventArgs->getEntityManager()->getUnitOfWork();
-        $chgSet = $uow->getEntityChangeSet($inscription);
+	    $uow = $eventArgs->getEntityManager()->getUnitOfWork();
+	    $chgSet = $uow->getEntityChangeSet($inscription);
 
-        if (isset($chgSet['inscriptionStatus'])) {
-            $status = $inscription->getInscriptionStatus();
+	    if (isset($chgSet['inscriptionStatus'])) {
+		    $status = $inscription->getInscriptionStatus();
 
-            if ($status->getNotify()) {
-                $body = $this->container->get('templating')->render('inscription/status_changed.html.twig', array(
-                    'inscription' => $inscription,
-                    'status' => $status,
-                ));
-                $message = \Swift_Message::newInstance(null, null, 'text/html', null);
-                $message->setFrom($this->container->getParameter('mailer_from'), $inscription->getSession()->getTraining()->getOrganization()->getName());
-                $message->setReplyTo($inscription->getSession()->getTraining()->getOrganization()->getEmail());
-                $message->setTo($inscription->getSession()->getTraining()->getOrganization()->getEmail());
-                $message->setSubject($status->getName());
-                $message->setBody($body);
-                $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
-
-                $this->container->get('mailer')->send($message);
-            }
-        }
+		    if ($status->getNotify()) {
+			    return $this->container->get('notification.mailer')->send('inscription.status_changed', $inscription->getSession()->getTraining()->getOrganization(), [
+				    'inscription' => $inscription,
+				    'status' => $status,
+			    ]);
+		    }
+	    }
     }
 }

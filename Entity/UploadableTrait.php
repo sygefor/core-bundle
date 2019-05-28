@@ -9,12 +9,13 @@
 
 namespace Sygefor\Bundle\CoreBundle\Entity;
 
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ExecutionContextInterface;
 
@@ -108,6 +109,15 @@ trait UploadableTrait
     {
         return $this->fileName;
     }
+
+	/**
+	 * @return int
+	 * @Serializer\VirtualProperty
+	 */
+	public function getFileSize()
+	{
+		return filesize($this->getTemplatesRootDir().'/'.$this->filePath);
+	}
 
     /**
      * @param File   $file

@@ -1,7 +1,7 @@
 /**
  * BatchEMailController
  */
-sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$modalInstance', '$dialogParams', '$dialog', 'config', function ($scope, $http, $window, $modalInstance, $dialogParams, $dialog, config) {
+sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$modalInstance', '$dialogParams', '$dialog', 'config', 'growl', '$q', '$filter', function ($scope, $http, $window, $modalInstance, $dialogParams, $dialog, config, growl, $q, $filter) {
     $scope.dialog = $modalInstance;
     $scope.items = $dialogParams.items;
     $scope.targetClass = $dialogParams.targetClass;
@@ -68,6 +68,10 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
      * if mail sending is performed without errors, the file is asked for download
      */
     $scope.ok = function () {
+        if ($scope.getAttachmentTotalSize() > 10000000) {
+            return;
+        }
+
         if (!($scope.message.subject || $scope.message.message)) {
             $scope.formError = 'Pas de corps de message';
             return;
@@ -92,7 +96,6 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         // remove checkbox template values and templateAttachments unchecked
         data.options.templateAttachments = removeUncheckedPublipostTemplate($scope.message.templateAttachments, $scope.message.templateAttachmentChecklist);
 
-        var deferred = new $.Deferred;
         $scope.sending = true;
         $scope.error = false;
         $http({
@@ -117,13 +120,11 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             headers: {'Content-Type': undefined},
             data: data
         }).success(function (data) {
-            $modalInstance.close(deferred.resolve(data));
+            $modalInstance.close(data);
         }).error(function() {
             $scope.sending = false;
             $scope.error = true;
         });
-
-        return deferred.promise();
     };
 
     /**
@@ -144,6 +145,47 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             },
             attachments : $scope.message.attachments
         });
+    };
+
+    $scope.previewAttachment = function (attachmentTemplate) {
+        var entityOperation = $filter('lowercase')($scope.targetClass.split(':')[1]);
+        var url = Routing.generate('sygefor_core.batch_operation.execute', {id: 'sygefor_core.batch.publipost.' + entityOperation});
+        var data = {
+            options: {
+                template: attachmentTemplate.id
+            },
+            ids: $scope.items[0]
+        };
+
+        $http({
+            method: 'POST',
+            url: url,
+            transformRequest: function (data) {
+                var formData = new FormData();
+                //need to convert our json object to a string version of json otherwise
+                // the browser will do a 'toString()' on the object which will result
+                // in the value '[Object object]' on the server.
+                formData.append("options", angular.toJson(data.options));
+                //now add all of the assigned files
+                formData.append("ids", angular.toJson(data.ids));
+
+                return formData;
+            },
+            headers: {'Content-Type': undefined},
+            data: data
+        }).success(
+            function (data) { //response should contain the file url
+                if (data.fileUrl) {
+                    var url = Routing.generate('sygefor_list.batch_operation.get_file', {
+                        service: 'sygefor_core.batch.publipost.' + entityOperation,
+                        file: data.fileUrl,
+                        filename: attachmentTemplate.fileName,
+                        pdf: true
+                    });
+                    // changin location :
+                    $window.location = url;
+                }
+            });
     };
 
     /**
@@ -228,6 +270,30 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
         }
 
         return i;
+    };
+
+    $scope.getNumberOfSelectedPublipostTemplates = function() {
+        var i = 0;
+        var attachments = removeUncheckedPublipostTemplate($scope.message.templateAttachments, $scope.message.templateAttachmentChecklist);
+        for (var key in attachments) {
+            ++i;
+        }
+
+        return i;
+    };
+
+    $scope.getAttachmentTotalSize = function() {
+        var totalSize = 0;
+        var attachments = removeUncheckedPublipostTemplate($scope.message.templateAttachments, $scope.message.templateAttachmentChecklist);
+        for (var key in attachments) {
+            totalSize += attachments[key].fileSize;
+        }
+
+        for (var key in $scope.message.attachments) {
+            totalSize += $scope.message.attachments[key].size;
+        }
+
+        return totalSize;
     };
 }]);
 

@@ -49,8 +49,6 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
     public function execute(array $idList = array(), array $options = array())
     {
         $inscriptions = $this->getObjectList($idList);
-        //sending email
-
         $em = $this->container->get('doctrine.orm.entity_manager');
         $repoInscriptionStatus = $em->getRepository(InscriptionStatus::class);
         $repoPresenceStatus = $em->getRepository(PresenceStatus::class);
@@ -74,37 +72,22 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
         }
         $em->flush();
 
-        // if asked, a mail sent to user
-        if (isset($options['sendMail']) && ($options['sendMail'] === true) && (count($arrayInscriptionsGranted) > 0)) {
-            foreach ($arrayInscriptionsGranted as $inscription) {
-                // sending with e-mail service
-                if (!isset($options['cc'])) {
-                    $options['cc'] = array();
-                }
-                $this->container->get('sygefor_core.batch.email')->parseAndSendMail(
-                    $inscription,
-                    $options['subject'],
-                    $options['cc'],
-                    isset($options['additionalCC']) ? $options['additionalCC'] : null,
-                    $options['message'],
-                    isset($options['attachmentTemplates']) ? $options['attachmentTemplates'] : array(),
-                    isset($options['attachment']) ? $options['attachment'] : array(),
-                    (isset($options['preview'])) ? $options['preview'] : false,
-                    null
-                );
-            }
-        }
+	    // if asked, a mail sent to user
+	    if (isset($options['sendMail']) && ($options['sendMail'] === true) && (count($arrayInscriptionsGranted) > 0)) {
+		    return $this->container->get('sygefor_core.batch.email')->sendEmails(
+			    $arrayInscriptionsGranted,
+			    $options['subject'],
+			    isset($options['cc']) ? $options['cc'] : null,
+			    isset($options['additionalCC']) ? $options['additionalCC'] : null,
+			    $options['message'],
+			    true,
+			    isset($options['templateAttachments']) ? $options['templateAttachments'] : array(),
+			    isset($options['attachment']) ? $options['attachment'] : array(),
+			    null
+		    );
+	    }
 
-        $data = array();
-        foreach ($arrayInscriptionsGranted as $inscription) {
-            $data[] = [
-                'id' => $inscription->getId(),
-                'inscriptionStatus' => $inscription->getInscriptionStatus(),
-                'presenceStatus' => $inscription->getPresenceStatus(),
-            ];
-        }
-
-        return count ($data);
+	    return count($arrayInscriptionsGranted);
     }
 
     /**
@@ -129,26 +112,23 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
             $repoInscriptionStatus = $em->getRepository(InscriptionStatus::class);
             $inscriptionStatus = $repoInscriptionStatus->findById($options['inscriptionStatus']);
             $findCriteria = array('inscriptionStatus' => $inscriptionStatus);
-
             if ($userOrg) {
                 $findCriteria['organization'] = $userOrg;
             }
-
             $templates = $repo->findBy($findCriteria);
-        } elseif (!empty($options['presenceStatus'])) {
+        }
+        else if (!empty($options['presenceStatus'])) {
             $repoInscriptionStatus = $em->getRepository(PresenceStatus::class);
             $presenceStatus = $repoInscriptionStatus->findById($options['presenceStatus']);
             $findCriteria = array('presenceStatus' => $presenceStatus);
-
             if ($userOrg) {
                 $findCriteria['organization'] = $userOrg;
             }
-
             $templates = $repo->findBy($findCriteria);
-        } else {
+        }
+        else {
             $templates = $repo->findBy(array('inscriptionStatus' => null, 'presenceStatus' => null));
         }
-
         $attTemplates = $attRepo->findBy(array('organization' => $userOrg ? $userOrg : ''));
 
         return array(

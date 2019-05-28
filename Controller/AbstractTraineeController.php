@@ -2,7 +2,6 @@
 
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
-use Html2Text\Html2Text;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\SecurityExtraBundle\Annotation\SecureParam;
@@ -132,9 +131,6 @@ abstract class AbstractTraineeController extends Controller
      * @Method("POST")
      * 
      * @return array
-     * 
-     * @throws \Html2Text\Html2TextException
-     * @throws \Twig_Error
      */
     public function toggleActivationAction(Request $request, AbstractTrainee $trainee)
     {
@@ -147,17 +143,9 @@ abstract class AbstractTraineeController extends Controller
         $this->getDoctrine()->getManager()->flush();
 
         if ($trainee->getIsActive()) {
-            $body = $this->get('templating')->render('trainee/admin_activation.html.twig', array('trainee' => $trainee));
-
-            // send the mail
-            $message = \Swift_Message::newInstance(null, null, 'text/html', null)
-                ->setFrom($this->container->getParameter('mailer_from'), $this->container->getParameter('mailer_from_name'))
-                ->setReplyTo($trainee->getOrganization()->getEmail())
-                ->setSubject('SYGEFOR : activation de votre compte')
-                ->setTo($trainee->getEmail())
-                ->setBody($body);
-            $message->addPart(Html2Text::convert($message->getBody()), 'text/plain');
-            $this->get('mailer')->send($message);
+	        $this->get('notification.mailer')->send('trainee.activated', $trainee, [
+		        'trainee' => $trainee,
+	        ]);
         }
 
         return array('trainee' => $trainee);
