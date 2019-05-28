@@ -119,8 +119,10 @@ class EmailingBatchOperation extends AbstractBatchOperation
 		if ($doClear) {
 			$em->clear();
 		}
-		$userOrg = ($organization ? (is_int($organization) ? $organization : $organization->getId()) : $this->getUser()->getOrganization()->getId());
-		$organization = $em->getRepository(AbstractOrganization::class)->find($userOrg);
+		$userOrg = ($organization ? (is_int($organization) ? $organization : $organization->getId()) : ($this->getUser() ? $this->getUser()->getOrganization()->getId() : null));
+		if ($userOrg) {
+			$organization = $em->getRepository(AbstractOrganization::class)->find($userOrg);
+		}
 		foreach ($entities as $key => $entity) {
 			$entity = $em->getRepository(get_class($entity))->find($entity->getId());
 
@@ -177,7 +179,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
 			}
 			if ($doClear && $sentEmails > 0) {
 				$em->clear();
-				$organization = $em->getRepository(AbstractOrganization::class)->find($userOrg);
+				$organization = ($userOrg ? $em->getRepository(AbstractOrganization::class)->find($userOrg) : null);
 			}
 		}
 		if ($doClear) {
