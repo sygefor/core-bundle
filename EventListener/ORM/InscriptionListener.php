@@ -42,7 +42,7 @@ class InscriptionListener implements EventSubscriber
     /**
      * Send the inscription status mail.
      */
-    public function postProcess(LifecycleEventArgs $eventArgs)
+    public function postProcess(LifecycleEventArgs $eventArgs, $new = false)
     {
         $inscription = $eventArgs->getEntity();
         if ($inscription instanceof AbstractInscription) {
@@ -51,7 +51,9 @@ class InscriptionListener implements EventSubscriber
             }
 
             // sending mail to organization manager if new inscription status is disclaimer
-            $this->sendMailDisclaimerInscriptionStatusMail($eventArgs);
+	        if (!$new) {
+		        $this->sendMailDisclaimerInscriptionStatusMail($eventArgs);
+	        }
         }
     }
 

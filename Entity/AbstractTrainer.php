@@ -111,6 +111,38 @@ abstract class AbstractTrainer implements SerializedAccessRights
         $this->participations = $participations;
     }
 
+	/**
+	 * @param AbstractParticipation $participation
+	 *
+	 * @return bool
+	 */
+	public function addParticipation($participation)
+	{
+		if (!$this->participations->contains($participation)) {
+			$this->participations->add($participation);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param AbstractParticipation $participation
+	 *
+	 * @return bool
+	 */
+	public function removeParticipation($participation)
+	{
+		if ($this->participations->contains($participation)) {
+			$this->participations->removeElement($participation);
+
+			return true;
+		}
+
+		return false;
+	}
+
     /**
      * Return sessions from participations
      * Used to not to have update all publipost templates.
