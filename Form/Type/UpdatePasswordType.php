@@ -16,8 +16,6 @@ class UpdatePasswordType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('currentPassword', CurrentPasswordType::class)
-            ->add('plainPassword', StrongPasswordType::class);
+        $builder->add('plainPassword', StrongPasswordType::class, ['attr' => ['user' => $options['data']]]);
     }
 }
