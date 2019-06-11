@@ -148,7 +148,7 @@ function SearchServiceFactory($http, $q) {
              * setSort
              */
             setSort: function(field, order) {
-                this.query.sorts = {};
+                // this.query.sorts = {};
                 if(order) {
                     this.query.sorts[field] = order;
                 }
