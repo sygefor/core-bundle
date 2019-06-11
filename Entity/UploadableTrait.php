@@ -130,6 +130,14 @@ trait UploadableTrait
         }
     }
 
+	public function removeFile()
+	{
+		$this->uploaded = null;
+		$this->file = null;
+		$this->filePath = null;
+		$this->fileName = null;
+	}
+
     /**
      * @ORM\PrePersist()
      */
