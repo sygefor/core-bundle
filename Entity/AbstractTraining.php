@@ -93,6 +93,8 @@ abstract class AbstractTraining implements SerializedAccessRights
      */
     public function __construct()
     {
+        $this->firstSessionPeriodYear = (new \DateTime())->format('Y');
+        $this->firstSessionPeriodSemester = ((new \DateTime())->format('m') > 6 ? 2 : 1);
         $this->sessions = new ArrayCollection();
         $this->materials = new ArrayCollection();
     }
