@@ -40,7 +40,7 @@ abstract class AbstractBatchOperationController extends Controller
         $options = $request->get('options');
 
         try {
-            $this->get('monolog.logger.batch_operation')->addDebug("BatchOperation $id; ids: ".(string) $ids.'; options: '.(string) $options);
+            $this->get('monolog.logger.batch_operation')->addDebug("BatchOperation $id; ids: ".(string) $ids.'; options: '. json_encode($options));
         } catch (\Exception $e) {
             $this->get('monolog.logger.batch_operation')->addDebug("BatchOperation $id; Exception: ".$e->getMessage());
         }
