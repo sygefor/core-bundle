@@ -228,7 +228,13 @@ class EmailingBatchOperation extends AbstractBatchOperation
 			]);
 		}
 
-		return ['templates' => $templates];
+		// Adding the resolvers
+		$emailResolvers = $this->container->get('sygefor_core.registry.email_cc_resolver')->getSupportedResolvers();
+
+		return [
+			'templates' => $templates,
+			'ccResolvers' => $emailResolvers,
+		];
 	}
 
 	/**
@@ -297,7 +303,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
         foreach ($ccResolvers as $resolver => $send) {
             if ($send) {
                 $name = $ccResolverRegistry->resolveName($resolver, $entity);
-                $email = $ccResolverRegistry->resolveEmail($resolver, $entity);
+								$email = $ccResolverRegistry->resolveEmail($resolver, $entity);
                 if ($email) {
                     if (is_string($email)) {
                         $emails[] = $email;
@@ -319,7 +325,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
                     }
                 }
             }
-        }
+				}
 
         // do not send to bad fullName
         if (count($names) !== count($emails)) {

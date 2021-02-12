@@ -232,7 +232,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
     /**
      * Reformat symfony cc array to angular object
      * @param cc
-     * @returns {{alternativeEmail: boolean, manager: boolean, trainingCorrespondent: boolean, financialCorrespondent: boolean}}
+     * @returns {{teacher: boolean, manager: boolean, trainingCorrespondent: boolean}}
      */
     $scope.replaceCCFormat = function(cc) {
         var ccOptions = {};
@@ -240,19 +240,11 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             ccOptions[$scope.config.ccResolvers[i]['name']] = $scope.config.ccResolvers[i]['checked'];
         }
 
+        var optionsKeys = Object.keys(ccOptions);
+
         if (cc !== undefined) {
             for (var key in cc) {
-                var resolver = cc[key];
-                var name = function (ccResolvers, resolver) {
-                    for (var j in ccResolvers) {
-                        if (j == resolver) {
-                            return ccResolvers[j]['name'];
-                        }
-                    }
-                }($scope.config.ccResolvers, resolver);
-                if (typeof name !== "undefined") {
-                    ccOptions[name] = true;
-                }
+                ccOptions[optionsKeys[key]] = true;
             }
         }
 
