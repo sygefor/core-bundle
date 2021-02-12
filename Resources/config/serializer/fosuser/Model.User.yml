@@ -1,4 +1,4 @@
-FOS\UserBundle\Entity\User:
+FOS\UserBundle\Model\User:
     exclusion_policy: NONE
     properties:
         password:

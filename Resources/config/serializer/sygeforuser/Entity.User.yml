@@ -5,3 +5,7 @@ Sygefor\Bundle\CoreBundle\Entity\User:
             exclude: true
         salt:
             exclude: true
+        # accessRights:
+        #     exclude: true
+        # organization:
+        #     exclude: true

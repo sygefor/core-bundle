@@ -16,6 +16,7 @@ abstract class AbstractCoreController extends Controller
 {
     /**
      * @Route("/", name="core.index")
+     * @Rest\View(serializerEnableMaxDepthChecks=true)
      */
     public function indexAction()
     {
