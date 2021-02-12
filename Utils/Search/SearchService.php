@@ -5,7 +5,7 @@ namespace Sygefor\Bundle\CoreBundle\Utils\Search;
 use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Facet\Terms;
 use Elastica\Filter\AbstractFilter;
-use Elastica\Filter\Bool;
+use Elastica\Filter\Bool as BoolQuery;
 use Elastica\Filter\BoolAnd;
 use Elastica\Filter\BoolOr;
 use Elastica\Filter\Term;
@@ -200,7 +200,7 @@ class SearchService implements SearchServiceInterface
         if (count($filters) === 1) {
             $filter = current($filters);
         } else {
-            $filter = new Bool();
+            $filter = new BoolQuery();
             foreach ($this->filters as $_filter) {
                 $filter->addMust($_filter);
             }
