@@ -236,18 +236,20 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
      */
     $scope.replaceCCFormat = function(cc) {
         var ccOptions = {};
+        var ccPosToName = {};
+        var position = 0;
         for (var i in $scope.config.ccResolvers) {
             ccOptions[$scope.config.ccResolvers[i]['name']] = $scope.config.ccResolvers[i]['checked'];
+            ccPosToName[position] = $scope.config.ccResolvers[i]['name'];
+            position++;
         }
 
-        var optionsKeys = Object.keys(ccOptions);
-
-        if (cc !== undefined) {
-            for (var key in cc) {
-                ccOptions[optionsKeys[key]] = true;
+        if (cc !== undefined) {           
+            for (var crtPosKey in cc) {
+                var crtPos = cc[crtPosKey];
+                ccOptions[ccPosToName[crtPos]] = true;
             }
         }
-
         return ccOptions;
     };
 
