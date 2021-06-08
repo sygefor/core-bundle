@@ -133,7 +133,8 @@ sygeforApp.directive('sfFormWidget', ['$compile', function($compile) {
                 }
 
                 if (type === "number") {
-                    value = parseFloat(elt.value);
+                    var value = elt.value.replace(',', '.');
+                    value = parseFloat(value);
                     elt.value = value;
                 }
                 var elem = angular.element(tpl);
