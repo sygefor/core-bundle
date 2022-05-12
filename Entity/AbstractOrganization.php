@@ -49,6 +49,7 @@ abstract class AbstractOrganization
     /**
      * @var ArrayCollection
      * @ORM\OneToMany(targetEntity="User", mappedBy="organization", cascade={"persist", "merge"})
+     * @Serializer\Exclude()
      */
     private $users;
 
