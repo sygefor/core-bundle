@@ -73,8 +73,9 @@ class EmailingBatchOperation extends AbstractBatchOperation
 			    $targetEntities,
 			    isset($options['subject']) ? $options['subject'] : '',
 			    isset($options['cc']) ? $options['cc'] : array(),
-			    isset($options['additionalCC']) ? $options['additionalCC'] : array(),
-			    isset($options['message']) ? $options['message'] : ''
+			    isset($options['message']) ? $options['message'] : '',
+				isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
+				isset($options['attachment']) ? $options['attachment'] : null
 		    );
 	    }
 
@@ -240,11 +241,12 @@ class EmailingBatchOperation extends AbstractBatchOperation
 	 *
 	 * @return array
 	 */
-	protected function getPreviewMessage($entities, $subject, $body, $templateAttachments, $attachments)
+	protected function getPreviewMessage($entities, $subject, $cc, $body, $templateAttachments, $attachments)
 	{
 		return [
 			'email' => [
 				'subject' => $this->replaceTokens($subject, $entities[0]),
+				'cc' => $this->replaceTokens($cc, $entities[0]),
 				'message' => $this->replaceTokens($body, $entities[0]),
 				'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) {
 					return $attachment['name'];
