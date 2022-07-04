@@ -9,6 +9,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
+use AppBundle\Entity\Inscription;
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\Entity\User;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
@@ -133,10 +134,15 @@ class EmailingBatchOperation extends AbstractBatchOperation
 			// used only from trainee list
 			if ($entity instanceof AbstractTrainee) {
 				$sendEmail = $forceEmailSending ? true : $entity->getNewsletter();
+				$inscriptions[] = $em->getRepository(Inscription::class)->findOneBy(['trainee' => $entity->getId()]);
+				$inscription = $inscriptions[0];
+
+				$copies = $this->findCCRecipients($inscription, $cc);
+			} else {
+				$copies = $this->findCCRecipients($entity, $cc);
 			}
 
 			// Find email BCC
-			$copies = $this->findCCRecipients($entity, $cc);
 			if (!empty($copies) || !empty($additionalCC)) {
 				$additionalParams['CC'] = [];
 				foreach ($copies[0] as $keyCopy => $copy) {
@@ -299,7 +305,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
         foreach ($ccResolvers as $resolver => $send) {
             if ($send) {
                 $name = $ccResolverRegistry->resolveName($resolver, $entity);
-                $email = $ccResolverRegistry->resolveEmail($resolver, $entity);
+				$email = $ccResolverRegistry->resolveEmail($resolver, $entity);
                 if ($email) {
                     if (is_string($email)) {
                         $emails[] = $email;
