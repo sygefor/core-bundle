@@ -17,6 +17,7 @@
             <div class="col-md-9">
                 <div class="form-control" style="height: auto">
                     <span ng-repeat="(name, checked) in email.cc">{{ checked ? name + '; ' : '' }}</span>
+                    <span ng-if="email.additionalCC">{{ email.additionalCC }}</span>
                 </div>
             </div>
         </div>

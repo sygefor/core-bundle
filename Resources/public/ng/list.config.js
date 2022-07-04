@@ -76,6 +76,7 @@ sygeforApp.config(['$dialogProvider', function($dialogProvider) {
             $scope.email = {
                 subject: email.subject,
                 cc: email.cc,
+                additionalCC : email.additionalCC,
                 message: $sce.trustAsHtml(email.message),
                 templateAttachments: email.templateAttachments,
                 attachments: $dialogParams.attachments
