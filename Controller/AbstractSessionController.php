@@ -290,6 +290,7 @@ abstract class AbstractSessionController extends Controller
         if (!empty($tmpMaterials)) {
             foreach ($tmpMaterials as $material) {
                 $newMat = clone $material;
+                $newMat->setSession($cloned);
                 $cloned->addMaterial($newMat);
             }
         }
