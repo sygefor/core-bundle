@@ -9,6 +9,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
+use AppBundle\Entity\Inscription;
 use Doctrine\ORM\EntityManager;
 use Sygefor\Bundle\CoreBundle\Entity\User;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTrainee;
@@ -73,6 +74,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
 			    $targetEntities,
 			    isset($options['subject']) ? $options['subject'] : '',
 			    isset($options['cc']) ? $options['cc'] : array(),
+				isset($options['additionalCC']) ? $options['additionalCC'] : array(),
 			    isset($options['message']) ? $options['message'] : '',
 				isset($options['templateAttachments']) ? $options['templateAttachments'] : null,
 				isset($options['attachment']) ? $options['attachment'] : null
@@ -133,10 +135,15 @@ class EmailingBatchOperation extends AbstractBatchOperation
 			// used only from trainee list
 			if ($entity instanceof AbstractTrainee) {
 				$sendEmail = $forceEmailSending ? true : $entity->getNewsletter();
+				$inscriptions[] = $em->getRepository(Inscription::class)->findOneBy(['trainee' => $entity->getId()]);
+				$inscription = $inscriptions[0];
+
+				$copies = $this->findCCRecipients($inscription, $cc);
+			} else {
+				$copies = $this->findCCRecipients($entity, $cc);
 			}
 
 			// Find email BCC
-			$copies = $this->findCCRecipients($entity, $cc);
 			if (!empty($copies) || !empty($additionalCC)) {
 				$additionalParams['CC'] = [];
 				foreach ($copies[0] as $keyCopy => $copy) {
@@ -241,12 +248,13 @@ class EmailingBatchOperation extends AbstractBatchOperation
 	 *
 	 * @return array
 	 */
-	protected function getPreviewMessage($entities, $subject, $cc, $body, $templateAttachments, $attachments)
+	protected function getPreviewMessage($entities, $subject, $cc, $additionalCC, $body, $templateAttachments, $attachments)
 	{
 		return [
 			'email' => [
 				'subject' => $this->replaceTokens($subject, $entities[0]),
 				'cc' => $this->replaceTokens($cc, $entities[0]),
+				'additionalCC' => $this->replaceTokens($additionalCC, $entities[0]),
 				'message' => $this->replaceTokens($body, $entities[0]),
 				'templateAttachments' => is_array($templateAttachments) && !empty($templateAttachments) ? array_map(function ($attachment) {
 					return $attachment['name'];
@@ -299,7 +307,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
         foreach ($ccResolvers as $resolver => $send) {
             if ($send) {
                 $name = $ccResolverRegistry->resolveName($resolver, $entity);
-                $email = $ccResolverRegistry->resolveEmail($resolver, $entity);
+				$email = $ccResolverRegistry->resolveEmail($resolver, $entity);
                 if ($email) {
                     if (is_string($email)) {
                         $emails[] = $email;
