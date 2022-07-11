@@ -132,6 +132,11 @@ sygeforApp.directive('sfFormWidget', ['$compile', function($compile) {
                     tpl = tpl.replace('></select>', 'multiple="multiple"></select>');
                 }
 
+                if (type === "number") {
+                    var value = elt.value.replace(',', '.');
+                    value = parseFloat(value);
+                    elt.value = value;
+                }
                 var elem = angular.element(tpl);
 
                 // ng model

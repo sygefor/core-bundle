@@ -403,7 +403,7 @@ class TaxonomyController extends Controller
 	 *     requirements={"id"="\d+"}
 	 * )
 	 * @Method("GET")
-	 * @Security("is_granted('VIEW', 'Sygefor\\Bundle\\TaxonomyBundle\\Vocabulary\\VocabularyInterface')")
+	 * @Security("is_granted('VIEW', 'Sygefor\\Bundle\\CoreBundle\\Entity\\Term\\VocabularyInterface')")
 	 *
 	 * @param PublipostTemplate $template
 	 *
