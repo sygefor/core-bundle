@@ -132,13 +132,13 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
         $attTemplates = $attRepo->findBy(array('organization' => $userOrg ? $userOrg : ''));
 
         // Adding the upload_max_filesize
-		$uploadMaxFileSize = ini_get('upload_max_filesize');
+		$uploadMaxFilesize = ini_get('upload_max_filesize');
 
         return array(
             'ccResolvers' => $this->container->get('sygefor_core.registry.email_cc_resolver')->getSupportedResolvers($options['targetClass']),
             'templates' => $templates,
             'attachmentTemplates' => $attTemplates,
-            'uploadMaxFileSize' => $uploadMaxFileSize
+            'uploadMaxFilesize' => $uploadMaxFilesize
         );
     }
 }

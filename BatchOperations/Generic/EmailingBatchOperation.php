@@ -240,12 +240,12 @@ class EmailingBatchOperation extends AbstractBatchOperation
 		$emailResolvers = $this->container->get('sygefor_core.registry.email_cc_resolver')->getSupportedResolvers();
 
 		// Adding the upload_max_filesize
-		$uploadMaxFileSize = ini_get('upload_max_filesize');
+		$uploadMaxFilesize = ini_get('upload_max_filesize');
 
 		return [
 			'templates' => $templates,
 			'ccResolvers' => $emailResolvers,
-			'uploadMaxFileSize' => $uploadMaxFileSize
+			'uploadMaxFilesize' => $uploadMaxFilesize
 		];
 	}
 

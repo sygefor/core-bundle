@@ -8,7 +8,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
     $scope.config = config;
     $scope.sending = false;
     $scope.error = false;
-    $scope.uploadMaxFileSize = $scope.config.uploadMaxFileSize;
+    $scope.uploadMaxFilesize = $scope.config.uploadMaxFilesize;
 
     // building templates contents
     $scope.templates = [];
