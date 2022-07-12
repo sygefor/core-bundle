@@ -243,6 +243,7 @@ class EmailingBatchOperation extends AbstractBatchOperation
 		$uploadMaxFilesize = ini_get('upload_max_filesize');
 
 		return [
+			'inscriptionPath' => Inscription::class,
 			'templates' => $templates,
 			'ccResolvers' => $emailResolvers,
 			'uploadMaxFilesize' => $uploadMaxFilesize

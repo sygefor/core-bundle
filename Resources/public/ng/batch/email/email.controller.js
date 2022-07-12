@@ -196,7 +196,7 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
     $scope.$watch('message.template', function (newValue) {
         if (newValue) {
             $scope.message.subject = newValue.subject;
-            $scope.message.cc = $scope.replaceCCFormat(newValue.cc);
+            $scope.message.cc = $scope.targetClass === $scope.config.inscriptionPath ? $scope.replaceCCFormat(newValue.cc) : [];
             $scope.message.body = newValue.body;
             $scope.message.forceEmailSending = newValue.forceEmailSending;
             $scope.message.templateAttachments = newValue.templateAttachments;
