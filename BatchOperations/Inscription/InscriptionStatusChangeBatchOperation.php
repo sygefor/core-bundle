@@ -64,7 +64,7 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
                 //setting new inscription status
                 if ($inscriptionStatus) {
                     $inscription->setInscriptionStatus($inscriptionStatus);
-                } elseif ($presenceStatus) {
+                } else if ($presenceStatus || isset($options['presenceStatus'])) {
                     $inscription->setPresenceStatus($presenceStatus);
                 }
                 $arrayInscriptionsGranted[] = $inscription;
