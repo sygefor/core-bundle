@@ -126,6 +126,8 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
      */
     $scope.$watch('message.template', function (newValue) {
         if (newValue) {
+            // console.debug('CC before change');
+            // console.debug($scope.message.cc);
             $scope.message.subject = newValue.subject;
             $scope.message.cc = $scope.replaceCCFormat(newValue.cc);
             $scope.message.body = newValue.body;
@@ -134,6 +136,8 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
             angular.forEach (newValue.templateAttachments, function(templateAttachment) {
                 $scope.message.templateAttachmentChecklist[templateAttachment['id']] = true;
             });
+            // console.debug('CC after change');
+            // console.debug($scope.message.cc);
         }
     });
 
@@ -164,24 +168,46 @@ sygeforApp.controller('BatchEMailController', ['$scope', '$http', '$window', '$m
      */
     $scope.replaceCCFormat = function(cc) {
         var ccOptions = {};
+        // Adding empty values
+        // And creating the list of names
+        var index = 0;
+        var names = {};
         for (var i in $scope.config.ccResolvers) {
-            ccOptions[$scope.config.ccResolvers[i]['name']] = $scope.config.ccResolvers[i]['checked'];
+            ccOptions[$scope.config.ccResolvers[i]['name']] = false;
+            names[index] = $scope.config.ccResolvers[i]['name'];
+            index += 1;
         }
 
         if (cc !== undefined) {
             for (var key in cc) {
                 var resolver = cc[key];
-                var name = function (ccResolvers, resolver) {
-                    for (var j in ccResolvers) {
-                        if (j == resolver) {
-                            return ccResolvers[j]['name'];
-                        }
+                // Find the name of the cc within the resolvers
+                
+                // // The test before the return is always wrong as we're comparing keys and object classnames
+                // var name = function (ccResolvers, resolver) {
+                //     for (var j in ccResolvers) {
+                //         if (j == resolver) {
+                //             return ccResolvers[j]['name'];
+                //         }
+                //     }
+                // }($scope.config.ccResolvers, resolver);
+
+                // this is better
+                var name = function (names, resolver) {
+                    if (resolver in names) {
+                        return names[resolver];
                     }
-                }($scope.config.ccResolvers, resolver);
+                }(names, resolver);
+                
                 if (typeof name !== "undefined") {
                     ccOptions[name] = true;
                 }
             }
+        } else {
+            // // this leads to some strange behaviours on old model that don't have a set value, maybe it's best left commented
+            // for (var i in $scope.config.ccResolvers) {
+            //     ccOptions[$scope.config.ccResolvers[i]['name']] = $scope.config.ccResolvers[i]['checked'];
+            // }
         }
 
         return ccOptions;
