@@ -1,7 +1,11 @@
 {% block file_widget %}
     {{ form_widget(form) }}
     {% if form.parent.vars.value.file is not empty %}
-        Fichier courant : {{ form.parent.vars.value.fileName }} - ({{ form.parent.vars.value.file.getSize/1000 }} ko)
+        {% set template = form.parent.vars.value %}
+        Fichier courant : 
+        <a href="{{ path('taxonomy.download.template', {id: template.id}) }}">
+            {{ form.parent.vars.value.fileName }} - ({{ form.parent.vars.value.file.getSize/1000 }} ko)
+        </a>
     {% endif %}
 {% endblock %}
 

@@ -11,11 +11,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractOrganization;
 use Sygefor\Bundle\CoreBundle\Entity\Term\AbstractTerm;
+use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Sygefor\Bundle\CoreBundle\Entity\Term\TreeTrait;
 use Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType;
 use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -412,4 +415,24 @@ class TaxonomyController extends Controller
 
         return $terms;
     }
+
+    /**
+     * @Route("/download/template/{id}", name="taxonomy.download.template", requirements={"id"="\d+"})
+     * @Method("GET")
+     *
+     * @param PublipostTemplate $template
+     *
+     * @return BinaryFileResponse
+    */
+    public function downloadTemplateAction(PublipostTemplate $template)
+    {
+        $file = $template->getFile();
+        if (!$file) {
+            throw $this->createNotFoundException("No file found for template \"{$template->getName()}\".");
+        }
+        $response = new BinaryFileResponse($file);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $template->getFileName());
+        return $response;
+    }
+
 }
