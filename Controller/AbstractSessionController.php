@@ -11,6 +11,7 @@ use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractParticipation;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Form\Type\DuplicateType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -135,23 +136,7 @@ abstract class AbstractSessionController extends Controller
         }
 
         $cloned = clone $session;
-        $form = $this->createFormBuilder($cloned)
-            ->add('name', null, array(
-                'required' => true,
-                'label' => 'Intitulé de la session',
-            ))
-            ->add('dateBegin', DateType::class, array(
-                'required' => true,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'label' => 'Date de début',
-            ))
-            ->add('dateEnd', DateType::class, array(
-                'required' => false,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'label' => 'Date de fin',
-            ));
+        $form = $this->createForm(DuplicateType::class, $session);
 
         if (!empty($inscriptions)) {
             $form
@@ -168,7 +153,6 @@ abstract class AbstractSessionController extends Controller
                 ));
         }
 
-        $form = $form->getForm();
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
