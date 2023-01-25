@@ -125,10 +125,15 @@ abstract class AbstractSessionController extends Controller
         // get inscriptions and session
         $inscriptions = array();
         $this->retrieveInscriptions($inscriptionIds, $inscriptions);
+
+        $offersTheListOfSessions = false;
         if (!$session) {
             // get session
             $session = $inscriptions[0]->getSession();
+            $offersTheListOfSessions = true;
         }
+
+        $options = ['session' => $session, 'offersTheListOfSessions' => $offersTheListOfSessions, 'hasInscriptions' => count($inscriptions) > 0 ? true : false];
 
         // new session can't be created if user has no rights for it
         if (!$this->get('security.context')->isGranted('EDIT', $session->getTraining())) {
@@ -136,22 +141,7 @@ abstract class AbstractSessionController extends Controller
         }
 
         $cloned = clone $session;
-        $form = $this->createForm(DuplicateType::class, $session);
-
-        if (!empty($inscriptions)) {
-            $form
-                ->add('inscriptionManagement', ChoiceType::class, array(
-                    'label' => 'Choisir la méthode d\'importation des inscriptions',
-                    'mapped' => false,
-                    'choices' => array(
-                        'none' => 'Ne pas importer les inscriptions',
-                        'copy' => 'Copier les inscriptions',
-                        'move' => 'Déplacer les inscriptions',
-                    ),
-                    'empty_data' => 'none',
-                    'required' => true,
-                ));
-        }
+        $form = $this->createForm(DuplicateType::class, $options);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
