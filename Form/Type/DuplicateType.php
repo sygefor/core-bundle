@@ -33,7 +33,6 @@ class DuplicateType extends AbstractType
             $builder->add('listSessions', EntityType::class, array(
                 'label' => 'Choisissez la session cible',
                 'class' => Session::class,
-                'empty_value' => 'Créer une nouvelle session',
                 'choice_label' => function (Session $session) {
                     return 'Session du '.$session->getDateBegin()->format("Y-m-d").' - '.$session->getName();
                 },
