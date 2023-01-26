@@ -24,15 +24,14 @@ class DuplicateType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        parent::buildForm($builder, $options);
-
         $session = isset($options['data']['session']) ? $options['data']['session'] : null;
         $offersTheListOfSessions = isset($options['data']['offersTheListOfSessions']) ? $options['data']['offersTheListOfSessions'] : null;
 
         if ($offersTheListOfSessions) {
-            $builder->add('listSessions', EntityType::class, array(
+            $builder->add('sessions', EntityType::class, array(
                 'label' => 'Choisissez la session cible',
                 'class' => Session::class,
+                'placeholder' => 'Créer une nouvelle session',
                 'choice_label' => function (Session $session) {
                     return 'Session du '.$session->getDateBegin()->format("Y-m-d").' - '.$session->getName();
                 },
@@ -44,24 +43,24 @@ class DuplicateType extends AbstractType
                         ->setParameter('trainingId', $session->getTraining());
                     return $qb;
                 },
-                'required' => true
+                'required' => false
             ));
         }
 
         // add listeners to handle conditionals fields
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, array($this, 'preSetData'));
+        $builder->addEventListener(FormEvents::POST_SUBMIT, array($this, 'postSubmit'));
     }
 
     /**
      * @param FormEvent $event
      */
-    public function preSetData(FormEvent $event)
-    {        
+    protected function postSubmit(FormEvent $event)
+    {
         $form = $event->getForm();
         $formData = $event->getData();
         $hasInscriptions = isset($formData['hasInscriptions']) ? $formData['hasInscriptions'] : false;
 
-        if (!$form->has('listSessions')){
+        if (!$form->has('sessions')){
 		    $this->addNameAndDatesFields($event->getForm());
         }
 
