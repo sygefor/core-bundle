@@ -133,14 +133,13 @@ abstract class AbstractSessionController extends Controller
             $offersTheListOfSessions = true;
         }
 
-        $options = ['session' => $session, 'offersTheListOfSessions' => $offersTheListOfSessions, 'hasInscriptions' => count($inscriptions) > 0 ? true : false];
-
         // new session can't be created if user has no rights for it
         if (!$this->get('security.context')->isGranted('EDIT', $session->getTraining())) {
             throw new AccessDeniedException('Action non autorisée');
         }
 
         $cloned = clone $session;
+        $options = ['session' => $cloned, 'offersTheListOfSessions' => $offersTheListOfSessions, 'hasInscriptions' => count($inscriptions) > 0 ? true : false];
         $form = $this->createForm(DuplicateType::class, $options);
 
         if ($request->getMethod() === 'POST') {

@@ -9,9 +9,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class DuplicateType.
@@ -26,8 +24,11 @@ class DuplicateType extends AbstractType
     {
         $session = isset($options['data']['session']) ? $options['data']['session'] : null;
         $offersTheListOfSessions = isset($options['data']['offersTheListOfSessions']) ? $options['data']['offersTheListOfSessions'] : null;
+        $hasInscriptions = isset($options['data']['hasInscriptions']) ? $options['data']['hasInscriptions'] : false;
 
         if ($offersTheListOfSessions) {
+            $inscriptionManagementDefaultChoice = 'copy';
+
             $builder->add('sessions', EntityType::class, array(
                 'label' => 'Choisissez la session cible',
                 'class' => Session::class,
@@ -45,36 +46,26 @@ class DuplicateType extends AbstractType
                 },
                 'required' => false
             ));
-        }
 
-        // add listeners to handle conditionals fields
-        $builder->addEventListener(FormEvents::POST_SUBMIT, array($this, 'postSubmit'));
-    }
+            if ($hasInscriptions) {
+                $this->addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice);
+            }
+        } else {
+            $inscriptionManagementDefaultChoice = 'none';
+            $this->addNameAndDatesFields($builder);
 
-    /**
-     * @param FormEvent $event
-     */
-    protected function postSubmit(FormEvent $event)
-    {
-        $form = $event->getForm();
-        $formData = $event->getData();
-        $hasInscriptions = isset($formData['hasInscriptions']) ? $formData['hasInscriptions'] : false;
-
-        if (!$form->has('sessions')){
-		    $this->addNameAndDatesFields($event->getForm());
-        }
-
-        if ($hasInscriptions) {
-            $this->addInscriptionManagementChoices($event->getForm());
+            if ($hasInscriptions) {
+                $this->addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice);
+            }
         }
     }
 
     /**
-     * @param FormInterface $form
+     * @param FormBuilderInterface $builder
      */
-    protected function addNameAndDatesFields(FormInterface $form)
+    protected function addNameAndDatesFields($builder)
     {		    
-		$form->add('name', null, array(
+		$builder->add('name', null, array(
             'label' => 'Intitulé de la session',
             'required' => true
         ))
@@ -93,11 +84,12 @@ class DuplicateType extends AbstractType
 	}
 
     /**
-     * @param FormInterface $form
+     * @param FormBuilderInterface $builder
+     * @param string               $inscriptionManagementDefaultChoice
      */
-    protected function addInscriptionManagementChoices(FormInterface $form)
-    {		    
-		$form->add('inscriptionManagement', ChoiceType::class, array(
+    protected function addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice)
+    {
+        $builder->add('inscriptionManagement', ChoiceType::class, array(
             'label' => 'Choisir la méthode d\'importation des inscriptions',
             'mapped' => false,
             'choices' => array(
@@ -105,8 +97,18 @@ class DuplicateType extends AbstractType
                 'copy' => 'Copier les inscriptions',
                 'move' => 'Déplacer les inscriptions',
             ),
-            'empty_data' => 'none',
+            'empty_data' => $inscriptionManagementDefaultChoice,
             'required' => true,
+        ));
+    }
+
+    /**
+     * @param $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'allow_extra_fields' => true
         ));
     }
 }
