@@ -29,7 +29,7 @@ class DuplicateType extends AbstractType
         if ($offersTheListOfSessions) {
             $inscriptionManagementDefaultChoice = 'copy';
 
-            $builder->add('sessions', EntityType::class, array(
+            $builder->add('targetSession', EntityType::class, array(
                 'label' => 'Choisissez la session cible',
                 'class' => Session::class,
                 'placeholder' => 'Créer une nouvelle session',
@@ -108,6 +108,7 @@ class DuplicateType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
+            'data_class' => Session::class,
             'allow_extra_fields' => true
         ));
     }
