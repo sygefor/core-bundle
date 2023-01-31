@@ -131,6 +131,8 @@ abstract class AbstractSessionController extends Controller
             // get session
             $session = $inscriptions[0]->getSession();
             $options['origin_of_duplication'] = 'listOfInscriptions';
+        } else {
+            $inscriptions = $session->getInscriptions();
         }
 
         // new session can't be created if user has no rights for it
