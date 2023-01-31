@@ -126,11 +126,11 @@ abstract class AbstractSessionController extends Controller
         $inscriptions = array();
         $this->retrieveInscriptions($inscriptionIds, $inscriptions);
 
-        $offersTheListOfSessions = false;
+        $options = [];
         if (!$session) {
             // get session
             $session = $inscriptions[0]->getSession();
-            $offersTheListOfSessions = true;
+            $options['origin_of_duplication'] = 'listOfInscriptions';
         }
 
         // new session can't be created if user has no rights for it
@@ -139,8 +139,8 @@ abstract class AbstractSessionController extends Controller
         }
 
         $cloned = clone $session;
-        $options = ['session' => $cloned, 'offersTheListOfSessions' => $offersTheListOfSessions, 'hasInscriptions' => count($inscriptions) > 0 ? true : false];
-        $form = $this->createForm(DuplicateType::class, $options);
+        $cloned->setInscriptions($inscriptions);
+        $form = $this->createForm(DuplicateType::class, $cloned, $options);
 
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);

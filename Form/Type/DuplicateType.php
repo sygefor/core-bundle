@@ -9,6 +9,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -22,11 +24,13 @@ class DuplicateType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $session = isset($options['data']['session']) ? $options['data']['session'] : null;
-        $offersTheListOfSessions = isset($options['data']['offersTheListOfSessions']) ? $options['data']['offersTheListOfSessions'] : null;
-        $hasInscriptions = isset($options['data']['hasInscriptions']) ? $options['data']['hasInscriptions'] : false;
+        /** @var Session $session */
+        $session = isset($options['data']) ? $options['data'] : null;
+        $originOfDuplication = $options['origin_of_duplication'];
+        $inscriptionManagementDefaultChoice = $options['origin_of_duplication'];
+        $hasInscriptions = count($session->getInscriptions()) > 0 ? true : false;
 
-        if ($offersTheListOfSessions) {
+        if ($originOfDuplication == 'listOfInscriptions') {
             $inscriptionManagementDefaultChoice = 'copy';
 
             $builder->add('targetSession', EntityType::class, array(
@@ -46,17 +50,14 @@ class DuplicateType extends AbstractType
                 },
                 'required' => false
             ));
+        }
 
-            if ($hasInscriptions) {
-                $this->addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice);
-            }
-        } else {
-            $inscriptionManagementDefaultChoice = 'none';
+        if ($originOfDuplication == 'session') {
             $this->addNameAndDatesFields($builder);
+        }
 
-            if ($hasInscriptions) {
-                $this->addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice);
-            }
+        if ($hasInscriptions) {
+            $this->addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice);
         }
     }
 
@@ -108,7 +109,8 @@ class DuplicateType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => Session::class,
+            'origin_of_duplication' => 'session',
+            'inscription_management_default_choice' => 'none',
             'allow_extra_fields' => true
         ));
     }
