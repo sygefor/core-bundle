@@ -2,8 +2,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Form\Type;
 
-use AppBundle\Entity\Session\Session;
 use Doctrine\ORM\EntityRepository;
+use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -24,7 +24,7 @@ class DuplicateType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var Session $session */
+        /** @var AbstractSession $session */
         $session = isset($options['data']) ? $options['data'] : null;
         $originOfDuplication = $options['origin_of_duplication'];
         $inscriptionManagementDefaultChoice = $options['origin_of_duplication'];
@@ -35,10 +35,10 @@ class DuplicateType extends AbstractType
 
             $builder->add('targetSession', EntityType::class, array(
                 'label' => 'Choisissez la session cible',
-                'class' => Session::class,
+                'class' => AbstractSession::class,
                 'placeholder' => 'Créer une nouvelle session',
-                'choice_label' => function (Session $session) {
-                    return 'Session du '.$session->getDateBegin()->format("Y-m-d").' - '.$session->getName();
+                'choice_label' => function (AbstractSession $session) {
+                    return 'Session du '.$session->getDateBegin()->format("Y-m-d");
                 },
                 'choice_value' => 'id',
                 'query_builder' => function (EntityRepository $er) use ($session) {
@@ -59,6 +59,8 @@ class DuplicateType extends AbstractType
         if ($hasInscriptions) {
             $this->addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice);
         }
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, array($this, 'preSubmit'));
     }
 
     /**
@@ -101,6 +103,22 @@ class DuplicateType extends AbstractType
             'empty_data' => $inscriptionManagementDefaultChoice,
             'required' => true,
         ));
+    }
+
+    /**
+     * @param FormEvent $event
+     */
+    public function preSubmit(FormEvent $event)
+    {
+        $form = $event->getForm();
+        $formData = $event->getData();
+        $targetSession = $formData['targetSession'];
+
+        if ($targetSession) {
+            $form->remove('name');
+            $form->remove('dateBegin');
+            $form->remove('dateEnd');
+        }
     }
 
     /**
