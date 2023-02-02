@@ -27,12 +27,11 @@ class DuplicateType extends AbstractType
         /** @var AbstractSession $session */
         $session = isset($options['data']) ? $options['data'] : null;
         $originOfDuplication = $options['origin_of_duplication'];
-        $inscriptionManagementDefaultChoice = $options['origin_of_duplication'];
+        $inscriptionManagementDefaultChoice = $options['inscription_management_default_choice'];
         $hasInscriptions = count($session->getInscriptions()) > 0 ? true : false;
 
+        // When we come from the list of inscriptions
         if ($originOfDuplication == 'listOfInscriptions') {
-            $inscriptionManagementDefaultChoice = 'copy';
-
             $builder->add('targetSession', EntityType::class, array(
                 'label' => 'Choisissez la session cible',
                 'class' => AbstractSession::class,
@@ -52,6 +51,7 @@ class DuplicateType extends AbstractType
             ));
         }
 
+        // When we come from a session
         if ($originOfDuplication == 'session') {
             $this->addNameAndDatesFields($builder);
         }
@@ -60,7 +60,7 @@ class DuplicateType extends AbstractType
             $this->addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice);
         }
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, array($this, 'preSubmit'));
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, array($this, 'preSubmit'), $hasInscriptions);
     }
 
     /**
@@ -107,8 +107,9 @@ class DuplicateType extends AbstractType
 
     /**
      * @param FormEvent $event
+     * @param bool      $hasInscriptions
      */
-    public function preSubmit(FormEvent $event)
+    public function preSubmit(FormEvent $event, $hasInscriptions)
     {
         $form = $event->getForm();
         $formData = $event->getData();
@@ -118,6 +119,11 @@ class DuplicateType extends AbstractType
             $form->remove('name');
             $form->remove('dateBegin');
             $form->remove('dateEnd');
+
+            if ($hasInscriptions) {
+                $inscriptionManagementDefaultChoice = 'copy';
+                $this->addInscriptionManagementChoices($form, $inscriptionManagementDefaultChoice);
+            }
         }
     }
 
