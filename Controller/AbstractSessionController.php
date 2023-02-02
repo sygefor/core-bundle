@@ -207,9 +207,14 @@ abstract class AbstractSessionController extends Controller
 
         // retrieve inscriptions and session
         if ($inscriptionIds) {
-            $inscriptions = $this->getDoctrine()->getManager()
-                ->getRepository(AbstractInscription::class)
-                ->findById($inscriptionIds);
+            /** @var EntityManager $em */
+            $em = $this->getDoctrine()->getManager();
+
+            /** @var EntityRepository $inscriptionsRepo */
+            $inscriptionsRepo = $em->getRepository(AbstractInscription::class);
+
+            /** @var AbstractInscription $inscriptions */
+            $inscriptions = $inscriptionsRepo->findById($inscriptionIds);
 
             if (empty($inscriptions)) {
                 throw new MissingOptionsException('You have to pass a session id or an inscription array of ids');
@@ -239,6 +244,7 @@ abstract class AbstractSessionController extends Controller
      */
     protected function cloneSessionArrayCollections($session, $cloned, $inscriptions, $inscriptionManagement, $oldSession)
     {
+        /** @var EntityManager $em */
         $em = $this->getDoctrine()->getManager();
 
         if (!$oldSession) {
@@ -264,24 +270,38 @@ abstract class AbstractSessionController extends Controller
             }
         }
 
-        // clone inscriptions
+        // clone inscriptions if not already present in the target session
         switch ($inscriptionManagement) {
             case 'copy':
                 /** @var AbstractInscription $inscription */
                 foreach ($inscriptions as $inscription) {
-                    $newInscription = clone $inscription;
-                    $newInscription->setSession($cloned);
-                    $newInscription->setPresenceStatus(null);
-                    $cloned->addInscription($newInscription);
-                    $em->persist($newInscription);
+                    // search for the trainee of the inscription in the list of trainees registered for the target session
+                    $registeredId = $inscription->getTrainee()->getId();
+                    $newRegistered = $em->getRepository(AbstractInscription::class)
+                                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
+
+                    if (!$oldSession || !$newRegistered) {
+                        $newInscription = clone $inscription;
+                        $newInscription->setSession($cloned);
+                        $newInscription->setPresenceStatus(null);
+                        $cloned->addInscription($newInscription);
+                        $em->persist($newInscription);
+                    }
                 }
                 break;
             case 'move':
                 /** @var AbstractInscription $inscription */
                 foreach ($inscriptions as $inscription) {
-                    $session->removeInscription($inscription);
-                    $inscription->setSession($cloned);
-                    $cloned->addInscription($inscription);
+                    // search for the trainee of the inscription in the list of trainees registered for the target session
+                    $registeredId = $inscription->getTrainee()->getId();
+                    $newRegistered = $em->getRepository(AbstractInscription::class)
+                                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
+
+                    if (!$oldSession || !$newRegistered) {
+                        $session->removeInscription($inscription);
+                        $inscription->setSession($cloned);
+                        $cloned->addInscription($inscription);
+                    }
                 }
                 break;
             default:
