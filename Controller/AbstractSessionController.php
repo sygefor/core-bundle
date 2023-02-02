@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
+use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\SecurityExtraBundle\Annotation\SecureParam;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -11,11 +12,10 @@ use Sygefor\Bundle\CoreBundle\Entity\AbstractInscription;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractParticipation;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractSession;
 use Sygefor\Bundle\CoreBundle\Entity\AbstractTraining;
+use Sygefor\Bundle\CoreBundle\Form\Type\DuplicateType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 
@@ -124,9 +124,14 @@ abstract class AbstractSessionController extends Controller
         // get inscriptions and session
         $inscriptions = array();
         $this->retrieveInscriptions($inscriptionIds, $inscriptions);
+
+        $options = [];
         if (!$session) {
             // get session
             $session = $inscriptions[0]->getSession();
+            $options['origin_of_duplication'] = 'listOfInscriptions';
+        } else {
+            $inscriptions = $session->getInscriptions();
         }
 
         // new session can't be created if user has no rights for it
@@ -135,49 +140,34 @@ abstract class AbstractSessionController extends Controller
         }
 
         $cloned = clone $session;
-        $form = $this->createFormBuilder($cloned)
-            ->add('name', null, array(
-                'required' => true,
-                'label' => 'Intitulé de la session',
-            ))
-            ->add('dateBegin', DateType::class, array(
-                'required' => true,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'label' => 'Date de début',
-            ))
-            ->add('dateEnd', DateType::class, array(
-                'required' => false,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'label' => 'Date de fin',
-            ));
+        $cloned->setInscriptions($inscriptions);
+        $form = $this->createForm(DuplicateType::class, $cloned, $options);
 
-        if (!empty($inscriptions)) {
-            $form
-                ->add('inscriptionManagement', ChoiceType::class, array(
-                    'label' => 'Choisir la méthode d\'importation des inscriptions',
-                    'mapped' => false,
-                    'choices' => array(
-                        'none' => 'Ne pas importer les inscriptions',
-                        'copy' => 'Copier les inscriptions',
-                        'move' => 'Déplacer les inscriptions',
-                    ),
-                    'empty_data' => 'none',
-                    'required' => true,
-                ));
-        }
-
-        $form = $form->getForm();
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
+                /** @var EntityManager $em */
                 $em = $this->getDoctrine()->getManager();
-                $this->cloneSessionArrayCollections($session, $cloned, $inscriptions, $form->has('inscriptionManagement') ? $form->get('inscriptionManagement')->getData() : null);
-                $em->persist($cloned);
-                $em->flush();
+                $targetSessionId = $request->request->get('duplicate')['targetSession'];
+                $inscriptionManagement = $form->has('inscriptionManagement') ? $form->get('inscriptionManagement')->getData() : null;
 
-                return array('session' => $cloned);
+                $oldSession = false;
+                if ($targetSessionId) {
+                    /** @var AbstractSession $targetSession */
+                    $targetSession = $em->getRepository(AbstractSession::class)->findOneById($targetSessionId);
+                    $oldSession = true;
+
+                    $this->cloneSessionArrayCollections($session, $targetSession, $inscriptions, $inscriptionManagement, $oldSession);
+                    $em->persist($targetSession);
+                    $em->flush();
+                    return array('session' => $targetSession);
+
+                } else {
+                    $this->cloneSessionArrayCollections($session, $cloned, $inscriptions, $inscriptionManagement, $oldSession);
+                    $em->persist($cloned);
+                    $em->flush();
+                    return array('session' => $cloned);
+                }
             }
         }
 
@@ -217,9 +207,14 @@ abstract class AbstractSessionController extends Controller
 
         // retrieve inscriptions and session
         if ($inscriptionIds) {
-            $inscriptions = $this->getDoctrine()->getManager()
-                ->getRepository(AbstractInscription::class)
-                ->findById($inscriptionIds);
+            /** @var EntityManager $em */
+            $em = $this->getDoctrine()->getManager();
+
+            /** @var EntityRepository $inscriptionsRepo */
+            $inscriptionsRepo = $em->getRepository(AbstractInscription::class);
+
+            /** @var AbstractInscription $inscriptions */
+            $inscriptions = $inscriptionsRepo->findById($inscriptionIds);
 
             if (empty($inscriptions)) {
                 throw new MissingOptionsException('You have to pass a session id or an inscription array of ids');
@@ -245,54 +240,72 @@ abstract class AbstractSessionController extends Controller
      * @param AbstractSession $cloned
      * @param $inscriptions
      * @param mixed $inscriptionManagement
+     * @param bool $oldSession
      */
-    protected function cloneSessionArrayCollections($session, $cloned, $inscriptions, $inscriptionManagement)
+    protected function cloneSessionArrayCollections($session, $cloned, $inscriptions, $inscriptionManagement, $oldSession)
     {
+        /** @var EntityManager $em */
         $em = $this->getDoctrine()->getManager();
 
-        // clone participations
-        /** @var AbstractParticipation $participation */
-        foreach ($session->getParticipations() as $participation) {
-            /** @var AbstractParticipation $newParticipation */
-            $newParticipation = new $this->participationClass();
-            $newParticipation->setSession($cloned);
-            $newParticipation->setTrainer($participation->getTrainer());
-            $cloned->addParticipation($newParticipation);
-            $em->persist($newParticipation);
+        if (!$oldSession) {
+            // clone participations
+            /** @var AbstractParticipation $participation */
+            foreach ($session->getParticipations() as $participation) {
+                /** @var AbstractParticipation $newParticipation */
+                $newParticipation = new $this->participationClass();
+                $newParticipation->setSession($cloned);
+                $newParticipation->setTrainer($participation->getTrainer());
+                $cloned->addParticipation($newParticipation);
+                $em->persist($newParticipation);
+            }
+
+            // clone duplicate materials
+            $tmpMaterials = $session->getMaterials();
+            if (!empty($tmpMaterials)) {
+                foreach ($tmpMaterials as $material) {
+                    $newMat = clone $material;
+                    $newMat->setSession($cloned);
+                    $cloned->addMaterial($newMat);
+                }
+            }
         }
 
-        // clone inscriptions
+        // clone inscriptions if not already present in the target session
         switch ($inscriptionManagement) {
             case 'copy':
                 /** @var AbstractInscription $inscription */
                 foreach ($inscriptions as $inscription) {
-                    $newInscription = clone $inscription;
-                    $newInscription->setSession($cloned);
-                    $newInscription->setPresenceStatus(null);
-                    $cloned->addInscription($newInscription);
-                    $em->persist($newInscription);
+                    // search for the trainee of the inscription in the list of trainees registered for the target session
+                    $registeredId = $inscription->getTrainee()->getId();
+                    $newRegistered = $em->getRepository(AbstractInscription::class)
+                                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
+
+                    if (!$oldSession || !$newRegistered) {
+                        $newInscription = clone $inscription;
+                        $newInscription->setSession($cloned);
+                        $newInscription->setPresenceStatus(null);
+                        $cloned->addInscription($newInscription);
+                        $em->persist($newInscription);
+                    }
                 }
                 break;
             case 'move':
                 /** @var AbstractInscription $inscription */
                 foreach ($inscriptions as $inscription) {
-                    $session->removeInscription($inscription);
-                    $inscription->setSession($cloned);
-                    $cloned->addInscription($inscription);
+                    // search for the trainee of the inscription in the list of trainees registered for the target session
+                    $registeredId = $inscription->getTrainee()->getId();
+                    $newRegistered = $em->getRepository(AbstractInscription::class)
+                                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
+
+                    if (!$oldSession || !$newRegistered) {
+                        $session->removeInscription($inscription);
+                        $inscription->setSession($cloned);
+                        $cloned->addInscription($inscription);
+                    }
                 }
                 break;
             default:
                 break;
-        }
-
-        // clone duplicate materials
-        $tmpMaterials = $session->getMaterials();
-        if (!empty($tmpMaterials)) {
-            foreach ($tmpMaterials as $material) {
-                $newMat = clone $material;
-                $newMat->setSession($cloned);
-                $cloned->addMaterial($newMat);
-            }
         }
     }
 }

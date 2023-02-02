@@ -139,6 +139,13 @@ abstract class AbstractSession implements SerializedAccessRights
     protected $allPublicMaterials;
 
     /**
+     * Used for session cloned form only.
+     *
+     * @var Session
+     */
+    protected $targetSession;
+
+    /**
      * @var ArrayCollection
      * @Serializer\Groups({"api.attendance"})
      */
@@ -557,7 +564,7 @@ abstract class AbstractSession implements SerializedAccessRights
             return 0;
         }
 
-        return $this->inscriptions->count();
+        return count($this->inscriptions);
     }
 
     /**
@@ -653,6 +660,22 @@ abstract class AbstractSession implements SerializedAccessRights
         }
 
         return $trainingPrivateMaterials;
+    }
+
+    /**
+     * @return Session
+     */
+    public function getTargetSession()
+    {
+        return $this->targetSession;
+    }
+
+    /**
+     * @param Session $targetSession
+     */
+    public function setTargetSession($targetSession)
+    {
+        $this->targetSession = $targetSession;
     }
 
     public function __toString()

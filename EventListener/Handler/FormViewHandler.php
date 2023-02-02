@@ -54,6 +54,7 @@ class FormViewHandler implements SubscribingHandlerInterface
             'required' => $variables['required'],
             'attr' => $variables['attr'],
             'valid' => $variables['valid'],
+            'placeholder' => $variables['placeholder']
         );
 
         foreach (array('multiple', 'expanded', 'checked', 'allow_add', 'allow_delete') as $optional) {

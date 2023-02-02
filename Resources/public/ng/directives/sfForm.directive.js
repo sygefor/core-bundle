@@ -128,8 +128,14 @@ sygeforApp.directive('sfFormWidget', ['$compile', function($compile) {
                     tpl = widgets[elt.type];
                 }
 
-                if (type === "choice" && elt.multiple === true) {
-                    tpl = tpl.replace('></select>', 'multiple="multiple"></select>');
+                if (type === "choice") {
+                    if (elt.multiple === true) {
+                        tpl = tpl.replace('></select>', 'multiple="multiple"></select>');
+                    }
+
+                    if (elt.placeholder) {
+                        tpl = tpl.replace('></select>', '><option value="">' + elt.placeholder + '</option></select>');
+                    }
                 }
 
                 if (type === "number") {
@@ -158,6 +164,9 @@ sygeforApp.directive('sfFormWidget', ['$compile', function($compile) {
                         elem.attr(name, elt.attr[name]);
                     }
                 }
+
+                // empty_value
+                elem.attr('empty_value', '{{ element.empty_value }}');
 
                 // get the attrs from the markup to add it to the new element
                 for (attr in attrs.$attr) {
