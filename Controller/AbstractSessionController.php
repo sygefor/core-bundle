@@ -278,7 +278,7 @@ abstract class AbstractSessionController extends Controller
                     $newRegistered = $em->getRepository(AbstractInscription::class)
                                         ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
 
-                    if (!$oldSession || !$newRegistered) {
+                    if (!$newRegistered) {
                         $newInscription = clone $inscription;
                         $newInscription->setSession($cloned);
                         $newInscription->setPresenceStatus(null);
@@ -295,7 +295,7 @@ abstract class AbstractSessionController extends Controller
                     $newRegistered = $em->getRepository(AbstractInscription::class)
                                         ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
 
-                    if (!$oldSession || !$newRegistered) {
+                    if (!$newRegistered) {
                         $session->removeInscription($inscription);
                         $inscription->setSession($cloned);
                         $cloned->addInscription($inscription);
