@@ -65,6 +65,7 @@ class CSVBatchOperation extends AbstractBatchOperation
      */
     public function execute(array $idList = array(), array $options = array())
     {
+        ini_set('memory_limit', '256MB');
         $entities = $this->getObjectList($idList);
 
         // accessor
