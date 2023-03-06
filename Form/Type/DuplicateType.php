@@ -37,7 +37,7 @@ class DuplicateType extends AbstractType
                 'class' => AbstractSession::class,
                 'placeholder' => 'Créer une nouvelle session',
                 'choice_label' => function (AbstractSession $session) {
-                    return 'Session du '.$session->getDateBegin()->format("Y-m-d");
+                    return 'Session du '.$session->getDateBegin()->format("d-m-Y");
                 },
                 'choice_value' => 'id',
                 'query_builder' => function (EntityRepository $er) use ($session) {
