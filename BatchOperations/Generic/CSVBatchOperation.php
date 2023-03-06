@@ -65,6 +65,9 @@ class CSVBatchOperation extends AbstractBatchOperation
      */
     public function execute(array $idList = array(), array $options = array())
     {
+        // temporarily increase memory_limit to be able to generate longer csv files
+        ini_set('memory_limit', '256M');
+
         $entities = $this->getObjectList($idList);
 
         // accessor
