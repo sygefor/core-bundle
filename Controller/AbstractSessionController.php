@@ -2,6 +2,7 @@
 
 namespace Sygefor\Bundle\CoreBundle\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\SecurityExtraBundle\Annotation\SecureParam;
@@ -138,7 +139,7 @@ abstract class AbstractSessionController extends Controller
         }
 
         $cloned = clone $session;
-        $cloned->setInscriptions($inscriptions);
+        $cloned->setInscriptions(new ArrayCollection($inscriptions));
         $form = $this->createForm(DuplicateType::class, $cloned, $options);
 
         if ($request->getMethod() === 'POST') {

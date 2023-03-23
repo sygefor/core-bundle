@@ -306,8 +306,8 @@ abstract class AbstractSession implements SerializedAccessRights
      */
     public function addInscription($inscription)
     {
-        if (!in_array($inscription, $this->inscriptions)) {
-            array_push($this->inscriptions, $inscription);
+        if (!$this->inscriptions->contains($inscription)) {
+            $this->inscriptions->add($inscription);
 
             return true;
         }
