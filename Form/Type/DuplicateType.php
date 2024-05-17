@@ -20,7 +20,7 @@ class DuplicateType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array                $options
+     * @param array $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -37,15 +37,14 @@ class DuplicateType extends AbstractType
                 'class' => AbstractSession::class,
                 'placeholder' => 'Créer une nouvelle session',
                 'choice_label' => function (AbstractSession $session) {
-                    return 'Session du '.$session->getDateBegin()->format("d-m-Y");
+                    return 'Session du ' . $session->getDateBegin()->format("d-m-Y");
                 },
                 'choice_value' => 'id',
                 'query_builder' => function (EntityRepository $er) use ($session) {
-                    $qb = $er->createQueryBuilder('s')
+                    return $er->createQueryBuilder('s')
                         ->where('s.training = :trainingId')
                         ->orderBy('s.dateBegin', 'DESC')
                         ->setParameter('trainingId', $session->getTraining());
-                    return $qb;
                 },
                 'required' => false
             ));
@@ -67,28 +66,28 @@ class DuplicateType extends AbstractType
      * @param FormBuilderInterface $builder
      */
     protected function addNameAndDatesFields($builder)
-    {		    
-		$builder->add('name', null, array(
+    {
+        $builder->add('name', null, array(
             'label' => 'Intitulé de la session',
             'required' => true
         ))
-        ->add('dateBegin', DateType::class, array(
-            'label' => 'Date de début',
-            'widget' => 'single_text',
-            'format' => 'dd/MM/yyyy',
-            'required' => true
-        ))
-        ->add('dateEnd', DateType::class, array(
-            'label' => 'Date de fin',
-            'widget' => 'single_text',
-            'format' => 'dd/MM/yyyy',
-            'required' => false
-        ));
-	}
+            ->add('dateBegin', DateType::class, array(
+                'label' => 'Date de début',
+                'widget' => 'single_text',
+                'format' => 'dd/MM/yyyy',
+                'required' => true
+            ))
+            ->add('dateEnd', DateType::class, array(
+                'label' => 'Date de fin',
+                'widget' => 'single_text',
+                'format' => 'dd/MM/yyyy',
+                'required' => false
+            ));
+    }
 
     /**
      * @param FormBuilderInterface $builder
-     * @param string               $inscriptionManagementDefaultChoice
+     * @param string $inscriptionManagementDefaultChoice
      */
     protected function addInscriptionManagementChoices($builder, $inscriptionManagementDefaultChoice)
     {
@@ -107,15 +106,14 @@ class DuplicateType extends AbstractType
 
     /**
      * @param FormEvent $event
-     * @param bool      $hasInscriptions
+     * @param bool $hasInscriptions
      */
     public function preSubmit(FormEvent $event, $hasInscriptions)
     {
         $form = $event->getForm();
         $formData = $event->getData();
-        $targetSession = $formData['targetSession'];
 
-        if ($targetSession) {
+        if (isset($formData['targetSession'])) {
             $form->remove('name');
             $form->remove('dateBegin');
             $form->remove('dateEnd');
