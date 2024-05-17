@@ -105,9 +105,9 @@ abstract class AbstractSessionController extends Controller
     }
 
     /**
-     * @param Request              $request
+     * @param Request $request
      * @param AbstractSession|null $session
-     * @param mixed                $inscriptionIds
+     * @param mixed $inscriptionIds
      *
      * @Route("/duplicate/{id}/{inscriptionIds}", requirements={"id" = "\d+"}, name="session.duplicate", options={"expose"=true}, defaults={"_format" = "json"})
      * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", isOptional="true")
@@ -147,7 +147,7 @@ abstract class AbstractSessionController extends Controller
             if ($form->isValid()) {
                 /** @var EntityManager $em */
                 $em = $this->getDoctrine()->getManager();
-                $targetSessionId = $request->request->get('duplicate')['targetSession'];
+                $targetSessionId = isset($request->request->get('duplicate')['targetSession']) ? $request->request->get('duplicate')['targetSession'] : null;
                 $inscriptionManagement = $form->has('inscriptionManagement') ? $form->get('inscriptionManagement')->getData() : null;
 
                 $oldSession = false;
@@ -171,25 +171,6 @@ abstract class AbstractSessionController extends Controller
         }
 
         return array('form' => $form->createView(), 'session' => $session, 'inscriptions' => $inscriptionIds);
-    }
-
-    /**
-     * @Route("/{id}/remove", requirements={"id" = "\d+"}, name="session.remove", options={"expose"=true}, defaults={"_format" = "json"})
-     * @Method("POST")
-     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", options={"id" = "id"})
-     * @SecureParam(name="session", permissions="DELETE")
-     * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
-     */
-    public function removeAction(AbstractSession $session)
-    {
-        $training = $session->getTraining();
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($session);
-        $training->updateTimestamps();
-        $em->flush();
-        $this->get('fos_elastica.index')->refresh();
-
-        return $this->redirect($this->generateUrl('training.view', array('id' => $training->getId())));
     }
 
     /**
@@ -277,7 +258,7 @@ abstract class AbstractSessionController extends Controller
                     // search for the trainee of the inscription in the list of trainees registered for the target session
                     $registeredId = $inscription->getTrainee()->getId();
                     $newRegistered = $em->getRepository(AbstractInscription::class)
-                                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
+                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
 
                     if (!$newRegistered) {
                         $newInscription = clone $inscription;
@@ -294,7 +275,7 @@ abstract class AbstractSessionController extends Controller
                     // search for the trainee of the inscription in the list of trainees registered for the target session
                     $registeredId = $inscription->getTrainee()->getId();
                     $newRegistered = $em->getRepository(AbstractInscription::class)
-                                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
+                        ->findOneBy(['trainee' => $registeredId, 'session' => $cloned->getId()]);
 
                     if (!$newRegistered) {
                         $session->removeInscription($inscription);
@@ -306,5 +287,24 @@ abstract class AbstractSessionController extends Controller
             default:
                 break;
         }
+    }
+
+    /**
+     * @Route("/{id}/remove", requirements={"id" = "\d+"}, name="session.remove", options={"expose"=true}, defaults={"_format" = "json"})
+     * @Method("POST")
+     * @ParamConverter("session", class="SygeforCoreBundle:AbstractSession", options={"id" = "id"})
+     * @SecureParam(name="session", permissions="DELETE")
+     * @Rest\View(serializerGroups={"Default", "session"}, serializerEnableMaxDepthChecks=true)
+     */
+    public function removeAction(AbstractSession $session)
+    {
+        $training = $session->getTraining();
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($session);
+        $training->updateTimestamps();
+        $em->flush();
+        $this->get('fos_elastica.index')->refresh();
+
+        return $this->redirect($this->generateUrl('training.view', array('id' => $training->getId())));
     }
 }
