@@ -10,6 +10,7 @@
 namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
 use Doctrine\ORM\EntityManager;
+use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Process\Process;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\File;
@@ -105,37 +106,43 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         $this->setOptions($options);
         $deleteTemplate = false;
 
-        //---setting choosed template file
-        // 1/ File was provided by user
-        if (isset($this->options['attachment']) && !empty($this->options['attachment'])) {
-            $attachment = $this->options['attachment'][0];
-            $attachment->move($this->options['tempDir'], $attachment->getClientOriginalName());
-            $this->currentTemplate = $this->options['tempDir'].$attachment->getClientOriginalName();
-            $this->currentTemplateFileName = $attachment->getClientOriginalName();
-            $deleteTemplate = true;
-        } elseif (isset($this->options['template']) && (is_integer($this->options['template']))) {
-            //file was choosed in template list
-            $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_publipost_template');
-            /** @var EntityManager $em */
-            $em = $this->em;
-            $repo = $em->getRepository(get_class($templateTerm));
-            /** @var PublipostTemplate[] $templates */
-            $template = $repo->find($this->options['template']);
+        if (count($entities)) {
+            //---setting choosed template file
+            // 1/ File was provided by user
+            if (isset($this->options['attachment']) && !empty($this->options['attachment'])) {
+                $attachment = $this->options['attachment'][0];
+                $attachment->move($this->options['tempDir'], $attachment->getClientOriginalName());
+                $this->currentTemplate = $this->options['tempDir'].$attachment->getClientOriginalName();
+                $this->currentTemplateFileName = $attachment->getClientOriginalName();
+                $deleteTemplate = true;
+            } elseif (isset($this->options['template']) && (is_integer($this->options['template']))) {
+                //file was choosed in template list
+                $templateTerm = $this->container->get('sygefor_core.vocabulary_registry')->getVocabularyById('sygefor_core.vocabulary_publipost_template');
+                /** @var EntityManager $em */
+                $em = $this->em;
+                $repo = $em->getRepository(get_class($templateTerm));
+                /** @var PublipostTemplate[] $templates */
+                $template = $repo->find($this->options['template']);
 
-            $this->currentTemplate = $template->getAbsolutePath();
-            $this->currentTemplateFileName = $template->getFileName();
-        } else {
-            // 3/ Error...
-            return '';
+                $this->currentTemplate = $template->getAbsolutePath();
+                $this->currentTemplateFileName = $template->getFileName();
+            } else {
+                // 3/ Error...
+                return '';
+            }
+
+            $parseInfos = $this->parseFile($this->currentTemplate, $entities);
+
+            if ($deleteTemplate) {
+                unlink($this->currentTemplate);
+            }
+
+            return $parseInfos;
         }
+        $logger = new Logger('batch_operation');
+        $logger->error("MailingBatchOperation[execute] - A user attempted to download the program for a session that no longer exists with idList " . json_encode($idList));
 
-        $parseInfos = $this->parseFile($this->currentTemplate, $entities);
-
-        if ($deleteTemplate) {
-            unlink($this->currentTemplate);
-        }
-
-        return $parseInfos;
+        return '';
     }
 
     /**

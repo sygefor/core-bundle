@@ -122,10 +122,12 @@ abstract class AbstractBatchOperation implements BatchOperationInterface
         
         // then we order the result so it follows the idList order given
         $orderedEntities = [];
-        foreach ($idList as $crtOrderedId) {
-            $crtEnt = $entities[$crtOrderedId];
-            if ($crtEnt) {
-                $orderedEntities[] = $crtEnt;
+        if (count($entities)) {
+            foreach ($idList as $crtOrderedId) {
+                $crtEnt = $entities[$crtOrderedId];
+                if ($crtEnt) {
+                    $orderedEntities[] = $crtEnt;
+                }
             }
         }
 
