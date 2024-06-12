@@ -140,7 +140,7 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
             return $parseInfos;
         }
         
-        $this->container->get('monolog.logger.batch_operation')->error("MailingBatchOperation[execute] - The idList parameter is an empty array but it shouldn't be.");
+        $this->container->get('monolog.logger.batch_operation')->error("MailingBatchOperation[execute] - A user attempted to download the program for a session that no longer exists with idList " . json_encode($idList));
         return '';
     }
 
