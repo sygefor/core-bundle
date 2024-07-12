@@ -10,7 +10,6 @@
 namespace Sygefor\Bundle\CoreBundle\BatchOperations\Generic;
 
 use Doctrine\ORM\EntityManager;
-use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Process\Process;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\File;
@@ -141,7 +140,6 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
         }
 
         $this->container->get('monolog.logger.batch_operation')->error("MailingBatchOperation[execute] - A user attempted to download the program for a session that no longer exists with idList " . json_encode($idList));
-        
         return '';
     }
 
