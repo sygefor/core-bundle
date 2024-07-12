@@ -139,9 +139,9 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
 
             return $parseInfos;
         }
-        $logger = new Logger('batch_operation');
-        $logger->error("MailingBatchOperation[execute] - A user attempted to download the program for a session that no longer exists with idList " . json_encode($idList));
 
+        $this->container->get('monolog.logger.batch_operation')->error("MailingBatchOperation[execute] - A user attempted to download the program for a session that no longer exists with idList " . json_encode($idList));
+        
         return '';
     }
 
