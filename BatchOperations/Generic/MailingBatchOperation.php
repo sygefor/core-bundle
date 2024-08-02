@@ -293,8 +293,8 @@ class MailingBatchOperation extends AbstractBatchOperation implements BatchOpera
 //            }
         }
 
-        if (!empty($process->getErrorOutput())) {
-            throw new RuntimeException('The PDF file has not been generated : '.$process->getErrorOutput());
+        if (!empty($process->getErrorOutput()) && !strpos($process->getErrorOutput(), 'DeprecationWarning')) {
+            $this->container->get('monolog.logger.batch_operation')->error("MailingBatchOperation[toPdf] - The PDF file has not been generated : " . $process->getErrorOutput());
         }
 
         return $outputFileName;
