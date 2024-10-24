@@ -63,11 +63,11 @@ class InscriptionStatusChangeBatchOperation extends AbstractBatchOperation imple
         /** @var AbstractInscription $inscription */
         foreach ($inscriptions as $inscription) {
             if ($this->container->get('security.context')->isGranted('EDIT', $inscription)) {
-                //setting new inscription status
-                if ($inscriptionStatus) {
-                    $inscription->setInscriptionStatus($inscriptionStatus);
-                } elseif ($presenceStatus) {
+                //setting new presence status
+                if ($presenceStatus) {
                     $inscription->setPresenceStatus($presenceStatus);
+                } elseif ($inscriptionStatus) {
+                    $inscription->setInscriptionStatus($inscriptionStatus);
                 }
                 $arrayInscriptionsGranted[] = $inscription;
             }
