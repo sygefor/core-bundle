@@ -223,7 +223,8 @@ class HumanReadablePropertyAccessor
         } elseif (is_bool($value)) {
             return $value ? 'oui' : 'non';
         } elseif (is_string($value) && $type === 'ckeditor') {
-            return Html2Text::convert($value);
+            // The "@" symbol prevents a warning from being generated.
+            return @Html2Text::convert($value);
         }
 
         return $value;
