@@ -44,6 +44,9 @@ class FormViewHandler implements SubscribingHandlerInterface
     public function serializeToJson(JsonSerializationVisitor $visitor, FormView $formView, array $type, SerializationContext $context)
     {
         $variables = $formView->vars;
+        if (!isset($variables['placeholder'])) {
+            $variables['placeholder'] = '';
+        }
         $element = array(
             'id' => $variables['id'],
             'name' => $variables['name'],
