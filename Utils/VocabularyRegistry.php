@@ -117,43 +117,66 @@ class VocabularyRegistry
             foreach ($mapps as $map) {
                 if ($vocClass === $map['targetEntity'] && ($map['isOwningSide'])) {
                     if ($map['type'] === ClassMetadataInfo::MANY_TO_MANY) {
-                        //getting all entities
-                        $qb1 = $em->createQueryBuilder();
-                        $qb2 = $em->createQueryBuilder();
-                        $qb1->select('f.id')
-                            ->from($m->getName(), 'f')
-                            ->leftJoin('f.'.$map['fieldName'], 'c')
-                            ->where($qb1->expr()->in('c', ':c'))
-                            ->setParameter('c', $vocTerm);
+                        if ($getCount) {
+                            // Count query for MANY_TO_MANY
+                            $qb1 = $em->createQueryBuilder();
+                            $qb1->select('COUNT(f.id)')
+                                ->from($m->getName(), 'f')
+                                ->leftJoin('f.'.$map['fieldName'], 'c')
+                                ->where($qb1->expr()->in('c', ':c'))
+                                ->setParameter('c', $vocTerm);
+                            $count = $qb1->getQuery()->getSingleScalarResult();
+                            $totalCount += $count;
+                        } else {
+                            // Fully query the entities for MANY_TO_MANY, we have to do it in two steps because of the pagination
+                            $qb1 = $em->createQueryBuilder();
+                            $qb2 = $em->createQueryBuilder();
+                            $qb1->select('f.id')
+                                ->from($m->getName(), 'f')
+                                ->leftJoin('f.'.$map['fieldName'], 'c')
+                                ->where($qb1->expr()->in('c', ':c'))
+                                ->setParameter('c', $vocTerm);
 
-                        $qb2->select('t')
-                            ->from($m->getName(), 't')
-                            ->where($qb1->expr()->in('t.id', ':ids'))->setParameter('ids', $qb1->getQuery()->getResult());
+                            $qb2->select('t')
+                                ->from($m->getName(), 't')
+                                ->where($qb1->expr()->in('t.id', ':ids'))->setParameter('ids', $qb1->getQuery()->getResult());
 
-                        if ($limit !== null) {
-                            $qb2->setFirstResult($offset)->setMaxResults($limit);
-                        }
+                            if ($limit !== null) {
+                                $qb2->setFirstResult($offset)->setMaxResults($limit);
+                            }
 
-                        $tmpArray = $qb2->getQuery()->getResult();
+                            $tmpArray = $qb2->getQuery()->getResult();
 
-                        if (count($tmpArray)) {
-                            $totalCount += count($tmpArray);
-                            $usages[$m->getName()] = array('multiple' => true, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
+                            if (count($tmpArray)) {
+                                $totalCount += count($tmpArray);
+                                $usages[$m->getName()] = array('multiple' => true, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
+                            }
                         }
                     } else {
-                        $qb = $em->createQueryBuilder()
-                            ->select('t')
-                            ->from($m->getName(), 't')
-                            ->where('t.'.$map['fieldName'].'= :id')->setParameter('id', $termId);
+                        if ($getCount) {
+                            // Count query for single associations
+                            $qb = $em->createQueryBuilder()
+                                ->select('COUNT(t)')
+                                ->from($m->getName(), 't')
+                                ->where('t.'.$map['fieldName'].'= :id')->setParameter('id', $termId);
+                            $count = $qb->getQuery()->getSingleScalarResult();
+                            $totalCount += $count;
+                        } else {
+                            // Fully query the entities for single associations
+                            $qb = $em->createQueryBuilder()
+                                ->select('t')
+                                ->from($m->getName(), 't')
+                                ->where('t.'.$map['fieldName'].'= :id')->setParameter('id', $termId);
 
-                        if ($limit !== null) {
-                            $qb->setFirstResult($offset)->setMaxResults($limit);
-                        }
+                            if ($limit !== null) {
+                                $qb->setFirstResult($offset)->setMaxResults($limit);
+                            }
 
-                        $tmpArray = $qb->getQuery()->getResult();
-                        if (count($tmpArray)) {
-                            $totalCount += count($tmpArray);
-                            $usages[$m->getName()] = array('multiple' => false, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
+                            $tmpArray = $qb->getQuery()->getResult();
+                            if (count($tmpArray)) {
+                                $totalCount += count($tmpArray);
+                                $usages[$m->getName()] = array('multiple' => false, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
+                            }
                         }
                     }
                 }

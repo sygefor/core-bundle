@@ -214,20 +214,8 @@ class TaxonomyController extends Controller
         }
 
         // get term usage
-        $count = 0;
-        $limit = 200;
-        $offset = 0;
         $registry = $this->get('sygefor_core.vocabulary_registry');
-        while (true) {
-            $usages = $registry->getTermUsages($em, $term, false, $limit, $offset);
-            $batchCount = 0;
-            foreach ($usages as $classUsage) {
-                $batchCount += count($classUsage['entities']);
-            }
-            if ($batchCount == 0) break;
-            $count += $batchCount;
-            $offset += $limit;
-        }
+        $count = $registry->getTermUsages($em, $term);
 
         $formB = $this->createFormBuilder(null, array('validation_groups' => array('taxonomy_term_remove')));
         $constraint = new NotBlank(array('message' => 'Vous devez sélectionner un terme de substitution'));
