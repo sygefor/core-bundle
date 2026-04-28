@@ -160,7 +160,7 @@ class VocabularyRegistry
     /**
      * Replaces the a term by another in all its usages.
      *
-     * @param ObjectRepository $em
+     * @param EntityManager $em
      * @param $vocTermFrom
      * @param $voctTermTo
      */
@@ -168,25 +168,31 @@ class VocabularyRegistry
     {
         $usages = $this->getTermUsages($em, $vocTermFrom, $count = false);
         $propAccessor = PropertyAccess::createPropertyAccessor();
+        $destinationVocabularyClass = get_class($vocTermTo);
+        $batchSize = 20;
+        $currentBatch = 0;
 
-        foreach ($usages as $class => $classUsage) {
-            foreach ($classUsage['entities'] as $entity) {
-                $ent = $em->getRepository($class)->findBy(array('id' => $entity->getId()));
-                $ent = $ent[0];
-                //echo $entity->getName()."->".$classUsage['fieldName'];
+        // TODO: we should flush by batch of 20 or so, and not do it at the end, to avoid memory issues when there are a lot of usages
+        foreach ($usages as $class => $classUsage) { // Loop on all classes using the term
+            foreach ($classUsage['entities'] as $entitySummary) { // Loop on all entities of the class using the term
+                $currentBatch += 1;
+                $doctrineEntity= $em->getRepository($class)->findBy(array('id' => $entitySummary->getId()));
+                $doctrineEntity= $doctrineEntity[0];
+                //echo $entitySummary->getName()."->".$classUsage['fieldName'];
 
+                // value will hold the value of the field using the term, it can be a single value or a collection
                 $value = null;
 
+                // why is that here when both cases use the same code?
                 if ($classUsage['multiple'] === true) {
-                    $value = $propAccessor->getValue($ent, $classUsage['fieldName']);
+                    $value = $propAccessor->getValue($doctrineEntity, $classUsage['fieldName']);
                 } else {
-                    $value = $propAccessor->getValue($ent, $classUsage['fieldName']);
+                    $value = $propAccessor->getValue($doctrineEntity, $classUsage['fieldName']);
                 }
 
-                $vocClass = get_class($vocTermTo);
-                if ($value instanceof $vocClass) {
-                    $propAccessor->setValue($entity, $classUsage['fieldName'], $vocTermTo);
-                } else {
+                if ($value instanceof $destinationVocabularyClass) { // single value field, easy substitution
+                    $propAccessor->setValue($entitySummary, $classUsage['fieldName'], $vocTermTo);
+                } else { // multiple value field, we have to check if the term is in the collection, and if yes, replace it by the new one
                     $termInCollection = $this->checkTermIsInCollection($vocTermTo, $value);
                     if (is_array($value)) {
                         for ($pos = 0; $pos < count($value); ++$pos) {
@@ -200,7 +206,7 @@ class VocabularyRegistry
                                 }
                             }
                         }
-                        $propAccessor->setValue($entity, $classUsage['fieldName'], $value);
+                        $propAccessor->setValue($entitySummary, $classUsage['fieldName'], $value);
                     } elseif ($value instanceof \Traversable) {
                         foreach ($value as $key => $val) {
                             if (method_exists($val, 'getId') && ($val->getId() === $vocTermFrom->getId())) {
@@ -212,12 +218,19 @@ class VocabularyRegistry
                                 }
                             }
                         }
-                        $propAccessor->setValue($entity, $classUsage['fieldName'], $value);
+                        $propAccessor->setValue($entitySummary, $classUsage['fieldName'], $value);
                     }
+                }
+
+                // flush if we've reached the batch size
+                if ($currentBatch >= $batchSize) {
+                    $em->flush();
+                    $currentBatch = 0;
                 }
             }
         }
 
+        // final flush for remaining entities
         $em->flush();
     }
 

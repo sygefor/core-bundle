@@ -259,9 +259,10 @@ class TaxonomyController extends Controller
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
-                if ($form->has('term')) {
+                if ($form->has('term')) { // if there are linked entities, we propose to replace the removed term by another one
                     $newTerm = $form->get('term')->getData();
                     if ($newTerm) {
+                        // actually calling the replace method
                         $this->get('sygefor_core.vocabulary_registry')->replaceTermInUsages(
                             $em,
                             $term,
