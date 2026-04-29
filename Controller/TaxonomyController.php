@@ -231,7 +231,7 @@ class TaxonomyController extends Controller
         if ($term->getOrganization()) { 
             // only use terms from the same organization or national ones
             $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                $queryBuilder->expr()->eq('t.organization', ':organization')->setParameter('organization', $term->getOrganization()),
+                $queryBuilder->expr()->eq('t.organization', $term->getOrganization()->getId()),
                 $queryBuilder->expr()->isNull('t.organization')
             ));
         }
