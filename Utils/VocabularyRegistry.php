@@ -2,8 +2,8 @@
 
 namespace Sygefor\Bundle\CoreBundle\Utils;
 
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -94,13 +94,60 @@ class VocabularyRegistry
      *
      * @param EntityManager $em
      * @param $vocTerm
-     * @param bool $getCount
+     *
+     * @return int
+     */
+    public function countTermUsages(EntityManager $em, $vocTerm)
+    {
+        /* @var ObjectRepository $repo */
+        $meta = $em->getMetadataFactory()->getAllMetadata();
+        $vocClass = get_class($vocTerm);
+        $termId = $vocTerm->getId();
+
+        $totalCount = 0;
+
+        /** @var ClassMetadata $m */
+        foreach ($meta as $m) {
+            $mapps = $m->getAssociationMappings();
+            foreach ($mapps as $map) {
+                if ($vocClass === $map['targetEntity'] && ($map['isOwningSide'])) {
+                    if ($map['type'] === ClassMetadataInfo::MANY_TO_MANY) {
+                        // Count query for MANY_TO_MANY
+                        $qb1 = $em->createQueryBuilder();
+                        $qb1->select('COUNT(f.id)')
+                            ->from($m->getName(), 'f')
+                            ->leftJoin('f.'.$map['fieldName'], 'c')
+                            ->where($qb1->expr()->in('c', ':c'))
+                            ->setParameter('c', $vocTerm);
+                        $count = $qb1->getQuery()->getSingleScalarResult();
+                        $totalCount += $count;
+                    } else {
+                        // Count query for single associations
+                        $qb = $em->createQueryBuilder()
+                            ->select('COUNT(t)')
+                            ->from($m->getName(), 't')
+                            ->where('t.'.$map['fieldName'].'= :id')->setParameter('id', $termId);
+                        $count = $qb->getQuery()->getSingleScalarResult();
+                        $totalCount += $count;
+                    }
+                }
+            }
+        }
+
+        return $totalCount;
+    }
+
+    /**
+     * Lists all entities using the specified term.
+     *
+     * @param EntityManager $em
+     * @param $vocTerm
      * @param int|null $limit
      * @param int $offset
      *
      * @return array|int
      */
-    public function getTermUsages(EntityManager $em, $vocTerm, $getCount = true, $limit = null, $offset = 0)
+    public function getTermUsages(EntityManager $em, $vocTerm, $limit = null, $offset = 0)
     {
         /* @var ObjectRepository $repo */
         $meta = $em->getMetadataFactory()->getAllMetadata();
@@ -117,74 +164,48 @@ class VocabularyRegistry
             foreach ($mapps as $map) {
                 if ($vocClass === $map['targetEntity'] && ($map['isOwningSide'])) {
                     if ($map['type'] === ClassMetadataInfo::MANY_TO_MANY) {
-                        if ($getCount) {
-                            // Count query for MANY_TO_MANY
-                            $qb1 = $em->createQueryBuilder();
-                            $qb1->select('COUNT(f.id)')
-                                ->from($m->getName(), 'f')
-                                ->leftJoin('f.'.$map['fieldName'], 'c')
-                                ->where($qb1->expr()->in('c', ':c'))
-                                ->setParameter('c', $vocTerm);
-                            $count = $qb1->getQuery()->getSingleScalarResult();
-                            $totalCount += $count;
-                        } else {
-                            // Fully query the entities for MANY_TO_MANY, we have to do it in two steps because of the pagination
-                            $qb1 = $em->createQueryBuilder();
-                            $qb2 = $em->createQueryBuilder();
-                            $qb1->select('f.id')
-                                ->from($m->getName(), 'f')
-                                ->leftJoin('f.'.$map['fieldName'], 'c')
-                                ->where($qb1->expr()->in('c', ':c'))
-                                ->setParameter('c', $vocTerm);
+                        // Fully query the entities for MANY_TO_MANY, we have to do it in two steps because of the pagination
+                        $qb1 = $em->createQueryBuilder();
+                        $qb2 = $em->createQueryBuilder();
+                        $qb1->select('f.id')
+                            ->from($m->getName(), 'f')
+                            ->leftJoin('f.'.$map['fieldName'], 'c')
+                            ->where($qb1->expr()->in('c', ':c'))
+                            ->setParameter('c', $vocTerm);
 
-                            $qb2->select('t')
-                                ->from($m->getName(), 't')
-                                ->where($qb1->expr()->in('t.id', ':ids'))->setParameter('ids', $qb1->getQuery()->getResult());
+                        $qb2->select('t')
+                            ->from($m->getName(), 't')
+                            ->where($qb1->expr()->in('t.id', ':ids'))->setParameter('ids', $qb1->getQuery()->getResult());
 
-                            if ($limit !== null) {
-                                $qb2->setFirstResult($offset)->setMaxResults($limit);
-                            }
+                        if ($limit !== null) {
+                            $qb2->setFirstResult($offset)->setMaxResults($limit);
+                        }
 
-                            $tmpArray = $qb2->getQuery()->getResult();
+                        $tmpArray = $qb2->getQuery()->getResult();
 
-                            if (count($tmpArray)) {
-                                $totalCount += count($tmpArray);
-                                $usages[$m->getName()] = array('multiple' => true, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
-                            }
+                        if (count($tmpArray)) {
+                            $totalCount += count($tmpArray);
+                            $usages[$m->getName()] = array('multiple' => true, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
                         }
                     } else {
-                        if ($getCount) {
-                            // Count query for single associations
-                            $qb = $em->createQueryBuilder()
-                                ->select('COUNT(t)')
-                                ->from($m->getName(), 't')
-                                ->where('t.'.$map['fieldName'].'= :id')->setParameter('id', $termId);
-                            $count = $qb->getQuery()->getSingleScalarResult();
-                            $totalCount += $count;
-                        } else {
-                            // Fully query the entities for single associations
-                            $qb = $em->createQueryBuilder()
-                                ->select('t')
-                                ->from($m->getName(), 't')
-                                ->where('t.'.$map['fieldName'].'= :id')->setParameter('id', $termId);
+                        // Fully query the entities for single associations
+                        $qb = $em->createQueryBuilder()
+                            ->select('t')
+                            ->from($m->getName(), 't')
+                            ->where('t.'.$map['fieldName'].'= :id')->setParameter('id', $termId);
 
-                            if ($limit !== null) {
-                                $qb->setFirstResult($offset)->setMaxResults($limit);
-                            }
+                        if ($limit !== null) {
+                            $qb->setFirstResult($offset)->setMaxResults($limit);
+                        }
 
-                            $tmpArray = $qb->getQuery()->getResult();
-                            if (count($tmpArray)) {
-                                $totalCount += count($tmpArray);
-                                $usages[$m->getName()] = array('multiple' => false, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
-                            }
+                        $tmpArray = $qb->getQuery()->getResult();
+                        if (count($tmpArray)) {
+                            $totalCount += count($tmpArray);
+                            $usages[$m->getName()] = array('multiple' => false, 'fieldName' => $map['fieldName'], 'entities' => $tmpArray);
                         }
                     }
                 }
             }
-        }
-
-        if ($getCount) {
-            return $totalCount;
         }
 
         return $usages;
@@ -207,7 +228,7 @@ class VocabularyRegistry
         $offset = 0;
 
         while (true) {
-            $usages = $this->getTermUsages($em, $vocTermFrom, false, $limit, $offset);
+            $usages = $this->getTermUsages($em, $vocTermFrom, $limit, $offset);
             $processed = 0;
 
             foreach ($usages as $class => $classUsage) { // Loop on all classes using the term

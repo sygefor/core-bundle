@@ -15,6 +15,7 @@ use Sygefor\Bundle\CoreBundle\Entity\Term\PublipostTemplate;
 use Sygefor\Bundle\CoreBundle\Entity\Term\TreeTrait;
 use Sygefor\Bundle\CoreBundle\Form\Type\VocabularyType;
 use Sygefor\Bundle\CoreBundle\Entity\Term\VocabularyInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -215,30 +216,32 @@ class TaxonomyController extends Controller
 
         // get term usage
         $registry = $this->get('sygefor_core.vocabulary_registry');
-        $count = $registry->getTermUsages($em, $term);
+        $count = $registry->countTermUsages($em, $term);
 
         $formB = $this->createFormBuilder(null, array('validation_groups' => array('taxonomy_term_remove')));
         $constraint = new NotBlank(array('message' => 'Vous devez sélectionner un terme de substitution'));
         $constraint->addImplicitGroupName('taxonomy_term_remove');
 
         // build query
-        $queryBuilder = $em->createQueryBuilder('s')
-            ->select('t')
+        $queryBuilder = $em->createQueryBuilder('s');
+        $queryBuilder->select('t')
             ->from($termClass, 't')
-            ->where('t.id != :id')->setParameter('id', $id)
+            ->where($queryBuilder->expr()->neq('t.id', $id)) // exclude current term
             ->orderBy('t.'.$abstractVocabulary::orderBy());
-        if ($term->getOrganization()) {
-            $queryBuilder
-                ->andWhere('t.organization = :organization')
-                ->setParameter('organization', $term->getOrganization());
+        if ($term->getOrganization()) { 
+            // only use terms from the same organization or national ones
+            $queryBuilder->andWhere($queryBuilder->expr()->orX(
+                $queryBuilder->expr()->eq('t.organization', ':organization')->setParameter('organization', $term->getOrganization()),
+                $queryBuilder->expr()->isNull('t.organization')
+            ));
         }
-        $queryBuilder->orWhere('t.organization is null');
 
         //if entities are linked to current
         if ($count > 0) {
             $required = !empty($abstractVocabulary::$replacementRequired);
             $formB
-                ->add('term', 'entity',
+                ->add('term', 
+                    EntityType::class,
                     array(
                         'class' => $termClass,
                         'expanded' => true,
