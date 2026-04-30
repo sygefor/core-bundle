@@ -220,6 +220,8 @@ class VocabularyRegistry
      */
     public function replaceTermInUsages(EntityManager $em, $vocTermFrom, $vocTermTo)
     {
+        set_time_limit(0); // We can have a lot of entities to process, so we need to avoid timeouts
+
         $propAccessor = PropertyAccess::createPropertyAccessor();
         $destinationVocabularyClass = get_class($vocTermTo);
         $batchSize = 20;
