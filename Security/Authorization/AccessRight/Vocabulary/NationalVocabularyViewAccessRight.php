@@ -43,13 +43,16 @@ class NationalVocabularyViewAccessRight extends AbstractAccessRight
      */
     public function isGranted(TokenInterface $token, $object = null, $attribute)
     {
+        // shouldn't it be just a check on the attribute ? if the user has the right to view national vocabularies, then he should be able to see all vocabularies, including local ones without organization
+        // return $attribute === 'VIEW'; // seems a lot simpler
+
         if (is_string($token)) {
             return $attribute === 'VIEW';
-        } elseif ($object) {
-            return $attribute === 'VIEW' && (
-                $object->getVocabularyStatus() === VocabularyInterface::VOCABULARY_NATIONAL ||
-                ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !$object->getOrganization()));
-        } else {
+        } elseif ($object
+            && ($object->getVocabularyStatus() === VocabularyInterface::VOCABULARY_NATIONAL // vocabulary is either national
+                || ($object->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !$object->getOrganization()))) { // or is local without organization
+            return $attribute === 'VIEW';
+        } else { // or anything else...
             return $attribute === 'VIEW';
         }
     }

@@ -376,10 +376,12 @@ class TaxonomyController extends Controller
         $vocNames = array();
         foreach ($vocsGroups as $group => $vocs) {
             foreach ($vocs as $vid => $voc) {
+                // override vocabulary organization when vocabulary is not national by giving them the current user organization
                 if ($voc->getVocabularyStatus() !== VocabularyInterface::VOCABULARY_NATIONAL && !empty($userOrg)) {
                     $voc->setOrganization($userOrg);
                 }
                 if ($this->get('security.context')->isGranted('VIEW', $voc)) {
+                // if (true) {
                     $label = $vocRegistry->getVocabularyLabel($vid);
                     $voc->setVocabularyLabel($label);
                     $vocNames[] = array(
